@@ -18,7 +18,6 @@ class Api::V1::UsersController < ApplicationController
 
   def destroy
     user&.destroy
-    render json: { message: 'User erased.' }
   end
 
   def index
