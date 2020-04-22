@@ -34,4 +34,5 @@ class Api::V1::UsersController < ApplicationController
   
   def user
     @user ||= User.find(params[:id]) # Only assigns to instance variable if it is unset.
+  end
 end
