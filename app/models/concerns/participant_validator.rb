@@ -1,5 +1,6 @@
 class ParticipantValidator < ActiveModel::Validator
     def validate(participant)
+        return unless participant.roster
         participant.roster.participant_properties.each do |key|
             unless participant.participant_attributes.length <= participant.roster.participant_properties.length
                 participant.errors.add :participant_attributes, "Participant has too many properties." 
