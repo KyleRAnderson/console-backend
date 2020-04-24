@@ -1,6 +1,6 @@
 class Api::V1::UsersController < ApplicationController
   def create
-    user = User.create!(user_params)
+    user = User.create(user_params)
     if user
       render json: user
     else
@@ -9,16 +9,20 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def show
-    if user
-      render json: user
+    if self.user
+      render json: self.user
     else
-      render json: user.errors
+      render json: self.user.errors
     end
   end
 
   def destroy
-    user&.destroy
-    render status: :ok
+    begin
+      self.user&.destroy!
+      render status: :ok
+    rescue AciveRecord::RecordNotDestroyed => error
+      render status: :internal_server_error, json: error.record.errors
+    end
   end
 
   def index
