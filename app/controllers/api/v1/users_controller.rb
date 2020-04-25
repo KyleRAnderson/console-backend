@@ -19,8 +19,8 @@ class Api::V1::UsersController < ApplicationController
   def destroy
     begin
       self.user&.destroy!
-      render status: :ok
-    rescue AciveRecord::RecordNotDestroyed => error
+      head :no_content
+    rescue ActiveRecord::RecordNotDestroyed => error
       render status: :internal_server_error, json: error.record.errors
     end
   end
