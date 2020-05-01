@@ -4,9 +4,8 @@ Rails.application.routes.draw do
         controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', passwords: 'api/v1/passwords',  confirmations: 'api/v1/confirmations'}
   namespace :api do
     namespace :v1 do
-      resources :users, only: [:index, :create, :show, :destroy], defaults: { format: 'json' } do
-        resources :rosters, only: [:index, :create, :show, :destroy], defaults: { format: 'json' }
-      end
+      resources :users, only: [:index, :create, :show, :destroy], defaults: { format: 'json' }
+      resources :rosters, only: [:index, :create, :show, :destroy], defaults: { format: 'json' }
     end
   end
   root 'homepage#index'

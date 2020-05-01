@@ -1,4 +1,7 @@
 class Api::V1::RostersController < ApplicationController
+  before_action :authenticate_user!
+  before_action :correct_user, except: [:index]
+
   def create
     roster = Roster.create(roster_params)
     if roster
@@ -17,7 +20,7 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def index
-    rosters = Roster.all
+    rosters = current_user.rosters
     render json: rosters
   end
 
@@ -36,6 +39,11 @@ class Api::V1::RostersController < ApplicationController
     end
 
     def roster
-      @roster ||= Roster.find(params[:id])
+      @roster ||= current_user.rosters.find(params[:id])
+    end
+
+    def correct_user
+      @roster = current_user.rosters.find_by(id: params[:id])
+      render json: {}, status: :not_found unless @roster
     end
 end
