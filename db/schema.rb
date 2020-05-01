@@ -36,7 +36,7 @@ ActiveRecord::Schema.define(version: 2020_04_24_145940) do
     t.string "last"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "roster_id"
+    t.uuid "roster_id"
     t.index ["roster_id"], name: "index_participants_on_roster_id"
   end
 
@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(version: 2020_04_24_145940) do
     t.text "participant_properties"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "user_id"
+    t.uuid "user_id"
     t.index ["user_id"], name: "index_rosters_on_user_id"
   end
 
