@@ -1,24 +1,22 @@
-# README
+# Reindeer Hunt Console
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Setup
 
-Things you may want to cover:
+### Prerequisites
 
-* Ruby version
+-   Correct Ruby and Rails installed
+-   Yarn package manager
 
-* System dependencies
+### Fast setup
 
-* Configuration
+```bash
+bundle
+yarn
+```
 
-* Database creation
+Then, generate a secret using `rake secret`.
+In the root directory of the project, add a `.env` file with the following entry:
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```env
+export DEVISE_JWT_SECRET_KEY=[key_generated_by_rake_secret]
+```
