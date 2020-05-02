@@ -1,6 +1,6 @@
 class Api::V1::UsersController < ApplicationController
   def create
-    user = User.create!(user_params)
+    user = User.create(user_params)
     if user
       render json: user
     else
@@ -9,16 +9,20 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def show
-    if user
-      render json: user
+    if self.user
+      render json: self.user
     else
-      render json: user.errors
+      render json: self.user.errors
     end
   end
 
   def destroy
-    user&.destroy
-    render status: :ok
+    begin
+      self.user&.destroy!
+      head :no_content
+    rescue ActiveRecord::RecordNotDestroyed => error
+      render status: :internal_server_error, json: error.record.errors
+    end
   end
 
   def index
@@ -28,11 +32,11 @@ class Api::V1::UsersController < ApplicationController
 
   private
 
-    def user_params
-      params.permit(:name, :email)
-    end
-    
-    def user
-      @user ||= User.find(params[:id]) # Only assigns to instance variable if it is unset.
-    end
+  def user_params
+    params.permit(:name, :email)
+  end
+
+  def user
+    @user ||= User.find(params[:id]) # Only assigns to instance variable if it is unset.
+  end
 end
