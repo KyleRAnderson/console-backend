@@ -32,11 +32,11 @@ class Api::V1::UsersController < ApplicationController
 
   private
 
-    def user_params
-      params.permit(:name, :email)
-    end
-    
-    def user
-      @user ||= User.find(params[:id]) # Only assigns to instance variable if it is unset.
-    end
+  def user_params
+    params.permit(:name, :email)
+  end
+
+  def user
+    @user ||= User.find(params[:id]) # Only assigns to instance variable if it is unset.
+  end
 end

@@ -34,16 +34,17 @@ class Api::V1::RostersController < ApplicationController
   end
 
   private
-    def roster_params
-      params.require(:roster).permit(:name, participant_properties: [])
-    end
 
-    def roster
-      @roster ||= current_user.rosters.find(params[:id])
-    end
+  def roster_params
+    params.require(:roster).permit(:name, participant_properties: [])
+  end
 
-    def correct_user
-      @roster = current_user.rosters.find_by(id: params[:id])
-      render json: {}, status: :not_found unless @roster
-    end
+  def roster
+    @roster ||= current_user.rosters.find(params[:id])
+  end
+
+  def correct_user
+    @roster = current_user.rosters.find_by(id: params[:id])
+    render json: {}, status: :not_found unless @roster
+  end
 end
