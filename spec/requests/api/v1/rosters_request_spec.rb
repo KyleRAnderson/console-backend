@@ -53,6 +53,13 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
       it 'loads the roster with the given id successfully' do
         get "/api/v1/rosters/#{@steve.rosters.first.id}", headers: @headers
         expect(response).to have_http_status(:success)
+        roster = JSON.parse(response.body)
+        expect(roster['user_id']).to eq(@steve.id)
+        expect(roster['name']).to eq(@steve.rosters.first.name)
+        expect(roster['participant_properties'].count).to eq(3)
+        expect(roster['participant_properties'][0]).to eq('something')
+        expect(roster['participant_properties'][1]).to eq('studentID')
+        expect(roster['participant_properties'][2]).to eq('teacherName')
       end
     end
 
@@ -62,13 +69,17 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
         expect(response).to have_http_status(:success)
         rosters = JSON.parse(response.body)
         expect(rosters.count).to eq(1)
+        expect(rosters.first['name']).to eq(@steve.rosters.first.name)
       end
     end
 
     describe 'DELETE /destroy' do
       it 'returns http success' do
-        delete "/api/v1/rosters/#{@steve.rosters.first.id}", headers: @headers
+        deleteID = @steve.rosters.first.id
+        delete "/api/v1/rosters/#{deleteID}", headers: @headers
         expect(response).to have_http_status(:success)
+        roster = JSON.parse(response.body)
+        expect(roster['id']).to eq(deleteID)
       end
     end
   end
