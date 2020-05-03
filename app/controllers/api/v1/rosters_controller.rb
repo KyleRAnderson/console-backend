@@ -38,7 +38,8 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def roster
-    @roster ||= current_user.rosters.find(params[:id])
+    # Reason I use find_by instead of find is because find_by sets nil when not found
+    @roster ||= current_user.rosters.find_by(id: params[:id])
   end
 
   def correct_user
