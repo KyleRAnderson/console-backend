@@ -1,9 +1,18 @@
 {
     "editor.formatOnSave": true,
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
     "[typescriptreact]": {
         "editor.defaultFormatter": "esbenp.prettier-vscode"
     },
-    "[javascriptreact]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
+    "[jsonc]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[ruby]": {
+        "editor.defaultFormatter": "jnbt.vscode-rufo"
     }
 }
