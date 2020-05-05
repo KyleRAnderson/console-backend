@@ -9,13 +9,13 @@ require 'faker'
   user.save!
   rand(1..5).times do |j|
     roster = Roster.create(name: "#{user.email} roster #{j + 1}", user: user, participant_properties: j.times.collect { Faker::Lorem.word })
-    rand(10..75).times do |k|
-      attributes = roster.participant_properties.each.collect do |property|
-        { key: property, value: Faker::Lorem.word }
+    rand(10..75).times do
+      attributes = roster.participant_properties.to_h do |property|
+        [property, Faker::Lorem.word]
       end
       roster.participants.build(first: Faker::Name.first_name,
                                 last: Faker::Name.last_name,
-                                participant_attributes_attributes: attributes).save!
+                                extras: attributes).save!
     end
   end
 end
