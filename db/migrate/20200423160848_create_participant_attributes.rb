@@ -6,6 +6,6 @@ class CreateParticipantAttributes < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    add_belongs_to :participant_attributes, :participant
+    add_belongs_to :participant_attributes, :participant, type: :uuid
   end
 end

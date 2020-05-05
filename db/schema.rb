@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_24_145940) do
+ActiveRecord::Schema.define(version: 2020_05_04_121722) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -22,21 +22,13 @@ ActiveRecord::Schema.define(version: 2020_04_24_145940) do
     t.index ["jti"], name: "index_jwt_blacklist_on_jti"
   end
 
-  create_table "participant_attributes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "key"
-    t.string "value"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.bigint "participant_id"
-    t.index ["participant_id"], name: "index_participant_attributes_on_participant_id"
-  end
-
   create_table "participants", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "first"
     t.string "last"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.uuid "roster_id"
+    t.json "extras", default: {}, null: false
     t.index ["roster_id"], name: "index_participants_on_roster_id"
   end
 
