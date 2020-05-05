@@ -1,13 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe Participant, type: :model do
-  let(:attribute_invalid) { ParticipantAttribute.new(key: 'invalid', value: 'test_invalid') }
+  let(:attribute_invalid) { { 'invalid': 'test_invalid' } }
+  let(:attribute_wrong_type) { { 'first': {} } }
 
-  rosters = [Roster.create(name: 'test'), Roster.create(name: 'test', participant_properties: ['first']), Roster.create(name: 'test', participant_properties: ['first', 'second', 'third', 'fourth'])]
+  rosters = [Roster.create(name: 'test'),
+             Roster.create(name: 'test', participant_properties: ['first']),
+             Roster.create(name: 'test', participant_properties: ['first', 'second', 'third', 'fourth'])]
+
   rosters.each do |roster|
-
-    attributes = roster.participant_properties.map { |property| ParticipantAttribute.new(key: property, value: "test-#{property}")}
-    subject(:participant) { described_class.new(roster: roster, first: 'firstname', last: 'lastname', participant_attributes: attributes) }
+    attributes = roster.participant_properties.to_h { |property| [property, "test-#{property}"] }
+    subject(:participant) {
+      roster.participants.build(first: 'firstname',
+                                last: 'lastname', extras: attributes)
+    }
 
     it 'is valid with default construction' do
       expect(participant).to be_valid
@@ -17,7 +23,7 @@ RSpec.describe Participant, type: :model do
       participant.first = ''
       expect(participant).not_to be_valid
     end
-    
+
     it 'is not valid without a lastname' do
       participant.last = ''
       expect(participant).not_to be_valid
@@ -25,14 +31,21 @@ RSpec.describe Participant, type: :model do
 
     it 'is not valid without required participant attributes' do
       if !roster.participant_properties.empty?
-        participant.participant_attributes.clear
+        participant.extras.clear
         expect(participant).not_to be_valid
       end
     end
 
     it 'is not valid with too many participant attributes' do
-      participant.participant_attributes << attribute_invalid
+      participant.extras.merge!(attribute_invalid)
       expect(participant).not_to be_valid
+    end
+
+    it 'is not valid if the expected attribute is not a string' do
+      unless participant.extras.empty?
+        participant.extras.merge!(attribute_wrong_type)
+        expect(participant).not_to be_valid
+      end
     end
   end
 end

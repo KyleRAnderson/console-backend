@@ -1,16 +1,21 @@
 class ParticipantValidator < ActiveModel::Validator
-    def validate(participant)
-        return unless participant.roster
-        participant.roster.participant_properties.each do |key|
-            unless participant.participant_attributes.length <= participant.roster.participant_properties.length
-                participant.errors.add :participant_attributes, "Participant has too many properties." 
-            end
-            found = participant.participant_attributes.select { |attribute| attribute.key == key }
-            if !found
-                participant.errors.add :participant_attributes, "Participant is missing property for #{key}."
-            elsif found.length != 1
-                participant.errors.add :participant_attributes, "Participant has multiple definitions for #{key}"
-            end
+  def validate(participant)
+    return unless participant.roster
+    participant_extras = participant.extras.clone
+    participant.roster.participant_properties.each do |key|
+      if participant_extras.has_key?(key)
+        unless participant_extras[key].class == String
+          participant.errors.add(:extras, "property #{key} is supposed to have a string value.")
         end
+        participant_extras.delete(key)
+      else
+        participant.errors.add(:extras,
+                               "missing definition for property #{key}")
+      end
     end
+    unless participant_extras.empty?
+      participant.errors.add(:extras,
+                             "has unexpected properties: #{participant_extras.keys.join(',')}")
+    end
+  end
 end
