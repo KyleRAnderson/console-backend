@@ -36,6 +36,8 @@ RSpec.describe 'Api::V1::Participants', type: :request do
         participant = JSON.parse(response.body)
         expect(participant['first']).to eq(expected_participant.first)
         expect(participant['last']).to eq(expected_participant.last)
+        expect(participant['extras']).to have_key('one')
+        expect(participant['extras']).to have_key('two')
       end
     end
   end
