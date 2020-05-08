@@ -1,5 +1,5 @@
 class Participant < ApplicationRecord
-  belongs_to :roster, dependent: :destroy
+  belongs_to :roster
 
   validates :first, presence: true
   validates :last, presence: true
