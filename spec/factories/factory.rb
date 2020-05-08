@@ -1,4 +1,6 @@
-DEFAULT_PASSWORD = '321Passwd$$$'.freeze
+# frozen_string_literal: true
+
+DEFAULT_PASSWORD = '321Passwd$$$'
 
 FactoryBot.define do
   factory :user do
@@ -21,13 +23,13 @@ FactoryBot.define do
 
   factory :roster do
     transient do
-      num_participants { rand(0..10) }
+      num_participants { rand(5..20) }
       num_participant_properties { rand(0..5) }
     end
 
-    name { "#{user.email}-roster#{generate(:roster_count)}" }
-    participant_properties { num_participant_properties.times.collect { Faker::Lorem.word } }
     user
+    name { "#{user.email}-roster#{generate(:roster_count)}" }
+    participant_properties { num_participant_properties.times.collect { |n| "#{n}_#{Faker::Lorem.word}" } }
 
     after(:create) do |roster, evaluator|
       create_list(:participant, evaluator.num_participants, roster: roster)
