@@ -2,25 +2,26 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Rosters', type: :request do
   describe 'with logged in user' do
-    fixtures :users, :rosters
-
-    before(:each) do
-      @steve = users(:steve)
-      post '/api/v1/login', params: {
-                              user: {
-                                email: @steve.email,
-                                password: '321Passwd$$$',
-                              },
-                            }
+    before(:all) do
+      @steve = create(:user, num_rosters: 0)
+      create(:roster, num_participant_properties: 3, user: @steve)
+      post user_session_path, params: {
+                                user: {
+                                  email: @steve.email,
+                                  password: DEFAULT_PASSWORD,
+                                },
+                              }
       token = response.headers['Authorization']
       @headers = { 'Authorization': token }
     end
 
+    after(:all) { @steve.destroy! }
+
     describe 'POST /api/v1/rosters' do
       describe 'with no participant properties' do
         it 'creates a new roster, with correct properties' do
-          post '/api/v1/rosters', headers: @headers,
-                                  params: { roster: { name: 'Test roster 1' } }
+          post api_v1_rosters_path, headers: @headers,
+                                    params: { roster: { name: 'Test roster 1' } }
           expect(response).to have_http_status(:created)
           roster = JSON.parse(response.body)
           expect(roster['id']).not_to be_empty
@@ -32,9 +33,9 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
 
       describe 'with participant properties' do
         it 'creates a new roster, with correct properties' do
-          post '/api/v1/rosters', headers: @headers,
-                                  params: { roster: { name: 'Test roster 2',
-                                                     participant_properties: ['one', 'two', 'three'] } }
+          post api_v1_rosters_path, headers: @headers,
+                                    params: { roster: { name: 'Test roster 2',
+                                                       participant_properties: ['one', 'two', 'three'] } }
           expect(response).to have_http_status(:created)
 
           roster = JSON.parse(response.body)
@@ -49,23 +50,20 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
       end
     end
 
-    describe 'GET api/v1/rosters/[roster_id]' do
+    describe 'GET api/v1/rosters/[roster_id] (show)' do
       it 'loads the roster with the given id successfully' do
-        get "/api/v1/rosters/#{@steve.rosters.first.id}", headers: @headers
+        get api_v1_roster_path(@steve.rosters.first), headers: @headers
         expect(response).to have_http_status(:success)
         roster = JSON.parse(response.body)
         expect(roster['user_id']).to eq(@steve.id)
         expect(roster['name']).to eq(@steve.rosters.first.name)
         expect(roster['participant_properties'].count).to eq(3)
-        expect(roster['participant_properties'][0]).to eq('something')
-        expect(roster['participant_properties'][1]).to eq('studentID')
-        expect(roster['participant_properties'][2]).to eq('teacherName')
       end
     end
 
-    describe 'GET /api/v1/rosters' do
+    describe 'GET /api/v1/rosters (index)' do
       it 'loads the user\'s rosters' do
-        get '/api/v1/rosters', headers: @headers
+        get api_v1_rosters_path, headers: @headers
         expect(response).to have_http_status(:success)
         rosters = JSON.parse(response.body)
         expect(rosters.count).to eq(1)
@@ -75,11 +73,11 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
 
     describe 'DELETE /destroy' do
       it 'returns http success' do
-        deleteID = @steve.rosters.first.id
-        delete "/api/v1/rosters/#{deleteID}", headers: @headers
+        toDelete = @steve.rosters.first
+        delete api_v1_roster_path(toDelete), headers: @headers
         expect(response).to have_http_status(:success)
         roster = JSON.parse(response.body)
-        expect(roster['id']).to eq(deleteID)
+        expect(roster['id']).to eq(toDelete.id)
       end
     end
   end
