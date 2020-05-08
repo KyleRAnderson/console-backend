@@ -1,7 +1,0 @@
-steveroster:
-    user: steve
-    name: steveroster
-    participant_properties:
-        - something
-        - studentID
-        - teacherName
