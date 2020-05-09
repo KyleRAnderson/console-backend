@@ -5,7 +5,13 @@ class Api::V1::ParticipantsController < ApplicationController
   before_action :ensure_correct_user
 
   def index
-    render json: current_roster.participants, status: :ok
+    per_page = params.fetch(:per_page, 50)
+    participants = current_roster.participants
+    render json: { participants: participants.paginate(
+             page: params.fetch(:page, 1),
+             per_page: per_page,
+           ).as_json, num_pages: (participants.count / per_page.to_i).ceil },
+           status: :ok
   end
 
   def create

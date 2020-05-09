@@ -6,7 +6,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
   describe 'with logged in user' do
     before(:all) do
       @steve = create(:user, num_rosters: 0)
-      create(:roster, num_participants: 1,
+      create(:roster, num_participants: 10,
                       user: @steve, participant_properties: ['one', 'two'])
       post user_session_path, params: { user: {
                                 email: @steve.email,
@@ -19,11 +19,40 @@ RSpec.describe 'Api::V1::Participants', type: :request do
     after(:all) { @steve.destroy! }
 
     describe 'GET participants (index)' do
-      it 'returns a list of all the participants in the roster' do
-        get api_v1_roster_participants_path(@steve.rosters.first), headers: @headers
+      it 'returns a pagified list of participants in the roster' do
+        get api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
+                                                                   params: { page: 1, per_page: @steve.rosters.first.participants.count }
         expect(response).to have_http_status(:ok)
-        participants = JSON.parse(response.body)
-        expect(participants.count).to eq(@steve.rosters.first.participants.count)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('participants')
+        expect(parsed_response).to have_key('num_pages')
+        expect(parsed_response['participants'].count).to eq(@steve.rosters.first.participants.count)
+      end
+
+      describe 'with results going over one page' do
+        it 'pagifies properly' do
+          participants_per_page = (@steve.rosters.first.participants.count / 2).ceil
+          get api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
+                                                                     params: { page: 1, per_page: participants_per_page }
+
+          expect(response).to have_http_status(:ok)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response).to have_key('participants')
+          expect(parsed_response).to have_key('num_pages')
+          first_participants = parsed_response['participants']
+          expect(first_participants.count).to eq(participants_per_page)
+
+          get api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
+                                                                     params: { page: 2, per_page: participants_per_page }
+          expect(response).to have_http_status(:ok)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response).to have_key('participants')
+          expect(parsed_response).to have_key('num_pages')
+          second_participants = parsed_response['participants']
+          expect(second_participants.count).to be <= participants_per_page
+
+          expect(first_participants).not_to eq(second_participants)
+        end
       end
     end
 
