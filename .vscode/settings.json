@@ -14,5 +14,9 @@
     },
     "[ruby]": {
         "editor.defaultFormatter": "jnbt.vscode-rufo"
-    }
+    },
+    "cSpell.words": [
+        "csrf",
+        "signup"
+    ]
 }
