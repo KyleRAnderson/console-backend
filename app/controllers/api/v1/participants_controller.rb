@@ -10,7 +10,7 @@ class Api::V1::ParticipantsController < ApplicationController
     render json: { participants: participants.paginate(
              page: params.fetch(:page, 1),
              per_page: per_page,
-           ).as_json, num_pages: (participants.count / per_page.to_i).ceil },
+           ).as_json, num_pages: (participants.count.to_f / per_page.to_i).ceil },
            status: :ok
   end
 
@@ -25,7 +25,7 @@ class Api::V1::ParticipantsController < ApplicationController
 
   def destroy
     current_participant&.destroy!
-    render json: current_participant, status: :ok
+    render head :no_content
   rescue ActiveRecord::RecordNotDestroyed => e
     render json: e.record.errors, status: :internal_server_error
   end
