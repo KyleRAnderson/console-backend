@@ -29,6 +29,19 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
           expect(roster['user_id']).to eq(@steve.id)
           expect(roster['participant_properties']).to be_empty
         end
+
+        describe 'with empty string participant properties' do
+          it 'responds with an error' do
+            post api_v1_rosters_path, headers: @headers,
+                                      params: {
+                                        roster: {
+                                          name: 'Testing rosters',
+                                          participant_properties: ['something', ''],
+                                        },
+                                      }
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
       end
 
       describe 'with participant properties' do
@@ -72,12 +85,11 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
     end
 
     describe 'DELETE /destroy' do
-      it 'returns http success' do
+      it 'returns http success and deleted the object' do
         toDelete = @steve.rosters.first
         delete api_v1_roster_path(toDelete), headers: @headers
         expect(response).to have_http_status(:success)
-        roster = JSON.parse(response.body)
-        expect(roster['id']).to eq(toDelete.id)
+        expect(@steve.rosters.find_by(id: toDelete.id)).to be_nil
       end
     end
   end

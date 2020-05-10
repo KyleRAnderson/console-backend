@@ -7,7 +7,7 @@ class Api::V1::RostersController < ApplicationController
     if roster.save
       render json: roster, status: :created
     else
-      render json: roster.errors, status: :internal_server_error
+      render json: roster.errors, status: :unprocessable_entity
     end
   end
 
@@ -26,7 +26,7 @@ class Api::V1::RostersController < ApplicationController
 
   def destroy
     roster&.destroy!
-    render json: roster, status: :ok
+    head :no_content
   rescue ActiveRecord::RecordNotDestroyed => e
     render status: :internal_server_error, json: e.record.errors
   end
