@@ -39,6 +39,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
           parsed_response = JSON.parse(response.body)
           expect(parsed_response).to have_key('participants')
           expect(parsed_response).to have_key('num_pages')
+          expect(parsed_response['num_pages']).to eq(2)
           first_participants = parsed_response['participants']
           expect(first_participants.count).to eq(participants_per_page)
 
@@ -48,6 +49,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
           parsed_response = JSON.parse(response.body)
           expect(parsed_response).to have_key('participants')
           expect(parsed_response).to have_key('num_pages')
+          expect(parsed_response['num_pages']).to eq(2)
           second_participants = parsed_response['participants']
           expect(second_participants.count).to be <= participants_per_page
 
