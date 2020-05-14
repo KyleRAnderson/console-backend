@@ -1,6 +1,7 @@
 class Roster < ApplicationRecord
   belongs_to :user
   has_many :participants, dependent: :destroy
+  has_many :hunts, dependent: :destroy
   serialize :participant_properties, Array
 
   validates :name, presence: true
