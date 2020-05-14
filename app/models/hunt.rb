@@ -3,5 +3,6 @@ class Hunt < ApplicationRecord
 
   belongs_to :roster
   has_many :licenses, dependent: :destroy
+  has_many :rounds, dependent: :destroy
   has_many :participants, through: :licenses
 end
