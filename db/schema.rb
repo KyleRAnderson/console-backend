@@ -10,11 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_04_121722) do
+ActiveRecord::Schema.define(version: 2020_05_14_120530) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "hunts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "name"
+    t.uuid "roster_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["roster_id"], name: "index_hunts_on_roster_id"
+  end
 
   create_table "jwt_blacklist", force: :cascade do |t|
     t.string "jti", null: false
@@ -58,4 +66,7 @@ ActiveRecord::Schema.define(version: 2020_05_04_121722) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "hunts", "rosters"
+  add_foreign_key "participants", "rosters"
+  add_foreign_key "rosters", "users"
 end
