@@ -8,7 +8,6 @@ require('@rails/activestorage').start();
 require('channels');
 
 import 'bootstrap';
-import 'animate.css';
 import 'react-notifications-component/dist/theme.css';
 import '../stylesheets/application';
 
