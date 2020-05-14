@@ -3,6 +3,7 @@ class Roster < ApplicationRecord
   has_many :participants, dependent: :destroy
   serialize :participant_properties, Array
 
+  validates :name, presence: true
   validate :validate_unique_properties
   validate :validate_nonempty_properties
   validate :validate_unchanged_participant_properties, on: :update
