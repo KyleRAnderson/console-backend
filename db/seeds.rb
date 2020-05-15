@@ -8,7 +8,7 @@ require 'faker'
   user.confirmed_at = DateTime.now
   user.save!
   rand(1..5).times do |j| # Creating rosters
-    properties = j.times.collect { Faker::Lorem.word }
+    properties = (j.times.collect { Faker::Lorem.word }).uniq
     roster = user.rosters.build(name: "#{user.email} roster #{j + 1}",
                                 participant_properties: properties)
     roster.save!
@@ -24,6 +24,10 @@ require 'faker'
     rand(0..4).times do # Creating Hunts
       hunt = roster.hunts.build(name: Faker::Ancient.titan)
       hunt.save!
+
+      roster.participants.each do |participant|
+        hunt.licenses.build(participant: participant).save!
+      end
     end
   end
 end
