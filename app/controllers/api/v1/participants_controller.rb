@@ -10,7 +10,7 @@ class Api::V1::ParticipantsController < ApplicationController
     render json: { participants: participants.paginate(
              page: params.fetch(:page, 1),
              per_page: per_page,
-           ).as_json, num_pages: (participants.count.to_f / per_page.to_i).ceil },
+           ), num_pages: (participants.count.to_f / per_page.to_i).ceil },
            status: :ok
   end
 
