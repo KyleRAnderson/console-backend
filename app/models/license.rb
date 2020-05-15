@@ -6,7 +6,7 @@ class License < ApplicationRecord
   validate :validate_one_license_per_participant_per_hunt
 
   def validate_one_license_per_participant_per_hunt
-    if hunt && participant&.licenses&.find_by(participant: participant)
+    if hunt && participant&.licenses&.find_by(hunt: hunt)
       errors.add(:license, 'Only one license may exist per participant per hunt.')
     end
   end
