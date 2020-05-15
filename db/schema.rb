@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_14_120530) do
+ActiveRecord::Schema.define(version: 2020_05_15_001155) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -28,6 +28,31 @@ ActiveRecord::Schema.define(version: 2020_05_14_120530) do
     t.string "jti", null: false
     t.datetime "exp", null: false
     t.index ["jti"], name: "index_jwt_blacklist_on_jti"
+  end
+
+  create_table "licenses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.boolean "eliminated", default: false, null: false
+    t.uuid "hunt_id", null: false
+    t.uuid "participant_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["hunt_id"], name: "index_licenses_on_hunt_id"
+    t.index ["participant_id"], name: "index_licenses_on_participant_id"
+  end
+
+  create_table "licenses_matches", id: false, force: :cascade do |t|
+    t.uuid "license_id", null: false
+    t.uuid "match_id", null: false
+    t.index ["license_id"], name: "index_licenses_matches_on_license_id"
+    t.index ["match_id"], name: "index_licenses_matches_on_match_id"
+  end
+
+  create_table "matches", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.boolean "open", default: true, null: false
+    t.uuid "round_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["round_id"], name: "index_matches_on_round_id"
   end
 
   create_table "participants", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -49,6 +74,14 @@ ActiveRecord::Schema.define(version: 2020_05_14_120530) do
     t.index ["user_id"], name: "index_rosters_on_user_id"
   end
 
+  create_table "rounds", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "hunt_id", null: false
+    t.integer "number", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["hunt_id"], name: "index_rounds_on_hunt_id"
+  end
+
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", default: "", null: false
     t.datetime "created_at", precision: 6, null: false
@@ -67,6 +100,12 @@ ActiveRecord::Schema.define(version: 2020_05_14_120530) do
   end
 
   add_foreign_key "hunts", "rosters"
+  add_foreign_key "licenses", "hunts"
+  add_foreign_key "licenses", "participants"
+  add_foreign_key "licenses_matches", "licenses"
+  add_foreign_key "licenses_matches", "matches"
+  add_foreign_key "matches", "rounds"
   add_foreign_key "participants", "rosters"
   add_foreign_key "rosters", "users"
+  add_foreign_key "rounds", "hunts"
 end
