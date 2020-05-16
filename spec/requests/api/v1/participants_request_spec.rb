@@ -113,7 +113,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
     end
 
     describe 'GET /api/v1/rosters/[wrong_roster_id]/participants' do
-      it 'returns 404 not fond' do
+      it 'returns 404 not found' do
         get api_v1_roster_participants_path(@wrong_user.rosters.first), headers: @headers
         expect(response).to have_http_status(:not_found)
       end
