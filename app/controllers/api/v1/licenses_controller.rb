@@ -8,20 +8,12 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def create
-    license = current_hunt.licenses.build(license_params)
-    if license.save
-      render json: license, status: :created
-    else
-      render json: license.errors, status: :unprocessable_entity
-    end
+    save_and_render_resource(current_hunt.licenses.build(license_params))
   end
 
   def update
-    if @license.update(license_params)
-      render json: @license, status: :ok
-    else
-      render json: @license.errors, status: :unprocessable_entity
-    end
+    @license.update(license_params)
+    render_resource(@license)
   end
 
   def show
@@ -29,11 +21,7 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def destroy
-    if @license.destroy
-      head :no_content
-    else
-      render json: @license.errors, status: :internal_server_error
-    end
+    destroy_and_render_resource(@license)
   end
 
   private

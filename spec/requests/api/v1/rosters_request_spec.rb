@@ -39,7 +39,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
                                           participant_properties: ['something', ''],
                                         },
                                       }
-            expect(response).to have_http_status(:unprocessable_entity)
+            expect(response).to have_http_status(:bad_request)
           end
         end
       end

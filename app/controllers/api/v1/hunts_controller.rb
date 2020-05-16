@@ -10,12 +10,7 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def create
-    hunt = current_roster.hunts.build(hunt_params)
-    if hunt.save
-      render json: json_hunt(hunt), status: :created
-    else
-      render json: hunt.errors, status: :unprocessable_entity
-    end
+    save_and_render_resource(current_roster.hunts.build(hunt_params))
   end
 
   def show
@@ -23,19 +18,12 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def update
-    if @hunt.update(hunts_params)
-      render json: json_hunt(@hunt), status: :ok
-    else
-      render json: @hunt.errors, status: :unprocessable_entity
-    end
+    @hunt.update(hunts_params)
+    render_resource(@hunt)
   end
 
   def destroy
-    if @hunt.destroy
-      head :no_content
-    else
-      render status: :internal_server_error, json: @hunt.errors
-    end
+    destroy_and_render_resource(@hunt)
   end
 
   private

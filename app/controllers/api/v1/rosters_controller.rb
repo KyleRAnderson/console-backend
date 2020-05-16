@@ -3,12 +3,7 @@ class Api::V1::RostersController < ApplicationController
   before_action :prepare_roster, except: %i[index create]
 
   def create
-    roster = current_user.rosters.build(roster_params)
-    if roster.save
-      render json: roster, status: :created
-    else
-      render json: roster.errors, status: :unprocessable_entity
-    end
+    save_and_render_resource(current_user.rosters.build(roster_params))
   end
 
   def show
@@ -20,11 +15,7 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def destroy
-    if @roster.destroy
-      head :no_content
-    else
-      render status: :internal_server_error, json: @roster.errors
-    end
+    destroy_and_render_resource(@roster)
   end
 
   private

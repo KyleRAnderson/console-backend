@@ -16,20 +16,11 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def create
-    participant = current_roster.participants.build(participant_params)
-    if participant.save
-      render json: participant, status: :created
-    else
-      render json: participant.errors, status: :internal_server_error
-    end
+    save_and_render_resource(current_roster.participants.build(participant_params))
   end
 
   def destroy
-    if @participant.destroy
-      render head :no_content
-    else
-      render json: @participant.errors, status: :internal_server_error
-    end
+    destroy_and_render_resource(@participant)
   end
 
   def show
