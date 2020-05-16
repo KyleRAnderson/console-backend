@@ -5,7 +5,7 @@ DEFAULT_PASSWORD = '321Passwd$$$'
 FactoryBot.define do
   factory :user do
     transient do
-      num_rosters { rand(0..10) }
+      num_rosters { rand(1..10) }
     end
 
     email { Faker::Internet.email }
@@ -19,20 +19,20 @@ FactoryBot.define do
     end
   end
 
-  sequence(:roster_count) { |n| n }
-
   factory :roster do
     transient do
       num_participants { rand(5..20) }
       num_participant_properties { rand(0..5) }
+      num_hunts { rand(1..5) }
     end
 
     user
-    name { "#{user.email}-roster#{generate(:roster_count)}" }
+    sequence(:name) { |n| "#{user.email}-roster#{n}" }
     participant_properties { num_participant_properties.times.collect { |n| "#{n}_#{Faker::Lorem.word}" } }
 
     after(:create) do |roster, evaluator|
       create_list(:participant, evaluator.num_participants, roster: roster)
+      create_list(:hunt, evaluator.num_hunts, roster: roster)
     end
   end
 
@@ -46,5 +46,31 @@ FactoryBot.define do
         [property, Faker::Lorem.word]
       end
     end
+  end
+
+  factory :hunt do
+    transient do
+      num_rounds { rand(0..10) }
+    end
+
+    name { Faker::Ancient.god }
+    roster
+
+    after(:create) do |hunt, evaluator|
+      evaluator.num_rounds.times.collect do |i|
+        create(:round, hunt: hunt, number: i + 1)
+      end
+    end
+  end
+
+  factory :license do
+    eliminated { false }
+    hunt
+    participant
+  end
+
+  factory :round do
+    sequence(:number, 1) { |n| n }
+    hunt
   end
 end
