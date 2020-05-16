@@ -15,7 +15,7 @@ class Api::V1::RostersController < ApplicationController
     if roster
       render json: roster, status: :ok
     else
-      render json: roster.errors, status: :not_found
+      render json: roster&.errors, status: :not_found
     end
   end
 
@@ -25,10 +25,11 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def destroy
-    roster&.destroy!
-    head :no_content
-  rescue ActiveRecord::RecordNotDestroyed => e
-    render status: :internal_server_error, json: e.record.errors
+    if roster&.destroy
+      head :no_content
+    else
+      render status: :internal_server_error, json: roster&.errors
+    end
   end
 
   private

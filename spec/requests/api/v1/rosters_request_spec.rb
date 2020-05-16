@@ -72,6 +72,13 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
         expect(roster['name']).to eq(@steve.rosters.first.name)
         expect(roster['participant_properties'].count).to eq(3)
       end
+
+      it 'returns 404 not found upon providing an inexistent roster id' do
+        roster = @steve.rosters.first
+        roster.destroy
+        get api_v1_roster_path(roster), headers: @headers
+        expect(response).to have_http_status(:not_found)
+      end
     end
 
     describe 'GET /api/v1/rosters (index)' do

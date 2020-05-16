@@ -31,12 +31,18 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def show
-    render json: current_participant, status: :ok
+    if current_participant
+      render json: current_participant, status: :ok
+    else 
+      render json: current_participant&.errors, status: :not_found
   end
 
   def update
-    current_participant.update!(participant_params)
-    render json: current_participant, status: :ok
+    if current_participant.update(participant_params)
+      render json: current_participant, status: :ok
+    else
+      render json: current_participant.errors, status: :unprocessable_entity
+    end
   end
 
   private
