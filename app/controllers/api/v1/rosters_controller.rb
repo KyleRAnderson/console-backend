@@ -1,6 +1,6 @@
 class Api::V1::RostersController < ApplicationController
   before_action :authenticate_user!
-  before_action :correct_user, except: %i[index create]
+  before_action :prepare_roster, except: %i[index create]
 
   def create
     roster = current_user.rosters.build(roster_params)
@@ -12,23 +12,18 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def show
-    if roster
-      render json: roster, status: :ok
-    else
-      render json: roster&.errors, status: :not_found
-    end
+    render json: @roster, status: :ok
   end
 
   def index
-    rosters = current_user.rosters
-    render json: rosters
+    render json: current_user.rosters
   end
 
   def destroy
-    if roster&.destroy
+    if @roster.destroy
       head :no_content
     else
-      render status: :internal_server_error, json: roster&.errors
+      render status: :internal_server_error, json: @roster.errors
     end
   end
 
@@ -38,13 +33,9 @@ class Api::V1::RostersController < ApplicationController
     params.require(:roster).permit(:name, participant_properties: [])
   end
 
-  def roster
+  def prepare_roster
     # Reason I use find_by instead of find is because find_by sets nil when not found
     @roster ||= current_user.rosters.find_by(id: params[:id])
-  end
-
-  def correct_user
-    @roster = current_user.rosters.find_by(id: params[:id])
-    render json: { message: 'Resource not found under this user.' }, status: :not_found unless @roster
+    head :not_found unless @roster
   end
 end
