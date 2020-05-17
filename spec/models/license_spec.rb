@@ -5,7 +5,7 @@ def cannot_save_and_errors(resource)
   expect(resource.errors).not_to be_empty
 end
 
-RSpec.describe :license, type: :model do
+RSpec.describe License, type: :model do
   let(:user) { create(:user, num_rosters: 2) }
   let(:roster) { user.rosters.first }
   let(:participant) { roster.participants.first }

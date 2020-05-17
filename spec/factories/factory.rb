@@ -66,7 +66,7 @@ FactoryBot.define do
   factory :license do
     eliminated { false }
     hunt
-    participant
+    participant { create(:participant, roster: hunt.roster) }
   end
 
   factory :round do
