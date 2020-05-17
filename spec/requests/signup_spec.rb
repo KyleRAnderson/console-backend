@@ -27,7 +27,7 @@ RSpec.describe 'POST api/v1/signup', type: :request do
 
   context 'when user already exists' do
     before do
-      User.create!(email: params[:user][:email], password: '321Passwd$$$', confirmed_at: DateTime.now)
+      User.create!(email: params[:user][:email], password: DEFAULT_PASSWORD, confirmed_at: DateTime.now)
       post url, params: params
     end
 
@@ -37,8 +37,8 @@ RSpec.describe 'POST api/v1/signup', type: :request do
 
     it 'returns validation errors' do
       errors = JSON.parse(response.body)
-      expect(errors['errors'].first['status']).to eq('400')
-      expect(errors['errors'].first['title']).to eq('Bad Request')
+      expect(errors['status']).to eq('400')
+      expect(errors['title']).to eq('Bad Request')
     end
   end
 end
