@@ -27,6 +27,6 @@ class License < ApplicationRecord
   end
 
   def as_json(options = {})
-    super.as_json(options).merge(participant.as_json)
+    super.as_json(options).merge({ participant: participant.as_json(only: %i[first last extras id]) })
   end
 end
