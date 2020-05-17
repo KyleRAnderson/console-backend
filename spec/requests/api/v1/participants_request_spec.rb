@@ -8,12 +8,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
       @steve = create(:user, num_rosters: 0)
       create(:roster, num_participants: 10,
                       user: @steve, participant_properties: ['one', 'two'])
-      post user_session_path, params: { user: {
-                                email: @steve.email,
-                                password: DEFAULT_PASSWORD,
-                              } }
-      token = response.headers['Authorization']
-      @headers = { 'Authorization': token }
+      sign_in_user(@steve)
     end
 
     after(:all) { @steve.destroy! }
@@ -96,13 +91,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
     before(:each) do
       @right_user = create(:user, num_rosters: 3)
       @wrong_user = create(:user, num_rosters: 10)
-      post user_session_path, params: {
-                                user: {
-                                  email: @right_user.email,
-                                  password: DEFAULT_PASSWORD,
-                                },
-                              }
-      @headers = { 'Authorization': response.headers['Authorization'] }
+      sign_in_user(@right_user)
     end
 
     describe 'GET /api/v1/rosters/[valid_roster_id]/participants/[wrong_participant_id]' do

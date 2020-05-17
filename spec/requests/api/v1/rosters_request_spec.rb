@@ -5,14 +5,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
     before(:all) do
       @steve = create(:user, num_rosters: 0)
       create(:roster, num_participant_properties: 3, user: @steve)
-      post user_session_path, params: {
-                                user: {
-                                  email: @steve.email,
-                                  password: DEFAULT_PASSWORD,
-                                },
-                              }
-      token = response.headers['Authorization']
-      @headers = { 'Authorization': token }
+      sign_in_user(@steve)
     end
 
     after(:all) { @steve.destroy! }
