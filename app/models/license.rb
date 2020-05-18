@@ -6,6 +6,8 @@ class License < ApplicationRecord
   validate :validate_one_license_per_participant_per_hunt, on: :create
   validate :validate_participant_in_roster
   validate :validate_only_changed_eliminated, on: :update
+  # Match must be valid so we don't get more/less than two licenses per match
+  validates_associated :matches
 
   def validate_one_license_per_participant_per_hunt
     if hunt && participant&.licenses&.find_by(hunt: hunt)
