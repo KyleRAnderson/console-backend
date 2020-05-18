@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_15_001155) do
+ActiveRecord::Schema.define(version: 2020_05_17_224815) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -52,6 +52,8 @@ ActiveRecord::Schema.define(version: 2020_05_15_001155) do
     t.uuid "round_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "local_id", null: false
+    t.index ["local_id"], name: "index_matches_on_local_id"
     t.index ["round_id"], name: "index_matches_on_round_id"
   end
 
@@ -79,6 +81,7 @@ ActiveRecord::Schema.define(version: 2020_05_15_001155) do
     t.integer "number", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.bigint "current_match_id", default: 1, null: false
     t.index ["hunt_id"], name: "index_rounds_on_hunt_id"
   end
 
