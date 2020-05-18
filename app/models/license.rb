@@ -1,13 +1,19 @@
 class License < ApplicationRecord
   belongs_to :hunt
   belongs_to :participant
-  has_and_belongs_to_many :matches
+  has_and_belongs_to_many :matches, before_add: :on_add_match
 
   validate :validate_one_license_per_participant_per_hunt, on: :create
   validate :validate_participant_in_roster
   validate :validate_only_changed_eliminated, on: :update
   # Match must be valid so we don't get more/less than two licenses per match
   validates_associated :matches
+
+  def as_json(options = {})
+    super.as_json(options).merge({ participant: participant.as_json(only: %i[first last extras id]) })
+  end
+
+  private
 
   def validate_one_license_per_participant_per_hunt
     if hunt && participant&.licenses&.find_by(hunt: hunt)
@@ -28,7 +34,7 @@ class License < ApplicationRecord
     end
   end
 
-  def as_json(options = {})
-    super.as_json(options).merge({ participant: participant.as_json(only: %i[first last extras id]) })
+  def on_add_match(match)
+    throw :abort unless match.new_record? && match.licenses.length < 2
   end
 end

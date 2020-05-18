@@ -1,6 +1,6 @@
 class Match < ApplicationRecord
   belongs_to :round
-  has_and_belongs_to_many :licenses
+  has_and_belongs_to_many :licenses, before_add: :on_add_license
   has_many :participants, through: :licenses
 
   before_create :assign_local_id
@@ -9,6 +9,8 @@ class Match < ApplicationRecord
   validate :validate_two_unique_licenses
   validate :validate_round_not_closed
   validate :validate_unchanged_properties, on: :update
+
+  private
 
   def validate_two_unique_licenses
     errors.add(:match, 'Match must have unique licenses.') unless licenses.uniq.length == licenses.length
@@ -31,5 +33,9 @@ class Match < ApplicationRecord
 
   def update_round_match_id
     round.increment_match_id
+  end
+
+  def on_add_license(_)
+    throw :abort unless new_record? && licenses.length < 2
   end
 end
