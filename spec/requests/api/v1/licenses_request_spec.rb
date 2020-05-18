@@ -9,13 +9,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
   describe 'with logged in user' do
     let(:roster) { create(:roster, user: @user, num_hunts: 2, num_participants: 10) }
-    let(:hunt) do
-      hunt = create(:hunt, roster: roster)
-      roster.participants.each do |participant|
-        create(:license, hunt: hunt, participant: participant)
-      end
-      hunt
-    end
+    let(:hunt) { create(:hunt, roster: roster) }
     let(:participant) { create(:participant, roster: roster) }
     let(:other_participant) { create(:participant, roster: roster) }
     let(:license) { create(:license, hunt: hunt, participant: participant) }

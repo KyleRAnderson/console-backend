@@ -1,20 +1,24 @@
 require 'rails_helper'
 
-def cannot_save_and_errors(resource)
-  expect(resource.save).to be false
-  expect(resource.errors).not_to be_empty
+def disallow_association_with(match)
+  expect { license.matches.push(match) }.not_to change(license.matches, :length)
+  # Use to_a because without funny stuff happens.
+  expect(license.matches.to_a).not_to include(match)
 end
 
 RSpec.describe License, type: :model do
   let(:user) { create(:user, num_rosters: 2) }
   let(:roster) { user.rosters.first }
-  let(:participant) { roster.participants.first }
+  let(:participant) { create(:participant, roster: roster) }
   let(:hunt) { roster.hunts.first }
   let(:participant_wrong_hunt) { user.rosters.second.participants.first }
+  let(:round) { create(:round, hunt: hunt) }
+  let(:saved_match) { create(:match, round: round, licenses: [hunt.licenses.first, hunt.licenses.second]) }
+  let(:unsaved_match) { build(:match, round: round, licenses: [hunt.licenses.first, hunt.licenses.second]) }
 
   subject(:license) do
     build(:license,
-          participant: roster.participants.first,
+          participant: participant,
           hunt: hunt)
   end
 
@@ -59,6 +63,18 @@ RSpec.describe License, type: :model do
       license.save!
       license.eliminated = true
       expect(license.save).to be true
+    end
+  end
+
+  describe 'with an unsaved match that already has two licenses' do
+    it 'will not allow the association' do
+      disallow_association_with(unsaved_match)
+    end
+  end
+
+  describe 'with a match that has been saved' do
+    it 'will not allow the association' do
+      disallow_association_with(saved_match)
     end
   end
 end

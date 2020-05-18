@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe Participant, type: :model do
   let(:attribute_invalid) { { 'invalid': 'test_invalid' } }
   let(:attribute_wrong_type) { { 'first': {} } }
+  let(:license) { create(:license) }
 
   rosters = [Roster.create(name: 'test'),
              Roster.create(name: 'test', participant_properties: ['first']),
@@ -45,6 +46,17 @@ RSpec.describe Participant, type: :model do
       unless participant.extras.empty?
         participant.extras.merge!(attribute_wrong_type)
         expect(participant).not_to be_valid
+      end
+    end
+
+    describe 'while adding a license' do
+      describe 'with a license that belongs to a participant already' do
+        it 'doesn\'t add the license' do
+          num_before = participant.licenses.length
+          participant.licenses << license
+          expect(participant.licenses.length).to eq(num_before)
+          expect(participant.licenses.to_a).not_to include(license)
+        end
       end
     end
   end

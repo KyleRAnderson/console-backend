@@ -51,6 +51,7 @@ FactoryBot.define do
   factory :hunt do
     transient do
       num_rounds { rand(0..10) }
+      generate_licenses { true }
     end
 
     name { Faker::Ancient.god }
@@ -59,6 +60,11 @@ FactoryBot.define do
     after(:create) do |hunt, evaluator|
       evaluator.num_rounds.times.collect do |i|
         create(:round, hunt: hunt, number: i + 1)
+      end
+      if evaluator.generate_licenses
+        hunt.roster.participants.each do |participant|
+          create(:license, participant: participant, hunt: hunt)
+        end
       end
     end
   end
@@ -70,7 +76,11 @@ FactoryBot.define do
   end
 
   factory :round do
-    sequence(:number, 1) { |n| n }
     hunt
+  end
+
+  factory(:match) do
+    round
+    licenses { create_list(:license, 2) }
   end
 end
