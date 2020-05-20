@@ -29,7 +29,7 @@ class License < ApplicationRecord
   end
 
   def validate_only_changed_eliminated
-    if (changed.select { |attribute| attribute != 'eliminated' }).length > 0
+    if (changed.reject { |attribute| attribute == 'eliminated' }).length > 0
       errors.add(:license, 'Can only change \'eliminated\' property on licenses.')
     end
   end

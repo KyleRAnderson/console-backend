@@ -28,7 +28,7 @@ FactoryBot.define do
 
     user
     sequence(:name) { |n| "#{user.email}-roster#{n}" }
-    participant_properties { num_participant_properties.times.collect { |n| "#{n}_#{Faker::Lorem.word}" } }
+    participant_properties { num_participant_properties.times.map { |n| "#{n}_#{Faker::Lorem.word}" } }
 
     after(:create) do |roster, evaluator|
       create_list(:participant, evaluator.num_participants, roster: roster)
@@ -58,7 +58,7 @@ FactoryBot.define do
     roster
 
     after(:create) do |hunt, evaluator|
-      evaluator.num_rounds.times.collect do |i|
+      evaluator.num_rounds.times.map do |i|
         create(:round, hunt: hunt, number: i + 1)
       end
       if evaluator.generate_licenses
