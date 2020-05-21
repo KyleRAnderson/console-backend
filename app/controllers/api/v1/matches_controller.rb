@@ -22,6 +22,11 @@ class Api::V1::MatchesController < ApplicationController
     destroy_and_render_resource(@match)
   end
 
+  def matchmake
+    MatchmakeLicensesJob.perform_later(current_round.hunt, **matchmake_params[:matchmake])
+    head :ok
+  end
+
   private
 
   def match_params
@@ -31,5 +36,27 @@ class Api::V1::MatchesController < ApplicationController
   def prepare_match
     @match ||= current_round.matches.find_by(local_id: params[:number])
     head :not_found unless @match
+  end
+
+  def matchmake_params
+    params.require(:matchmake).permit(within: [], between: [])
+  end
+end
+
+class Test
+  def initialize(**hash)
+    hash.each do |key, value|
+      self.class.define_method("#{key}") do |arg|
+        "#{value} Arg: #{arg}"
+      end
+    end
+  end
+end
+
+class Discovery
+  class << self
+    def hi
+      'die'
+    end
   end
 end
