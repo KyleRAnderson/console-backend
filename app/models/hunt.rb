@@ -6,4 +6,13 @@ class Hunt < ApplicationRecord
   has_many :rounds, dependent: :destroy
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
+
+  def current_highest_round_number
+    # Use count instead of length or size specificaly to get the saved ones.
+    current_round&.number || 0
+  end
+
+  def current_round
+    rounds.order(number: :desc).first
+  end
 end

@@ -27,7 +27,7 @@ class Round < ApplicationRecord
   def auto_assign_number
     unless hunt.nil?
       # We use count here specifically, since count refers to the number in the database.
-      self.number = hunt.rounds.count > 0 ? hunt.rounds.order(number: :desc).first.number + 1 : 1
+      self.number = hunt.current_highest_round_number + 1
     end
   end
 end

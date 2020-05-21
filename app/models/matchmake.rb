@@ -4,15 +4,16 @@ class Matchmake
   def initialize(licenses, within: nil, between: nil, round_id: nil)
     @licenses = licenses
     @round_id = round_id
-    if !within || within.empty?
-      separate_between(between)
-    else
+
+    if within
       separate_within(within, between)
+    elsif between
+      separate_between(between)
     end
   end
 
   def matchmake
-    if @round_id.first.class == License
+    if @licenses.first.class == License
       @matches = matchmake_within
     elsif @licenses.first.class == Array
       @matches = matchmake_between
@@ -28,7 +29,7 @@ class Matchmake
   def matchmake_within(licenses = @licenses)
     split_groups = licenses.shuffle.each_slice(@licenses.length / 2).to_a
     matches = matchmake_two(split_groups[0], split_groups[1])
-    @leftover = [split_groups.fetch(2, [])]
+    @leftover = [split_groups[2]] || []
     matches
   end
 
