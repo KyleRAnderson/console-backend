@@ -14,12 +14,13 @@ class Matchmake
 
   def matchmake
     if @licenses.first.class == License
-      @matches = matchmake_within
+      @matches, @leftover = matchmake_within
     elsif @licenses.first.class == Array
-      @matches = matchmake_between
+      @matches, @leftover = matchmake_between
     elsif @licenses.first.class == Matchmake
-      @matches = matchmake_children
+      @matches, @leftover = matchmake_children
     end
+    @matches
   end
 
   private
@@ -27,17 +28,23 @@ class Matchmake
   # Matchmakes within the given licenses, returning the generated matches.
   # Sets the @leftovers variable to the one remaining license.
   def matchmake_within(licenses = @licenses)
-    split_groups = licenses.shuffle.each_slice(@licenses.length / 2).to_a
-    matches = matchmake_two(split_groups[0], split_groups[1])
-    @leftover = [split_groups[2]] || []
-    matches
+    # Can't use safe navigation operator because of >=
+    if licenses && licenses.length >= 2
+      split_groups = licenses.shuffle.each_slice(licenses.length / 2).to_a
+      matches = matchmake_two(split_groups[0], split_groups[1])
+      leftover = split_groups[2] || []
+    else
+      matches = []
+      leftover = licenses
+    end
+    [matches, leftover]
   end
 
   # Machmakes between all the groupings of licenses present within the @licenses variable.
   # Returns the generated matches and sets the @leftovers variable to the one remaining license.
-  def matchmake_between
+  def matchmake_between(licenses = @licenses)
     leftovers = []
-    matches = @licenses.shuffle.each_slice(2).map do |groups|
+    matches = licenses.shuffle.each_slice(2).map do |groups|
       if groups.length >= 2
         current_matches = matchmake_two(groups[0], groups[1])
         leftovers += groups.first + groups.second
@@ -47,14 +54,16 @@ class Matchmake
       end
       current_matches
     end
-    # This method will set up the @leftovers variable, if that's needed.
-    matches + matchmake_within(leftovers)
+    more_matches, final_leftover = matchmake_within(leftovers)
+    matches = matches.reduce(more_matches) { |total, match_group| total + match_group }
+    [matches, final_leftover]
   end
 
   def matchmake_children
-    @matches = @licenses.map(&:matchmake)
-    leftover = @licenses.map(&:leftover)
-    @matches += matchmake_within(leftover)
+    matches = @licenses.reduce([]) { |total, matchmake| total + matchmake.matchmake }
+    leftover = @licenses.reduce([]) { |total, matchmake| total + matchmake.leftover }
+    extra_matches, leftover = matchmake_within(leftover)
+    [matches + extra_matches, leftover]
   end
 
   # Matchmakes between the two groups, returning the created matches.
@@ -68,7 +77,8 @@ class Matchmake
   end
 
   def separate_licenses!(properties)
-    @licenses = separate_licenses(properties)
+    proc = block_given? ? Proc.new : nil
+    @licenses = separate_licenses(properties, &proc)
   end
 
   def separate_licenses(properties)
@@ -76,7 +86,7 @@ class Matchmake
 
     grouped = @licenses.group_by do |license|
       properties.map do |property|
-        license.send(property)
+        license.participant.extras[property]
       end
     end
     grouped.map do |key, licenses|
