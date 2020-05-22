@@ -5,8 +5,6 @@ class MatchmakeLicensesJob < ApplicationJob
     licenses = hunt.licenses.where(eliminated: false)
     matchmake = Matchmake.new(licenses, round_id: hunt.current_round.id, within: within, between: between)
     matches = matchmake.matchmake
-    Match.transaction do
-      matches.each(&:save!)
-    end
+    matches.save_all
   end
 end

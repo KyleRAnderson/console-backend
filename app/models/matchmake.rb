@@ -20,7 +20,7 @@ class Matchmake
     elsif @licenses.first.class == Matchmake
       @matches, @leftover = matchmake_children
     end
-    @matches
+    @matches = MatchList.new(@matches)
   end
 
   private
