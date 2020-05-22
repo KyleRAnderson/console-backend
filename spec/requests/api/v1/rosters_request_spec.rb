@@ -4,7 +4,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
   describe 'with logged in user' do
     before(:all) do
       @steve = create(:user, num_rosters: 0)
-      create(:roster, num_participant_properties: 3, user: @steve)
+      create(:roster_with_participants_hunts, num_participant_properties: 3, user: @steve)
       sign_in_user(@steve)
     end
 

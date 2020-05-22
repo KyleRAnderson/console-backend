@@ -8,8 +8,8 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
   after(:all) { @user.destroy! }
 
   describe 'with logged in user' do
-    let(:roster) { create(:roster, user: @user, num_hunts: 2, num_participants: 10) }
-    let(:hunt) { create(:hunt, roster: roster) }
+    let(:roster) { create(:roster_with_participants_hunts, user: @user, num_hunts: 2, num_participants: 10) }
+    let(:hunt) { create(:hunt_with_licenses_rounds, roster: roster) }
     let(:participant) { create(:participant, roster: roster) }
     let(:other_participant) { create(:participant, roster: roster) }
     let(:license) { create(:license, hunt: hunt, participant: participant) }

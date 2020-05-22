@@ -13,33 +13,35 @@ FactoryBot.define do
     confirmed_at { DateTime.now }
 
     after(:create) do |user, evaluator|
-      create_list(:roster,
+      create_list(:roster_with_participants_hunts,
                   evaluator.num_rosters,
                   user: user)
     end
   end
 
   factory :roster do
-    transient do
-      num_participants { rand(5..20) }
-      num_participant_properties { rand(0..5) }
-      num_hunts { rand(1..5) }
-    end
-
     user
     sequence(:name) { |n| "#{user.email}-roster#{n}" }
     participant_properties { num_participant_properties.times.map { |n| "#{n}_#{Faker::Lorem.word}" } }
 
-    after(:create) do |roster, evaluator|
-      create_list(:participant, evaluator.num_participants, roster: roster)
-      create_list(:hunt, evaluator.num_hunts, roster: roster)
+    factory :roster_with_participants_hunts do
+      transient do
+        num_participants { rand(5..20) }
+        num_participant_properties { rand(0..5) }
+        num_hunts { rand(1..5) }
+      end
+
+      after(:create) do |roster, evaluator|
+        create_list(:participant, evaluator.num_participants, roster: roster)
+        create_list(:hunt, evaluator.num_hunts, roster: roster)
+      end
     end
   end
 
   factory :participant do
     first { Faker::Name.first_name }
     last { Faker::Name.last_name }
-    roster
+    roster factory: :roster_with_participants_hunts
 
     extras do
       roster.participant_properties.to_h do |property|
@@ -49,21 +51,23 @@ FactoryBot.define do
   end
 
   factory :hunt do
-    transient do
-      num_rounds { rand(0..10) }
-      generate_licenses { true }
-    end
-
     name { Faker::Ancient.god }
-    roster
+    roster factory: :roster_with_participants_hunts
 
-    after(:create) do |hunt, evaluator|
-      evaluator.num_rounds.times.map do |i|
-        create(:round, hunt: hunt, number: i + 1)
+    factory :hunt_with_licenses_rounds do
+      transient do
+        num_rounds { rand(0..10) }
+        generate_licenses { true }
       end
-      if evaluator.generate_licenses
-        hunt.roster.participants.each do |participant|
-          create(:license, participant: participant, hunt: hunt)
+
+      after(:create) do |hunt, evaluator|
+        evaluator.num_rounds.times.map do |i|
+          create(:round, hunt: hunt, number: i + 1)
+        end
+        if evaluator.generate_licenses
+          hunt.roster.participants.each do |participant|
+            create(:license, participant: participant, hunt: hunt)
+          end
         end
       end
     end
