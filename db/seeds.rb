@@ -8,13 +8,19 @@ require 'faker'
   user.confirmed_at = DateTime.now
   user.save!
   rand(1..5).times do |j| # Creating rosters
-    properties = (j.times.map { Faker::Lorem.word }).uniq
+    properties = ((j + 1).times.map { Faker::Lorem.word }).uniq
     roster = user.rosters.build(name: "#{user.email} roster #{j + 1}",
                                 participant_properties: properties)
     roster.save!
+    participant_properties_values = roster.participant_properties.to_h do |property|
+      attribute_values = rand(3..5).times.map do
+        Faker::Lorem.word
+      end
+      [property, attribute_values]
+    end
     rand(10..75).times do # Creating participants.
       attributes = roster.participant_properties.to_h do |property|
-        [property, Faker::Lorem.word]
+        [property, participant_properties_values[property].sample]
       end
       roster.participants.build(first: Faker::Name.first_name,
                                 last: Faker::Name.last_name,
