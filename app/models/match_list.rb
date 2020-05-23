@@ -2,7 +2,7 @@ class MatchList < Array
   def save_all
     Match.transaction { each(&:save!) }
     true
-  rescue Activerecord::ActiveRecordError
+  rescue ActiveRecord::ActiveRecordError
     false
   end
 end
