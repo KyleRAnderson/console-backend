@@ -3,7 +3,8 @@ class License < ApplicationRecord
   belongs_to :participant
   has_and_belongs_to_many :matches, before_add: :on_add_match
 
-  validate :validate_one_license_per_participant_per_hunt, on: :create
+  validates :participant, uniqueness: { scope: :hunt,
+                                        message: 'one license may exist per participant per hunt.' }
   validate :validate_participant_in_roster
   validate :validate_only_changed_eliminated, on: :update
   # Match must be valid so we don't get more/less than two licenses per match
@@ -14,12 +15,6 @@ class License < ApplicationRecord
   end
 
   private
-
-  def validate_one_license_per_participant_per_hunt
-    if hunt && participant&.licenses&.find_by(hunt: hunt)
-      errors.add(:license, 'Only one license may exist per participant per hunt.')
-    end
-  end
 
   # Ensures that the participant to which this license is assigned is in the roster to which the hunt belongs
   def validate_participant_in_roster
