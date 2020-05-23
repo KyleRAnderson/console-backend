@@ -19,7 +19,7 @@ def check_matches(matchmake,
   check_all_licenses_present(matches, original_licenses)
 
   unless within_properties.empty?
-    check_valid_within_matches(matches,
+    check_valid_within_matches(matches, within_properties,
                                num_overflow: num_within_overflow,
                                overflow_properties: within_overflow_properties)
   end
