@@ -76,9 +76,8 @@ class Matchmake
     sized_first.zip(sized_second).map { |licenses| Match.new(licenses: licenses, round_id: @round_id) }
   end
 
-  def separate_licenses!(properties)
-    proc = block_given? ? Proc.new : nil
-    @licenses = separate_licenses(properties, &proc)
+  def separate_licenses!(properties, &block)
+    @licenses = separate_licenses(properties, &block)
   end
 
   def separate_licenses(properties)
