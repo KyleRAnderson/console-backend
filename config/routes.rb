@@ -12,10 +12,9 @@ Rails.application.routes.draw do
       end
       resources :hunts, only: %i[index create show destroy update], defaults: { format: 'json' } do
         resources :licenses, only: %i[index create show destroy update], defaults: { format: 'json' }
-        resources :rounds, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number do
-          resources :matches, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number
-          post '/matchmake/', to: 'matches#matchmake'
-        end
+        resources :rounds, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number
+        resources :matches, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number
+        post '/matchmake/', to: 'matches#matchmake'
       end
     end
   end
