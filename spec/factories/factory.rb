@@ -33,7 +33,7 @@ FactoryBot.define do
 
       after(:create) do |roster, evaluator|
         create_list(:participant, evaluator.num_participants, roster: roster)
-        create_list(:hunt, evaluator.num_hunts, roster: roster)
+        create_list(:hunt_with_licenses_rounds, evaluator.num_hunts, roster: roster)
       end
     end
   end
