@@ -30,7 +30,7 @@ class Api::V1::MatchesController < ApplicationController
   private
 
   def match_params
-    params.require(:match).permit(:participants, :open)
+    params.require(:match).permit(:license_ids, :open)
   end
 
   def prepare_match
