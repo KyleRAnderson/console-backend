@@ -4,7 +4,7 @@ class Match < ApplicationRecord
   has_many :participants, through: :licenses
 
   before_create :assign_local_id
-  after_create :update_round_match_id
+  after_create :update_hunt_match_id
 
   validate :validate_two_unique_licenses
   validate :validate_round_not_closed
@@ -28,11 +28,11 @@ class Match < ApplicationRecord
 
   # Needs to be called after validations, which means that round has been assigned.
   def assign_local_id
-    self.local_id = round.current_match_id
+    self.local_id = round.hunt.current_match_id + 1
   end
 
-  def update_round_match_id
-    round.increment_match_id
+  def update_hunt_match_id
+    round.hunt.increment_match_id
   end
 
   def on_add_license(_)

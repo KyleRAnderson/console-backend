@@ -11,10 +11,10 @@ RSpec.describe Match, type: :model do
 
   describe 'with valid configuration' do
     it 'can be saved and assigns itself a local id' do
-      prev_round_match_id = round.current_match_id
+      prev_round_match_id = round.hunt.current_match_id
       expect(match.save).to be true
-      expect(match.local_id).to eq(prev_round_match_id)
-      expect(round.current_match_id).to eq(prev_round_match_id + 1)
+      expect(match.local_id).to eq(prev_round_match_id + 1)
+      expect(round.hunt.current_match_id).to eq(prev_round_match_id + 1)
     end
   end
 

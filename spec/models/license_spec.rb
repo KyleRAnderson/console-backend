@@ -66,13 +66,13 @@ RSpec.describe License, type: :model do
     end
   end
 
-  describe 'with an unsaved match that already has two licenses' do
+  context 'with an unsaved match that already has two licenses' do
     it 'will not allow the association' do
       disallow_association_with(unsaved_match)
     end
   end
 
-  describe 'with a match that has been saved' do
+  context 'with a match that has been saved' do
     it 'will not allow the association' do
       disallow_association_with(saved_match)
     end

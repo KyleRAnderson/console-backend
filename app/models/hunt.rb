@@ -7,6 +7,10 @@ class Hunt < ApplicationRecord
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
 
+  def increment_match_id
+    self.update(current_match_id: current_match_id + 1)
+  end
+
   def current_highest_round_number
     # Use count instead of length or size specificaly to get the saved ones.
     current_round&.number || 0
