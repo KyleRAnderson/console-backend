@@ -26,7 +26,7 @@ RSpec.describe License, type: :model do
     expect(license.save).to be true
   end
 
-  describe 'with participant in different roster from hunt' do
+  context 'with participant in different roster from hunt' do
     it 'cannot be created' do
       license.participant = participant_wrong_hunt
       cannot_save_and_errors(license)
@@ -43,7 +43,7 @@ RSpec.describe License, type: :model do
     cannot_save_and_errors(license)
   end
 
-  describe 'with a license already existing for the participant' do
+  context 'with a license already existing for the participant' do
     it 'cannot be saved, and has errors' do
       create(:license, participant: participant, hunt: hunt)
       cannot_save_and_errors(license)
