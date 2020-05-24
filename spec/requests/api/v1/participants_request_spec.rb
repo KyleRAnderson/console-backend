@@ -68,16 +68,32 @@ RSpec.describe 'Api::V1::Participants', type: :request do
     end
 
     describe 'POST participants (create)' do
-      it 'creates a new participant with correct values set' do
-        post api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
-                                                                    params: { participant: { first: 'test', last: 'gilly',
-                                                                                            extras: { 'one' => 'test1', 'two' => 'test2' } } }
-        expect(response).to have_http_status(:created)
-        participant = JSON.parse(response.body)
-        expect(participant['first']).to eq('test')
-        expect(participant['last']).to eq('gilly')
-        expect(participant['extras']['one']).to eq('test1')
-        expect(participant['extras']['two']).to eq('test2')
+      context 'for a roster with multiple participant properties' do
+        it 'creates a new participant with correct values set' do
+          post api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
+                                                                      params: { participant: { first: 'test', last: 'gilly',
+                                                                                              extras: { 'one' => 'test1', 'two' => 'test2' } } }
+          expect(response).to have_http_status(:created)
+          participant = JSON.parse(response.body)
+          expect(participant['first']).to eq('test')
+          expect(participant['last']).to eq('gilly')
+          expect(participant['extras']['one']).to eq('test1')
+          expect(participant['extras']['two']).to eq('test2')
+        end
+      end
+      context 'for a roster with no participant properties' do
+        let(:roster_no_properties) {
+          create(:roster_with_participants_hunts,
+                 num_participants: 15, num_participant_properties: 0, user: @steve)
+        }
+        it 'can be created without specifying participant extras' do
+          post api_v1_roster_participants_path(roster_no_properties), headers: @headers,
+                                                                      params: { participant: { first: 'pete', last: 'mator' } }
+          expect(response).to have_http_status(:created)
+          participant = JSON.parse(response.body)
+          expect(participant['first']).to eq('pete')
+          expect(participant['last']).to eq('mator')
+        end
       end
     end
 

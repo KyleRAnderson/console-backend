@@ -37,7 +37,7 @@ class Api::V1::ParticipantsController < ApplicationController
   def participant_params
     params.require(:participant).permit(:first, :last).tap do |p|
       # Need to do the hash permitting by myself.
-      p[:extras] = params[:participant][:extras].permit!
+      p[:extras] = params[:participant][:extras].permit! if params[:participant].key?(:extras)
     end
   end
 
