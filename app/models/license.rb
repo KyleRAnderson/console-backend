@@ -11,7 +11,9 @@ class License < ApplicationRecord
   validates_associated :matches
 
   def as_json(options = {})
-    super.as_json(options).merge({ participant: participant.as_json(only: %i[first last extras id]) })
+    super(include: { participant: { only: %i[first last extras id] } },
+          except: :participant_id,
+          **options).merge('match_ids' => matches.map(&:id))
   end
 
   private

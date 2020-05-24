@@ -10,6 +10,13 @@ class Match < ApplicationRecord
   validate :validate_round_not_closed
   validate :validate_unchanged_properties, on: :update
 
+  def as_json(**options)
+    super(include: { licenses: { only: %i[id eliminated],
+                               include: {
+            participant: { only: %i[id first last extras] },
+          } } }, **options)
+  end
+
   private
 
   def validate_two_unique_licenses
