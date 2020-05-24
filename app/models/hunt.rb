@@ -7,6 +7,10 @@ class Hunt < ApplicationRecord
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
 
+  def as_json(**options)
+    super(methods: :num_active_licenses, **options)
+  end
+
   def increment_match_id
     self.update(current_match_id: current_match_id + 1)
   end
@@ -18,5 +22,11 @@ class Hunt < ApplicationRecord
 
   def current_round
     rounds.order(number: :desc).first
+  end
+
+  private
+
+  def num_active_licenses
+    licenses.where(eliminated: false).count
   end
 end
