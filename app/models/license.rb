@@ -10,7 +10,7 @@ class License < ApplicationRecord
   # Match must be valid so we don't get more/less than two licenses per match
   validates_associated :matches
 
-  def as_json(options = {})
+  def as_json(**options)
     super(include: { participant: { only: %i[first last extras id] } },
           except: :participant_id,
           **options).merge('match_ids' => matches.map(&:id))
