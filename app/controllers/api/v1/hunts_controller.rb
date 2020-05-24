@@ -1,8 +1,10 @@
 class Api::V1::HuntsController < ApplicationController
+  include Api::V1::Rosters
+
   before_action :authenticate_user!
   # This will make sure that the current roster is set,
   # if not render 404 before action is called.
-  before_action :current_roster
+  before_action :current_roster, only: %i[index create]
   before_action :prepare_hunt, except: %i[index create]
 
   def index
