@@ -16,7 +16,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'show action' do
       it 'sucessfully completes the request and retrieves license information, containing participant info' do
-        get api_v1_hunt_license_path(hunt, license), headers: @headers
+        get api_v1_license_path(license), headers: @headers
         expect(response).to have_http_status(:success)
         decoded_license = JSON.parse(response.body)
         expect(decoded_license).to have_key('eliminated')
@@ -37,7 +37,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'destroy action' do
       it 'succeeds and destroys the provided license' do
-        delete api_v1_hunt_license_path(hunt, license), headers: @headers
+        delete api_v1_license_path(license), headers: @headers
         expect(response).to have_http_status(:success)
         expect(License.find_by(id: license.id)).to be_nil
       end
@@ -45,7 +45,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'update action' do
       it 'allows updating the eliminated attribute' do
-        patch api_v1_hunt_license_path(hunt, license),
+        patch api_v1_license_path(license),
           params: { license: { eliminated: true } },
           headers: @headers
         expect(response).to have_http_status(:success)
@@ -53,7 +53,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       end
 
       it 'does not allow update to other attributes' do
-        patch api_v1_hunt_license_path(hunt, license),
+        patch api_v1_license_path(license),
           params: { license: { participant_id: other_participant.id, eliminated: true } },
           headers: @headers
         expect(response).to have_http_status(:bad_request)
@@ -104,21 +104,21 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'show action' do
       it 'returns 404' do
-        get api_v1_hunt_license_path(wrong_user_license.hunt, wrong_user_license), headers: @headers
+        get api_v1_license_path(wrong_user_license.hunt, wrong_user_license), headers: @headers
         expect(response).to have_http_status(:not_found)
       end
     end
 
     describe 'destroy action' do
       it 'returns 404' do
-        delete api_v1_hunt_license_path(wrong_user_license.hunt, wrong_user_license), headers: @headers
+        delete api_v1_license_path(wrong_user_license.hunt, wrong_user_license), headers: @headers
         expect(response).to have_http_status(:not_found)
       end
     end
 
     describe 'update action' do
       it 'returns 404' do
-        patch api_v1_hunt_license_path(wrong_user_license.hunt, wrong_user_license),
+        patch api_v1_license_path(wrong_user_license.hunt, wrong_user_license),
           headers: @headers,
           params: { license: { eliminated: true } }
         expect(response).to have_http_status(:not_found)

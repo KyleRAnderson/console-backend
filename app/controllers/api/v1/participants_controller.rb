@@ -2,7 +2,7 @@ class Api::V1::ParticipantsController < ApplicationController
   include Api::V1::Rosters
 
   before_action :authenticate_user!
-  before_action :current_roster
+  before_action :current_roster, only: %i[index create]
   before_action :prepare_participant, except: %i[index create]
 
   def index
@@ -28,27 +28,23 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def update
-    if @participant.update(participant_params)
-      render json: @participant, status: :ok
-    else
-      render json: @participant.errors, status: :unprocessable_entity
-    end
+    @participant.update(participant_params)
+    render_resource(@participant)
   end
 
   private
 
   def participant_params
-    # Nesting strong parameters for `accepts_nested_attributes_for`:
-    # https://edgeapi.rubyonrails.org/classes/ActionController/StrongParameters.html
-    params.require(:participant).permit(
-      :first,
-      :last,
-      participant_attributes_attributes: [:key, :value],
-    )
+    params.require(:participant).permit(:first, :last).tap do |p|
+      # Need to do the hash permitting by myself.
+      p[:extras] = params[:participant][:extras].permit!
+    end
   end
 
   def prepare_participant
-    @participant ||= current_roster&.participants&.find_by(id: params[:id])
+    @participant ||= Participant.joins(:roster)
+                                .find_by(id: params[:id],
+                                         rosters: { user_id: current_user.id })
     head :not_found unless @participant
   end
 end

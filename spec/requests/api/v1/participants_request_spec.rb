@@ -24,7 +24,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
         expect(parsed_response['participants'].count).to eq(@steve.rosters.first.participants.count)
       end
 
-      describe 'with results going over one page' do
+      context 'while requesting more participants than can fit on one page' do
         it 'pagifies properly' do
           participants_per_page = (@steve.rosters.first.participants.count / 2).ceil
           get api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
@@ -57,7 +57,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
       it 'returns the information for that participant' do
         roster = @steve.rosters.first
         expected_participant = roster.participants.first
-        get api_v1_roster_participant_path(roster, expected_participant), headers: @headers
+        get api_v1_participant_path(expected_participant), headers: @headers
         expect(response).to have_http_status(:ok)
         participant = JSON.parse(response.body)
         expect(participant['first']).to eq(expected_participant.first)
@@ -66,9 +66,32 @@ RSpec.describe 'Api::V1::Participants', type: :request do
         expect(participant['extras']).to have_key('two')
       end
     end
+
+    describe 'POST participants (create)' do
+      it 'creates a new participant with correct values set' do
+        post api_v1_roster_participants_path(@steve.rosters.first), headers: @headers,
+                                                                    params: { participant: { first: 'test', last: 'gilly',
+                                                                                            extras: { 'one' => 'test1', 'two' => 'test2' } } }
+        expect(response).to have_http_status(:created)
+        participant = JSON.parse(response.body)
+        expect(participant['first']).to eq('test')
+        expect(participant['last']).to eq('gilly')
+        expect(participant['extras']['one']).to eq('test1')
+        expect(participant['extras']['two']).to eq('test2')
+      end
+    end
+
+    describe 'DELETE participant (destroy)' do
+      it 'deletes the participant successfully' do
+        deletion_participant = @steve.rosters.first.participants.first
+        delete api_v1_participant_path(deletion_participant), headers: @headers
+        expect(response).to have_http_status(:success)
+        expect(Participant.find_by(id: deletion_participant.id)).to be_nil
+      end
+    end
   end
 
-  describe 'without authorized user' do
+  context 'without authorized user' do
     it 'returns 401 for all requests' do
       steve = create(:user, num_rosters: 4)
       roster = create(:roster_with_participants_hunts, user: steve, num_participants: 10)
@@ -76,13 +99,13 @@ RSpec.describe 'Api::V1::Participants', type: :request do
       get api_v1_roster_participants_path(steve.rosters.first)
       expect(response).to have_http_status(:unauthorized)
 
-      get api_v1_roster_participant_path(roster, roster.participants.first)
+      get api_v1_participant_path(roster.participants.first)
       expect(response).to have_http_status(:unauthorized)
 
       post api_v1_roster_participants_path(steve.rosters.first)
       expect(response).to have_http_status(:unauthorized)
 
-      delete api_v1_roster_participant_path(roster, roster.participants.last)
+      delete api_v1_participant_path(roster.participants.last)
       expect(response).to have_http_status(:unauthorized)
     end
   end
@@ -94,14 +117,14 @@ RSpec.describe 'Api::V1::Participants', type: :request do
       sign_in_user(@right_user)
     end
 
-    describe 'GET /api/v1/rosters/[valid_roster_id]/participants/[wrong_participant_id]' do
+    describe 'requesting existing participant that user doesn\'t have authorization for' do
       it 'returns 404 not found' do
-        get api_v1_roster_participant_path(@right_user.rosters.first, @wrong_user.rosters.first.participants.first), headers: @headers
+        get api_v1_participant_path(@wrong_user.rosters.first.participants.first), headers: @headers
         expect(response).to have_http_status(:not_found)
       end
     end
 
-    describe 'GET /api/v1/rosters/[wrong_roster_id]/participants' do
+    describe 'requesting participants for a roster that the user doesn\t have authorization for' do
       it 'returns 404 not found' do
         get api_v1_roster_participants_path(@wrong_user.rosters.first), headers: @headers
         expect(response).to have_http_status(:not_found)

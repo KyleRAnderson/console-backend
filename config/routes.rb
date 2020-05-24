@@ -6,15 +6,17 @@ Rails.application.routes.draw do
                      controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', passwords: 'api/v1/passwords', confirmations: 'api/v1/confirmations' }
   namespace :api do
     namespace :v1 do
-      resources :users, only: %i[index create show destroy], defaults: { format: 'json' }
-      resources :rosters, only: %i[index create show destroy], defaults: { format: 'json' } do
-        resources :participants, only: %i[index create show destroy update], defaults: { format: 'json' }
-      end
-      resources :hunts, only: %i[index create show destroy update], defaults: { format: 'json' } do
-        resources :licenses, only: %i[index create show destroy update], defaults: { format: 'json' }
-        resources :rounds, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number
-        resources :matches, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number
-        post '/matchmake/', to: 'matches#matchmake'
+      shallow do
+        resources :users, only: %i[index create show destroy], defaults: { format: 'json' }
+        resources :rosters, only: %i[index create show destroy], defaults: { format: 'json' } do
+          resources :participants, only: %i[index create show destroy update], defaults: { format: 'json' }
+          resources :hunts, only: %i[index create show destroy update], defaults: { format: 'json' } do
+            resources :licenses, only: %i[index create show destroy update], defaults: { format: 'json' }
+            resources :rounds, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number, shallow: false
+            resources :matches, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number, shallow: false
+            post '/matchmake/', to: 'matches#matchmake'
+          end
+        end
       end
     end
   end

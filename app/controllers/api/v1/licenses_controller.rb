@@ -2,7 +2,7 @@ class Api::V1::LicensesController < ApplicationController
   include Api::V1::Hunts
 
   before_action :authenticate_user!
-  before_action :current_hunt
+  before_action :current_hunt, only: %i[index create]
   before_action :prepare_license, except: %i[index create]
 
   def index
@@ -33,7 +33,9 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def prepare_license
-    @license ||= current_hunt.licenses.find_by(id: params[:id])
+    @license ||= License.joins(hunt: :roster)
+                        .find_by(id: params[:id],
+                                 hunts: { rosters: { user_id: current_user.id } })
     head :not_found unless @license
   end
 end
