@@ -16,7 +16,7 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def show
-    render json: json_hunt(@hunt), status: :ok
+    render json: @hunt.as_json(include: { roster: { only: :participant_properties } }), status: :ok
   end
 
   def update
@@ -35,7 +35,7 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def prepare_hunt
-    @hunt ||= current_roster&.hunts&.find_by(id: params[:id])
+    @hunt ||= Hunt.joins(:roster).find_by(id: params[:id], rosters: { user_id: current_user.id })
     head :not_found unless @hunt
   end
 end
