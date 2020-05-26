@@ -12,8 +12,8 @@ class License < ApplicationRecord
 
   def as_json(**options)
     super(include: { participant: { only: %i[first last extras id] } },
-          except: :participant_id,
-          **options).merge('match_ids' => matches.map(&:id))
+          except: :participant_id, methods: :match_ids,
+          **options)
   end
 
   private
@@ -33,5 +33,9 @@ class License < ApplicationRecord
 
   def on_add_match(match)
     throw :abort unless match.new_record? && match.licenses.length < 2
+  end
+
+  def match_ids
+    matches.map(&:id)
   end
 end

@@ -6,7 +6,13 @@ class Api::V1::LicensesController < ApplicationController
   before_action :prepare_license, except: %i[index create]
 
   def index
-    render json: current_hunt.licenses, status: :ok
+    per_page = params.fetch(:per_page, 25)
+    licenses = current_hunt.licenses
+    render json: { licenses: licenses.paginate(
+             page: params.fetch(:page, 1),
+             per_page: per_page,
+           ).preload(:participant, :matches), num_pages: (licenses.count.to_f / per_page.to_i).ceil },
+           status: :ok
   end
 
   def create

@@ -14,7 +14,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     let(:other_participant) { create(:participant, roster: roster) }
     let(:license) { create(:license, hunt: hunt, participant: participant) }
 
-    describe 'show action' do
+    describe 'get license (SHOW)' do
       it 'sucessfully completes the request and retrieves license information, containing participant info' do
         get api_v1_license_path(license), headers: @headers
         expect(response).to have_http_status(:success)
@@ -35,7 +35,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       end
     end
 
-    describe 'destroy action' do
+    describe 'delete license (DESTROY)' do
       it 'succeeds and destroys the provided license' do
         delete api_v1_license_path(license), headers: @headers
         expect(response).to have_http_status(:success)
@@ -43,7 +43,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       end
     end
 
-    describe 'update action' do
+    describe 'edit license (UPDATE)' do
       it 'allows updating the eliminated attribute' do
         patch api_v1_license_path(license),
           params: { license: { eliminated: true } },
@@ -65,7 +65,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       end
     end
 
-    describe 'create action' do
+    describe 'post license (CREATE)' do
       it 'creates a license when provided valid arguments' do
         post api_v1_hunt_licenses_path(hunt),
              headers: @headers,
@@ -89,12 +89,24 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       end
     end
 
-    describe 'index action' do
+    describe 'get licenses (INDEX)' do
+      let(:roster_50_participants) { create(:roster_with_participants_hunts, num_hunts: 0, num_participants: 50, user: @user) }
+      let(:hunt_50_licenses) { create(:hunt_with_licenses_rounds, roster: roster_50_participants, num_rounds: 0) }
+
       it 'gets all the licenses associated with the hunt' do
-        get api_v1_hunt_licenses_path(hunt), headers: @headers
-        expect(response).to have_http_status(:success)
-        parsed_licenses = JSON.parse(response.body)
-        expect(parsed_licenses.length).to eq(hunt.licenses.length)
+        previous_licenses = nil
+        (1..5).each do |i|
+          get api_v1_hunt_licenses_path(hunt_50_licenses), headers: @headers, params: { page: i, per_page: 10 }
+          expect(response).to have_http_status(:success)
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response).to have_key('licenses')
+          expect(parsed_response).to have_key('num_pages')
+          expect(parsed_response['num_pages']).to eq(5)
+          parsed_licenses = parsed_response['licenses']
+          expect(parsed_licenses.length).to eq(10)
+          expect(parsed_licenses).not_to eq(previous_licenses)
+          previous_licenses = parsed_licenses
+        end
       end
     end
   end
