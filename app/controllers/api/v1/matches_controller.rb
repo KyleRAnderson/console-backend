@@ -6,7 +6,8 @@ class Api::V1::MatchesController < ApplicationController
   before_action :prepare_match, except: %i[index create]
 
   def index
-    render json: current_hunt.matches, status: :ok
+    render json: current_hunt
+             .matches.includes(:licenses, :participants), status: :ok
   end
 
   def show

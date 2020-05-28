@@ -11,7 +11,8 @@ class Api::V1::LicensesController < ApplicationController
     render json: { licenses: licenses.paginate(
              page: params.fetch(:page, 1),
              per_page: per_page,
-           ).preload(:participant, :matches), num_pages: (licenses.count.to_f / per_page.to_i).ceil },
+           ).includes(:participant, :matches),
+                   num_pages: (licenses.count.to_f / per_page.to_i).ceil },
            status: :ok
   end
 
