@@ -16,7 +16,7 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def show
-    render json: @hunt.includes(:roster)
+    render json: @hunt
              .as_json(include: { roster: { only: :participant_properties } }), status: :ok
   end
 
