@@ -8,7 +8,7 @@ class Api::V1::HuntsController < ApplicationController
   before_action :prepare_hunt, except: %i[index create]
 
   def index
-    render json: current_roster.hunts, status: :ok
+    render json: current_roster.hunts.includes(:licenses), status: :ok
   end
 
   def create
