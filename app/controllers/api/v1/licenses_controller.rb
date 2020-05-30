@@ -1,19 +1,15 @@
 class Api::V1::LicensesController < ApplicationController
   include Api::V1::Hunts
+  include Api::V1::PaginationOrdering
 
   before_action :authenticate_user!
   before_action :current_hunt, only: %i[index create]
   before_action :prepare_license, except: %i[index create]
 
   def index
-    per_page = params.fetch(:per_page, 25)
     licenses = current_hunt.licenses
-    render json: { licenses: licenses.paginate(
-             page: params.fetch(:page, 1),
-             per_page: per_page,
-           ).includes(:participant, :matches),
-                   num_pages: (licenses.count.to_f / per_page.to_i).ceil },
-           status: :ok
+    render json: paginated(licenses.includes(:participant, :matches),
+                           key: :licenses), status: :ok
   end
 
   def create
