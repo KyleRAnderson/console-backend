@@ -12,10 +12,13 @@ module Api::V1::PaginationOrdering
   # Key is the access point in the hash for the models. If no key provided
   # then it is assumed that models itself contains all the models.
   def ordered(models, key: nil)
-    if key
-      models[key] = models[key].order(**ordering_params)
-    else
-      models = models.order(**ordering_params)
+    orders = ordering_params
+    unless orders&.empty?
+      if key
+        models[key] = models[key].order(**ordering_params)
+      else
+        models = models.order(**ordering_params)
+      end
     end
     models
   end
