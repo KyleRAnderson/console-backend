@@ -112,6 +112,7 @@ end
 def generate_participants(roster, number_lists, &block)
   number_lists.times do |i|
     number, participant_extras = block.call(i)
+    participant_extras = [] unless participant_extras
     create_list(:participant, number, roster: roster, extras: participant_extras)
   end
 end
@@ -294,6 +295,31 @@ RSpec.describe Matchmake do
                     hunt.licenses,
                     within_properties: within_properties,
                     between_properties: between_properties)
+    end
+  end
+
+  describe 'neither within or between matchmaking' do
+    let(:participant_properties) { [] }
+
+    it 'performs within matchmaking on the given licenses' do
+      generate_participants(roster, 4) { [10] }
+
+      matchmake = Matchmake.new(hunt.licenses, round_id: hunt.rounds.first.id)
+      matchmake.matchmake
+
+      check_matches(matchmake, hunt.licenses)
+    end
+
+    context 'with a single license' do
+      it 'builds no matches and has one leftover' do
+        generate_participants(roster, 1) { [1] }
+
+        matchmake = Matchmake.new(hunt.licenses, round_id: hunt.rounds.first.id)
+        matchmake.matchmake
+
+        expect(matchmake.matches).to be_empty
+        expect(matchmake.leftover).to contain_exactly(hunt.licenses.first)
+      end
     end
   end
 end

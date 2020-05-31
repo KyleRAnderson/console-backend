@@ -5,7 +5,6 @@ class Api::V1::MatchesController < ApplicationController
   before_action :authenticate_user!
   before_action :current_hunt
   before_action :prepare_match, except: %i[index create]
-  before_action :no_matches_in_round, only: %i[matchmake]
 
   def index
     render json: paginated(current_hunt
@@ -43,11 +42,5 @@ class Api::V1::MatchesController < ApplicationController
 
   def matchmake_params
     params.require(:matchmake).permit(within: [], between: [])
-  end
-
-  def no_matches_in_round
-    unless current_hunt.current_round.matches.empty?
-      render json: 'Matchmaking must be done when round is empty.', status: :bad_request
-    end
   end
 end
