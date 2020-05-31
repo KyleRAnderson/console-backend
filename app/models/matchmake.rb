@@ -1,9 +1,18 @@
 class Matchmake
   attr_reader :matches, :leftover
 
+  COMMON_PROPERTIES_ERROR_MESSAGE = 'Cannot have within and between containing same properties for matchmaking.'
+
   def initialize(licenses, within: nil, between: nil, round_id: nil)
     @licenses = licenses
     @round_id = round_id
+
+    within&.uniq!
+    between&.uniq!
+
+    if within && between && !within.intersection(between).empty?
+      raise COMMON_PROPERTIES_ERROR_MESSAGE
+    end
 
     if within
       separate_within(within, between)

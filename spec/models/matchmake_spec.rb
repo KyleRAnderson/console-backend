@@ -112,7 +112,7 @@ end
 def generate_participants(roster, number_lists, &block)
   number_lists.times do |i|
     number, participant_extras = block.call(i)
-    participant_extras = [] unless participant_extras
+    participant_extras = {} unless participant_extras
     create_list(:participant, number, roster: roster, extras: participant_extras)
   end
 end
@@ -278,8 +278,9 @@ RSpec.describe Matchmake do
     let(:participant_properties) { within_properties + between_properties }
 
     it 'works on a basic level' do
-      within_values = UniqueCollectionGenerator.generate(4) { Faker::Device.platform }
-      between_values = UniqueCollectionGenerator.generate(16) { Faker::Hacker.adjective }
+      unique_values = UniqueCollectionGenerator.generate(20) { Faker::Device.platform }
+      within_values = unique_values[0..3]
+      between_values = unique_values[4...20]
       generate_participants(roster, 16) do |index|
         [15, { within_properties[0] => within_values[index % 4],
               between_properties[0] => between_values[index] }]
@@ -319,6 +320,26 @@ RSpec.describe Matchmake do
 
         expect(matchmake.matches).to be_empty
         expect(matchmake.leftover).to contain_exactly(hunt.licenses.first)
+      end
+    end
+  end
+
+  describe 'edege cases' do
+    let(:participant_properties) { PROPERTIES[0..0] }
+
+    context 'with intersecting properties for within and between' do
+      it 'raises an exception' do
+        generate_participants(roster, 4) { |index| [10, { participant_properties[0] => index.to_s }] }
+        within_properties = participant_properties.clone
+        between_properties = participant_properties.clone
+
+        expect {
+          Matchmake.new(hunt.licenses, within: within_properties,
+                                       between: between_properties,
+                                       round_id: hunt.rounds.first.id)
+        }.to(
+          raise_exception(Matchmake::COMMON_PROPERTIES_ERROR_MESSAGE)
+        )
       end
     end
   end
