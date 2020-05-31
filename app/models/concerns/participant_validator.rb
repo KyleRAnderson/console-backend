@@ -13,7 +13,7 @@ class ParticipantValidator < ActiveModel::Validator
                                "missing definition for property #{key}")
       end
     end
-    unless participant_extras.empty?
+    if participant_extras && !participant_extras.empty?
       participant.errors.add(:extras,
                              "has unexpected properties: #{participant_extras.keys.join(',')}")
     end
