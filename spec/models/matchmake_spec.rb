@@ -278,7 +278,7 @@ RSpec.describe Matchmake do
     let(:participant_properties) { within_properties + between_properties }
 
     it 'works on a basic level' do
-      unique_values = UniqueCollectionGenerator.generate(20) { Faker::Device.platform }
+      unique_values = UniqueCollectionGenerator.generate(20) { |current_length| "#{current_length}_#{Faker::Device.platform}" }
       within_values = unique_values[0..3]
       between_values = unique_values[4...20]
       generate_participants(roster, 16) do |index|
