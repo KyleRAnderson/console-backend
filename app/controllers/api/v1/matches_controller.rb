@@ -4,7 +4,7 @@ class Api::V1::MatchesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_hunt
-  before_action :prepare_match, except: %i[index create]
+  before_action :prepare_match, except: %i[index create matchmake]
 
   def index
     render json: paginated(current_hunt
@@ -25,7 +25,7 @@ class Api::V1::MatchesController < ApplicationController
   end
 
   def matchmake
-    MatchmakeLicensesJob.perform_later(current_hunt.hunt, **matchmake_params[:matchmake])
+    MatchmakeLicensesJob.perform_later(current_hunt, matchmake_params.to_h)
     head :ok
   end
 

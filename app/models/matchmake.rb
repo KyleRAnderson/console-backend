@@ -3,7 +3,7 @@ class Matchmake
 
   COMMON_PROPERTIES_ERROR_MESSAGE = 'Cannot have within and between containing same properties for matchmaking.'
 
-  def initialize(licenses, within: nil, between: nil, round_id: nil)
+  def initialize(licenses, within: [], between: [], round_id: nil)
     @licenses = licenses
     @round_id = round_id
 
@@ -14,9 +14,9 @@ class Matchmake
       raise COMMON_PROPERTIES_ERROR_MESSAGE
     end
 
-    if within
+    if !within&.empty?
       separate_within(within, between)
-    elsif between
+    elsif !between&.empty?
       separate_between(between)
     end
   end
@@ -90,7 +90,7 @@ class Matchmake
   end
 
   def separate_licenses(properties)
-    return if properties.empty?
+    return @licenses if properties.empty?
 
     grouped = @licenses.group_by do |license|
       properties.map do |property|
