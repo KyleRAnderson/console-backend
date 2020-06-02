@@ -26,6 +26,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
+    MatchesChannel.broadcast_to(current_user, title: 'Done', body: 'Done matchmaking.') # FIXME remove
     users = User.all.order(created_at: :desc)
     render json: users
   end
