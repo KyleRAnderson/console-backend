@@ -13,7 +13,6 @@ class MatchmakeLicensesJob < ApplicationJob
     matches.save_all
 
     # Broadcast to action cable
-    puts "User: #{user.email}" # FIXME
     MatchesChannel.broadcast_to(user, title: 'Done', body: 'Done matchmaking.') # FIXME up
   end
 end
