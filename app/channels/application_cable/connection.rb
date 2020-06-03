@@ -9,7 +9,7 @@ module ApplicationCable
     private
 
     def find_verified_user
-      token = request.headers[:HTTP_SEC_WEBSOCKET_PROTOCOL].split(' ').last
+      token = request.params[:auth_token].split(' ').last
       # decoded_token = JsonWebToken.decode(token)
       decoded_token = JWT.decode(token, ENV['DEVISE_JWT_SECRET_KEY'], true, algorithm: 'HS256', verify_jti: true)[0]
       if (current_user = User.find(decoded_token['sub']))
