@@ -16,6 +16,7 @@
         "editor.defaultFormatter": "jnbt.vscode-rufo"
     },
     "cSpell.words": [
+        "Unmount",
         "csrf",
         "matchmake",
         "signup"
