@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_23_170012) do
+ActiveRecord::Schema.define(version: 2020_06_04_004617) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -23,12 +23,6 @@ ActiveRecord::Schema.define(version: 2020_05_23_170012) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "current_match_id", default: 0, null: false
     t.index ["roster_id"], name: "index_hunts_on_roster_id"
-  end
-
-  create_table "jwt_blacklist", force: :cascade do |t|
-    t.string "jti", null: false
-    t.datetime "exp", null: false
-    t.index ["jti"], name: "index_jwt_blacklist_on_jti"
   end
 
   create_table "licenses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
