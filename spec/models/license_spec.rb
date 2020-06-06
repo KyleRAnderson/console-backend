@@ -7,7 +7,7 @@ def disallow_association_with(match)
 end
 
 RSpec.describe License, type: :model do
-  let(:user) { create(:user, num_rosters: 2) }
+  let(:user) { create(:user_with_rosters, num_rosters: 2) }
   let(:roster) { user.rosters.first }
   let(:participant) { create(:participant, roster: roster) }
   let(:hunt) { roster.hunts.first }

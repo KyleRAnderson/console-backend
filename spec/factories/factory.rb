@@ -4,18 +4,20 @@ DEFAULT_PASSWORD = '321Passwd$$$'
 
 FactoryBot.define do
   factory :user do
-    transient do
-      num_rosters { rand(1..10) }
-    end
-
     email { Faker::Internet.email }
     password { DEFAULT_PASSWORD }
     confirmed_at { DateTime.now }
 
-    after(:create) do |user, evaluator|
-      create_list(:roster_with_participants_hunts,
-                  evaluator.num_rosters,
-                  user: user)
+    factory :user_with_rosters do
+      transient do
+        num_rosters { rand(1..10) }
+      end
+
+      after(:create) do |user, evaluator|
+        create_list(:roster_with_participants_hunts,
+                    evaluator.num_rosters,
+                    user: user)
+      end
     end
   end
 

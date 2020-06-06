@@ -4,10 +4,27 @@ class Roster < ApplicationRecord
   has_many :hunts, dependent: :destroy
   serialize :participant_properties, Array
 
+  before_validation :strip_properties
+
   validates :name, presence: true
+  validate :validate_proper_properties
   validate :validate_unique_properties
   validate :validate_nonempty_properties
   validate :validate_unchanged_participant_properties, on: :update
+
+  private
+
+  def strip_properties
+    participant_properties.each(&:strip!)
+  end
+
+  def validate_proper_properties
+    participant_properties.each do |property|
+      unless property.match?(/^\S(.*\S)?$/)
+        errors.add :roster, 'Participant properties must not have leading or trailing whitespace.'
+      end
+    end
+  end
 
   def validate_unique_properties
     unless self.participant_properties.uniq.length == self.participant_properties.length

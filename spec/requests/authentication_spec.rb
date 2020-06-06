@@ -2,9 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe 'POST api/v1/login', type: :request do
-  let(:user) { User.create!(email: 'test@example.org', password: '321Passwd$$$', confirmed_at: DateTime.now) }
-  let(:url) { '/api/v1/login' }
+RSpec.describe 'Api::V1::Sessions', type: :request do
+  let(:user) { create(:user) }
   let(:params) do
     {
       user: {
@@ -15,39 +14,38 @@ RSpec.describe 'POST api/v1/login', type: :request do
   end
 
   context 'when params are correct' do
-    before do
-      post url, params: params
-    end
-
-    it 'returns 200' do
-      expect(response).to have_http_status(200)
-    end
-
-    it 'returns JTW token in authorization header' do
-      expect(response.headers['Authorization']).to be_present
-    end
-
-    it 'returns valid JWT token' do
-      token_from_request = response.headers['Authorization'].split(' ').last
-      decoded_token = JWT.decode(token_from_request, ENV['DEVISE_JWT_SECRET_KEY'], true)
-      expect(decoded_token.first['sub']).to be_present
+    it 'successsfully logs in' do
+      post user_session_path, params: params
+      expect(response).to have_http_status(:success)
+      parsed_response = JSON.parse(response.body)
+      expect(parsed_response['email']).to eq(user.email)
+      expect(parsed_response['id']).to eq(user.id)
     end
   end
 
   context 'when login params are incorrect' do
-    before { post url }
+    context 'without including an email and password' do
+      it 'returns unathorized status' do
+        post user_session_path
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
 
-    it 'returns unathorized status' do
-      expect(response.status).to eq 401
+    context 'with valid email, but invalid password' do
+      it 'returns unauthorized session' do
+        params[:user][:password] = 'wrong_password'
+        post user_session_path, params: params
+        expect(response).to have_http_status(:unauthorized)
+      end
     end
   end
-end
 
-RSpec.describe 'DELETE api/v1/logout', type: :request do
-  let(:url) { '/api/v1/logout' }
+  describe 'logout (DELETE)' do
+    before(:each) { sign_in(user) }
 
-  it 'returns 204, no content' do
-    delete url
-    expect(response).to have_http_status(204)
+    it 'returns 204, no content' do
+      delete destroy_user_session_path
+      expect(response).to have_http_status(:no_content)
+    end
   end
 end

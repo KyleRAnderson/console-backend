@@ -1,20 +1,27 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Rosters', type: :request do
-  describe 'with logged in user' do
+  context 'with logged in user' do
     before(:all) do
-      @steve = create(:user, num_rosters: 0)
+      @steve = create(:user)
       create(:roster_with_participants_hunts, num_participant_properties: 3, user: @steve)
-      sign_in_user(@steve)
     end
-
     after(:all) { @steve.destroy! }
 
+    before(:each) do
+      # Would like to know one day why the reload is necessary, other tests don't have it.
+      @steve.reload
+      sign_in(@steve)
+    end
+
     describe 'POST /api/v1/rosters' do
-      describe 'with no participant properties' do
+      context 'with no participant properties' do
         it 'creates a new roster, with correct properties' do
-          post api_v1_rosters_path, headers: @headers,
-                                    params: { roster: { name: 'Test roster 1' } }
+          e = expect do
+            post api_v1_rosters_path,
+                 params: { roster: { name: 'Test roster 1' } }
+          end
+          e.to change { Roster.count }.by(1)
           expect(response).to have_http_status(:created)
           roster = JSON.parse(response.body)
           expect(roster['id']).not_to be_empty
@@ -22,26 +29,32 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
           expect(roster['user_id']).to eq(@steve.id)
           expect(roster['participant_properties']).to be_empty
         end
+      end
 
-        describe 'with empty string participant properties' do
-          it 'responds with an error' do
-            post api_v1_rosters_path, headers: @headers,
-                                      params: {
-                                        roster: {
-                                          name: 'Testing rosters',
-                                          participant_properties: ['something', ''],
-                                        },
-                                      }
-            expect(response).to have_http_status(:bad_request)
+      context 'with empty string participant properties' do
+        it 'responds with an error' do
+          e = expect do
+            post api_v1_rosters_path,
+                 params: {
+                   roster: {
+                     name: 'Testing rosters',
+                     participant_properties: ['something', ''],
+                   },
+                 }
           end
+          e.not_to(change { Roster.count })
+          expect(response).to have_http_status(:bad_request)
         end
       end
 
       describe 'with participant properties' do
         it 'creates a new roster, with correct properties' do
-          post api_v1_rosters_path, headers: @headers,
-                                    params: { roster: { name: 'Test roster 2',
-                                                       participant_properties: ['one', 'two', 'three'] } }
+          e = expect do
+            post api_v1_rosters_path,
+                 params: { roster: { name: 'Test roster 2',
+                                    participant_properties: ['one', 'two', 'three'] } }
+          end
+          e.to change { Roster.count }.by(1)
           expect(response).to have_http_status(:created)
 
           roster = JSON.parse(response.body)
@@ -58,7 +71,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
 
     describe 'GET api/v1/rosters/[roster_id] (show)' do
       it 'loads the roster with the given id successfully' do
-        get api_v1_roster_path(@steve.rosters.first), headers: @headers
+        get api_v1_roster_path(@steve.rosters.first)
         expect(response).to have_http_status(:success)
         roster = JSON.parse(response.body)
         expect(roster['user_id']).to eq(@steve.id)
@@ -69,14 +82,14 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
       it 'returns 404 not found upon providing an inexistent roster id' do
         roster = @steve.rosters.first
         roster.destroy
-        get api_v1_roster_path(roster), headers: @headers
+        get api_v1_roster_path(roster)
         expect(response).to have_http_status(:not_found)
       end
     end
 
     describe 'GET /api/v1/rosters (index)' do
       it 'loads the user\'s rosters' do
-        get api_v1_rosters_path, headers: @headers
+        get api_v1_rosters_path
         expect(response).to have_http_status(:success)
         rosters = JSON.parse(response.body)
         expect(rosters.count).to eq(1)
@@ -85,9 +98,9 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
     end
 
     describe 'DELETE /destroy' do
-      it 'returns http success and deleted the object' do
+      it 'returns http success and deletes the object' do
         toDelete = @steve.rosters.first
-        delete api_v1_roster_path(toDelete), headers: @headers
+        delete api_v1_roster_path(toDelete)
         expect(response).to have_http_status(:success)
         expect(@steve.rosters.find_by(id: toDelete.id)).to be_nil
       end
