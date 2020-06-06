@@ -13,6 +13,6 @@ class MatchmakeLicensesJob < ApplicationJob
     matches.save_all
 
     # Broadcast to action cable
-    MatchesChannel.broadcast_to(user)
+    MatchesChannel.broadcast_to(user, {})
   end
 end
