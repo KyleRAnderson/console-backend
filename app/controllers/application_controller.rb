@@ -1,5 +1,16 @@
 class ApplicationController < ActionController::Base
-  protect_from_forgery with: :null_session
+  protect_from_forgery with: :exception
+
+  after_action :set_csrf_cookie
+
+  protected
+
+  # Custom CSRF stuff, since frontend pages are cached and will
+  # have expired tokens unless refreshed.
+  # See https://gitlab.com/kyle_anderson/react-rails-ts/-/issues/5.
+  def set_csrf_cookie
+    cookies['X-CSRF-Token'] = form_authenticity_token
+  end
 
   def save_and_render_resource(resource, status = :created)
     resource.save
