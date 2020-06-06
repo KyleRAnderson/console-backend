@@ -1,7 +1,7 @@
 class MatchmakeLicensesJob < ApplicationJob
   queue_as :default
 
-  def perform(hunt, within_between_properties, user)
+  def perform(hunt, within_between_properties)
     within = within_between_properties[:within]
     between = within_between_properties[:between]
     throw :no_hunt unless hunt
@@ -13,6 +13,6 @@ class MatchmakeLicensesJob < ApplicationJob
     matches.save_all
 
     # Broadcast to action cable
-    MatchesChannel.broadcast_to(user, {})
+    MatchesChannel.broadcast_to(hunt, {})
   end
 end

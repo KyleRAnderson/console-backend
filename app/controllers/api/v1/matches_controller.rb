@@ -25,7 +25,7 @@ class Api::V1::MatchesController < ApplicationController
   end
 
   def matchmake
-    MatchmakeLicensesJob.perform_later(current_hunt, matchmake_params.to_h, current_user)
+    MatchmakeLicensesJob.perform_later(current_hunt, matchmake_params.to_h)
     head :ok
   end
 
