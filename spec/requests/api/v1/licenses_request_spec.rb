@@ -2,10 +2,11 @@ require 'rails_helper'
 
 RSpec.describe 'Api::V1::Licenses', type: :request do
   before(:all) do
-    @user = create(:user)
-    sign_in_user(@user)
+    @user = create(:user_with_rosters)
   end
   after(:all) { @user.destroy! }
+
+  before(:each) { sign_in(@user) }
 
   describe 'with logged in user' do
     let(:roster) { create(:roster_with_participants_hunts, user: @user, num_hunts: 2, num_participants: 10) }
@@ -16,7 +17,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'get license (SHOW)' do
       it 'sucessfully completes the request and retrieves license information, containing participant info' do
-        get api_v1_license_path(license), headers: @headers
+        get api_v1_license_path(license)
         expect(response).to have_http_status(:success)
         decoded_license = JSON.parse(response.body)
         expect(decoded_license).to have_key('eliminated')
@@ -37,7 +38,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'delete license (DESTROY)' do
       it 'succeeds and destroys the provided license' do
-        delete api_v1_license_path(license), headers: @headers
+        delete api_v1_license_path(license)
         expect(response).to have_http_status(:success)
         expect(License.find_by(id: license.id)).to be_nil
       end
@@ -46,16 +47,14 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     describe 'edit license (UPDATE)' do
       it 'allows updating the eliminated attribute' do
         patch api_v1_license_path(license),
-          params: { license: { eliminated: true } },
-          headers: @headers
+          params: { license: { eliminated: true } }
         expect(response).to have_http_status(:success)
         expect(license.reload.eliminated).to be true
       end
 
       it 'does not allow update to other attributes' do
         patch api_v1_license_path(license),
-          params: { license: { participant_id: other_participant.id, eliminated: true } },
-          headers: @headers
+          params: { license: { participant_id: other_participant.id, eliminated: true } }
         expect(response).to have_http_status(:bad_request)
         errors = JSON.parse(response.body)
         expect(errors).to have_key('detail')
@@ -68,7 +67,6 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     describe 'post license (CREATE)' do
       it 'creates a license when provided valid arguments' do
         post api_v1_hunt_licenses_path(hunt),
-             headers: @headers,
              params: { license: { participant_id: other_participant.id } }
         expect(response).to have_http_status(:created)
         parsed_license = JSON.parse(response.body)
@@ -79,7 +77,6 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
       it 'allows a license with eliminated to be created' do
         post api_v1_hunt_licenses_path(hunt),
-             headers: @headers,
              params: { license: { eliminated: true, participant_id: other_participant.id } }
         expect(response).to have_http_status(:created)
         parsed_license = JSON.parse(response.body)
@@ -96,7 +93,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       it 'gets all the licenses associated with the hunt' do
         previous_licenses = nil
         (1..5).each do |i|
-          get api_v1_hunt_licenses_path(hunt_50_licenses), headers: @headers, params: { page: i, per_page: 10 }
+          get api_v1_hunt_licenses_path(hunt_50_licenses), params: { page: i, per_page: 10 }
           expect(response).to have_http_status(:success)
           parsed_response = JSON.parse(response.body)
           expect(parsed_response).to have_key('licenses')
@@ -116,14 +113,14 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'show action' do
       it 'returns 404' do
-        get api_v1_license_path(wrong_user_license.hunt, wrong_user_license), headers: @headers
+        get api_v1_license_path(wrong_user_license.hunt, wrong_user_license)
         expect(response).to have_http_status(:not_found)
       end
     end
 
     describe 'destroy action' do
       it 'returns 404' do
-        delete api_v1_license_path(wrong_user_license.hunt, wrong_user_license), headers: @headers
+        delete api_v1_license_path(wrong_user_license.hunt, wrong_user_license)
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -131,7 +128,6 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     describe 'update action' do
       it 'returns 404' do
         patch api_v1_license_path(wrong_user_license.hunt, wrong_user_license),
-          headers: @headers,
           params: { license: { eliminated: true } }
         expect(response).to have_http_status(:not_found)
         expect(wrong_user_license.reload.eliminated).to be false
