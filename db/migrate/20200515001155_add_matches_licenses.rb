@@ -15,9 +15,9 @@ class AddMatchesLicenses < ActiveRecord::Migration[6.0]
       t.timestamps
     end
 
-    create_join_table(:licenses, :matches) do |t|
-      t.belongs_to :license, null: false, foreign_key: true, type: :uuid
-      t.belongs_to :match, null: false, foreign_key: true, type: :uuid
+    create_join_table(:licenses, :matches, column_options: { type: :uuid, foreign_key: true, null: false }) do |t|
+      t.index :license_id
+      t.index :match_id
     end
   end
 end
