@@ -31,7 +31,5 @@ module RailsReactTs
 
     # Don't generate system test files.
     config.generators.system_tests = nil
-
-    config.filter_parameters += [:auth_token]
   end
 end
