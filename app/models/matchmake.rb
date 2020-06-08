@@ -4,6 +4,10 @@ class Matchmake
   COMMON_PROPERTIES_ERROR_MESSAGE = 'Cannot have within and between containing same properties for matchmaking.'
 
   def initialize(licenses, within: [], between: [], round_id: nil)
+    if !licenses || licenses.empty?
+      raise 'Cannot matchmake with no licenses.'
+    end
+
     @licenses = licenses
     @round_id = round_id
 
