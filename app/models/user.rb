@@ -7,4 +7,6 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable, :confirmable
 
   has_many :rosters, dependent: :destroy
+
+  attr_accessor :confirmation_url_store
 end
