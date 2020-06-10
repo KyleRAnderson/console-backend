@@ -8,6 +8,6 @@ class User < ApplicationRecord
 
   has_many :rosters, dependent: :destroy
 
-  validates_format_of :password, with: /\A[A-Za-z0-9. ! @ # $ % ^ & * ( ) _ - + = ]*\z/,
+  validates_format_of :password, with: /\A[A-Za-z0-9\.!@#$%\^&\*\(\)_\+\-=]*\z/,
                                  message: 'must be unicode characters.'
 end
