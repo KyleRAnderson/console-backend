@@ -7,4 +7,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable, :confirmable
 
   has_many :rosters, dependent: :destroy
+
+  validates_format_of :password, with: /\A[A-Za-z0-9. ! @ # $ % ^ & * ( ) _ - + = ]*\z/,
+                                 message: 'must be unicode characters.'
 end
