@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   end
   root 'homepage#index'
   get '/confirmation/:confirmation_token', to: 'homepage#index', as: :frontend_user_confirmation
+  get '/reset_password/:confirmation_token', to: 'homepage#index', as: :frontend_user_password_reset
   get '/*path' => 'homepage#index' # Redirect non-api traffic to the client side.
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
