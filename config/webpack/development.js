@@ -1,5 +1,5 @@
-process.env.NODE_ENV = process.env.NODE_ENV || 'development'
+process.env.NODE_ENV = process.env.NODE_ENV || 'development';
 
-const environment = require('./environment')
+import { toWebpackConfig } from './environment';
 
-module.exports = environment.toWebpackConfig()
+export default toWebpackConfig();
