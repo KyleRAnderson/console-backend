@@ -7,7 +7,6 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       shallow do
-        resources :users, only: %i[index create show destroy], defaults: { format: 'json' }
         resources :rosters, only: %i[index create show destroy], defaults: { format: 'json' } do
           resources :participants, only: %i[index create show destroy update], defaults: { format: 'json' }
           resources :hunts, only: %i[index create show destroy update], defaults: { format: 'json' } do
