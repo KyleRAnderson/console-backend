@@ -5,16 +5,12 @@ RSpec.describe Participant, type: :model do
   let(:attribute_wrong_type) { { 'first': {} } }
   let(:license) { create(:license) }
 
-  rosters = [Roster.create(name: 'test'),
-             Roster.create(name: 'test', participant_properties: ['first']),
-             Roster.create(name: 'test', participant_properties: ['first', 'second', 'third', 'fourth'])]
-
-  rosters.each do |roster|
-    attributes = roster.participant_properties.to_h { |property| [property, "test-#{property}"] }
-    subject(:participant) {
-      roster.participants.build(first: 'firstname',
-                                last: 'lastname', extras: attributes)
-    }
+  shared_examples 'rosters' do |participant_properties|
+    let(:roster) { create(:roster, participant_properties: participant_properties) }
+    subject(:participant) do
+      extras = roster.participant_properties.to_h { |property| [property, "test-#{property}"] }
+      build(:participant, roster: roster, extras: extras)
+    end
 
     it 'is valid with default construction' do
       expect(participant).to be_valid
@@ -59,5 +55,9 @@ RSpec.describe Participant, type: :model do
         end
       end
     end
+  end
+
+  [[], ['first'], ['first', 'second', 'third', 'fourth']].each do |properties|
+    include_examples 'rosters', properties
   end
 end
