@@ -38,9 +38,9 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def prepare_participant
-    @participant ||= Participant.joins(:roster)
-                                .find_by(id: params[:id],
-                                         rosters: { user_id: current_user.id })
+    query = Participant.where(id: params[:id]).joins(roster: :permissions)
+    @participant ||= query.where(rosters: { owner: current_user })
+      .or(query.where(rosters: { permissions: { user: current_user } })).first
     head :not_found unless @participant
   end
 

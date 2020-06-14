@@ -6,7 +6,7 @@ RSpec.describe Round, type: :model do
 
   describe 'with valid configuration, no specified number' do
     it 'can be saved' do
-      expected_number = round.hunt.rounds.order(number: :desc).take(1).first.number + 1
+      expected_number = round.hunt.rounds.order(number: :desc).first.number + 1
       expect(round.save).to be true
       expect(round.number).to eq(expected_number)
     end

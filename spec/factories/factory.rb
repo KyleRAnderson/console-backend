@@ -16,7 +16,7 @@ FactoryBot.define do
       after(:create) do |user, evaluator|
         create_list(:roster_with_participants_hunts,
                     evaluator.num_rosters,
-                    users: [user])
+                    owner: user)
       end
     end
   end
@@ -28,12 +28,8 @@ FactoryBot.define do
   end
 
   factory :roster do
-    transient do
-      user { create(:user) }
-    end
-
+    owner factory: :user
     sequence(:name) { |n| "roster#{n}" }
-    permissions { [build(:permission, roster: nil, user: user, level: :owner)] }
     participant_properties { num_participant_properties.times.map { |n| "#{n}_#{Faker::Lorem.word}" } }
 
     factory :roster_with_participants_hunts do

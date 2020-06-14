@@ -1,6 +1,8 @@
 class MatchesChannel < ApplicationCable::Channel
   def subscribed
-    hunt = Hunt.joins(:roster).find_by(id: params[:hunt_id], rosters: { user_id: current_user.id })
+    query = Hunt.joins(roster: :permissions).where(id: params[:hunt_id])
+    hunt = query.where(rosters: { owner: current_user })
+      .or(query.where(rosters: { permissions: { user: current_user } })).first
     stream_for hunt
   end
 end

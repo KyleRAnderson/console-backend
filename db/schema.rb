@@ -76,6 +76,8 @@ ActiveRecord::Schema.define(version: 2020_06_13_193813) do
     t.text "participant_properties"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.uuid "owner_id"
+    t.index ["owner_id"], name: "index_rosters_on_owner_id"
   end
 
   create_table "rounds", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -112,5 +114,6 @@ ActiveRecord::Schema.define(version: 2020_06_13_193813) do
   add_foreign_key "participants", "rosters"
   add_foreign_key "permissions", "rosters"
   add_foreign_key "permissions", "users"
+  add_foreign_key "rosters", "users", column: "owner_id"
   add_foreign_key "rounds", "hunts"
 end

@@ -2,7 +2,8 @@ class Roster < ApplicationRecord
   before_validation :strip_properties
 
   # Use delete_all so that we don't call hooks on the roster permissions.
-  has_many :permissions, dependent: :delete_all
+  belongs_to :owner, class_name: 'User'
+  has_many :permissions, dependent: :destroy
   has_many :participants, dependent: :destroy
   has_many :hunts, dependent: :destroy
   has_many :users, through: :permissions
@@ -16,10 +17,23 @@ class Roster < ApplicationRecord
   validate :validate_proper_properties
   validate :validate_unique_properties
   validate :validate_nonempty_properties
-  validate :validate_owner_present
   validate :validate_unchanged_participant_properties, on: :update
 
+  def promote_user!
+    new_owner = next_owner
+    return unless new_owner
+
+    self.owner = new_owner.user
+    new_owner.destroy
+    save
+  end
+
   private
+
+  def next_owner
+    # Gets the next user in line for ownership of this roster
+    permissions.order(level: :asc, created_at: :asc).first
+  end
 
   def strip_properties
     participant_properties.each(&:strip!)
@@ -45,10 +59,6 @@ class Roster < ApplicationRecord
         errors.add :roster, 'Roster has empty string participant properties'
       end
     end
-  end
-
-  def validate_owner_present
-    errors.add(:roster, 'must have an associated owner') if permissions.blank?
   end
 
   def validate_unchanged_participant_properties

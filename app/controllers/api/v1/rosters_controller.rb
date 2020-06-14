@@ -11,7 +11,7 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def index
-    render json: current_user.rosters
+    render json: current_user.rosters.as_json + current_user.permissions.as_json(only: :level, include: :roster)
   end
 
   def destroy
