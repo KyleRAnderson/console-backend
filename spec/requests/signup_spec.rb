@@ -14,8 +14,8 @@ RSpec.describe 'POST api/v1/signup', type: :request do
   context 'when user is unauthenticated' do
     before { post url, params: params }
 
-    it 'returns 200' do
-      expect(response.status).to eq 200
+    it 'returns 201' do
+      expect(response.status).to eq 201
     end
 
     it 'returns an unconfirmed new user' do
@@ -31,14 +31,13 @@ RSpec.describe 'POST api/v1/signup', type: :request do
       post url, params: params
     end
 
-    it 'returns bad request status' do
-      expect(response.status).to eq 400
+    it 'returns user error request status' do
+      expect(response).to have_http_status(:unprocessable_entity)
     end
 
     it 'returns validation errors' do
       errors = JSON.parse(response.body)
-      expect(errors['status']).to eq('400')
-      expect(errors['title']).to eq('Bad Request')
+      expect(errors['errors']['email']).not_to be_blank
     end
   end
 end

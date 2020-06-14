@@ -40,7 +40,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       it 'succeeds and destroys the provided license' do
         delete api_v1_license_path(license)
         expect(response).to have_http_status(:success)
-        expect(License.find_by(id: license.id)).to be_nil
+        expect(license).to be_destroyed
       end
     end
 

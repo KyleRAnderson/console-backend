@@ -105,7 +105,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
         deletion_participant = @steve.rosters.first.participants.first
         delete api_v1_participant_path(deletion_participant)
         expect(response).to have_http_status(:success)
-        expect(Participant.find_by(id: deletion_participant.id)).to be_nil
+        expect(deletion_participant).to be_destroyed
       end
     end
   end

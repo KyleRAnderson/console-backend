@@ -5,10 +5,11 @@ class Match < ApplicationRecord
 
   before_create :assign_local_id
   after_create :update_hunt_match_id
+  before_destroy :allow_destroy
+  after_destroy :disallow_destroy
 
   validate :validate_two_unique_licenses
   validate :validate_round_not_closed
-  validate :validate_unchanged_properties, on: :update
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],
@@ -17,20 +18,29 @@ class Match < ApplicationRecord
           } } }, **options)
   end
 
+  protected
+
+  def readonly?
+    (!new_record? && !@being_destroyed) || super
+  end
+
   private
 
   def validate_two_unique_licenses
-    errors.add(:match, 'Match must have unique licenses.') unless licenses.uniq.length == licenses.length
-    errors.add(:match, 'Match must have exactly two licenses.') unless licenses.length == 2
-  end
-
-  def validate_unchanged_properties
-    errors.add(:match, 'Cannot change local id after creation.') if local_id_changed?
-    errors.add(:match, 'Cannot change round after creation.') if round_id_changed?
+    errors.add(:match, 'must have unique licenses.') unless licenses.uniq.length == licenses.length
+    errors.add(:match, 'must have exactly two licenses.') unless licenses.length == 2
   end
 
   def validate_round_not_closed
-    errors.add(:match, 'Cannot be associated with a closed round.') if round.closed?
+    errors.add(:match, 'Cannot be associated with a closed round.') if round&.closed?
+  end
+
+  def allow_destroy
+    @being_destroyed = true
+  end
+
+  def disallow_destroy
+    @being_destroyed = false
   end
 
   # Needs to be called after validations, which means that round has been assigned.

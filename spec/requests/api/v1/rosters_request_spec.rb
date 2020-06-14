@@ -99,10 +99,10 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
 
     describe 'DELETE /destroy' do
       it 'returns http success and deletes the object' do
-        toDelete = @steve.rosters.first
-        delete api_v1_roster_path(toDelete)
+        to_delete = @steve.rosters.first
+        delete api_v1_roster_path(to_delete)
         expect(response).to have_http_status(:success)
-        expect(@steve.rosters.find_by(id: toDelete.id)).to be_nil
+        expect(to_delete).to be_destroyed
       end
     end
   end
