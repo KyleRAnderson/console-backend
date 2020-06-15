@@ -1,8 +1,8 @@
 class Roster < ApplicationRecord
-  before_validation :strip_properties
+  serialize :participant_properties, Array
 
   # Use delete_all so that we don't call hooks on the roster permissions.
-  has_many :permissions, dependent: :delete_all
+  has_many :permissions, dependent: :delete_all, autosave: true
   has_many :participants, dependent: :destroy
   has_many :hunts, dependent: :destroy
   has_many :users, through: :permissions
@@ -10,14 +10,15 @@ class Roster < ApplicationRecord
   accepts_nested_attributes_for :permissions
   accepts_nested_attributes_for :users
 
-  serialize :participant_properties, Array
-
+  validates_associated :permissions
   validates :name, presence: true
   validate :validate_proper_properties
   validate :validate_unique_properties
   validate :validate_nonempty_properties
-  validate :validate_owner_present
+  # validate :validate_owner_present
   validate :validate_unchanged_participant_properties, on: :update
+
+  before_validation :strip_properties
 
   private
 
@@ -48,7 +49,9 @@ class Roster < ApplicationRecord
   end
 
   def validate_owner_present
-    errors.add(:roster, 'must have an associated owner') if permissions.blank?
+    if permissions.select { |permission| permission.owner? }.empty?
+      errors.add(:roster, 'must have an associated owner')
+    end
   end
 
   def validate_unchanged_participant_properties

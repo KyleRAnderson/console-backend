@@ -9,6 +9,6 @@ class CreatePermissions < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    remove_column :rosters, :user_id
+    remove_belongs_to :rosters, :user
   end
 end

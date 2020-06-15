@@ -1,22 +1,22 @@
 class Permission < ApplicationRecord
-  # Order of the following two are important, need to destroy associated roster first if it's empty
-  after_destroy :clean_up_roster,
-                if: proc { |permission| permission.roster.permissions.empty? }
-  after_destroy :reassign_owner,
-                if: proc { |permission| permission.owner? && !permission.roster.destroyed? }
-
-  belongs_to :roster
+  belongs_to :roster, optional: true
   belongs_to :user
 
   enum level: %i[owner administrator operator viewer]
 
   validates :level, uniqueness: { scope: :roster },
                     if: proc { |permission| permission.owner? }
-  validate :validate_unchanged_user_roster, on: :update
+  validate :validate_unchanged_properties, on: :update
+
+  # Order of the following two are important, need to destroy associated roster first if it's empty
+  after_destroy :clean_up_roster,
+                if: proc { |permission| permission.roster&.permissions&.empty? }
+  after_destroy :reassign_owner,
+                if: proc { |permission| permission.owner? && permission.roster && !permission.roster.destroyed? }
 
   private
 
-  def validate_unchanged_user_roster
+  def validate_unchanged_properties
     errors.add(:permission, 'cannot change associated user') if user_id_changed?
     errors.add(:permission, 'cannot change associated roster') if roster_id_changed?
   end
