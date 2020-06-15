@@ -32,7 +32,7 @@ RSpec.describe Match, type: :model do
   it 'cannot change round after save' do
     expect(match.save).to be true
     match.round = other_round
-    cannot_save_and_errors(match)
+    cannot_save_readonly(match)
   end
 
   describe 'with closed round' do

@@ -3,13 +3,13 @@ class Match < ApplicationRecord
   has_and_belongs_to_many :licenses, before_add: :on_add_license
   has_many :participants, through: :licenses
 
+  validate :validate_two_unique_licenses
+  validate :validate_round_not_closed
+
   before_create :assign_local_id
   after_create :update_hunt_match_id
   before_destroy :allow_destroy
   after_destroy :disallow_destroy
-
-  validate :validate_two_unique_licenses
-  validate :validate_round_not_closed
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],

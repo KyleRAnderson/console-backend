@@ -1,5 +1,6 @@
 class Participant < ApplicationRecord
   belongs_to :roster
+
   has_many :licenses, dependent: :destroy, before_add: :ensure_license_participant_unset
   has_many :matches, through: :licenses
 
