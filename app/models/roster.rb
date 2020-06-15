@@ -15,7 +15,7 @@ class Roster < ApplicationRecord
   validate :validate_proper_properties
   validate :validate_unique_properties
   validate :validate_nonempty_properties
-  # validate :validate_owner_present
+  validate :validate_owner_present
   validate :validate_unchanged_participant_properties, on: :update
 
   before_validation :strip_properties
@@ -49,7 +49,7 @@ class Roster < ApplicationRecord
   end
 
   def validate_owner_present
-    if permissions.select { |permission| permission.owner? }.empty?
+    if permissions.select(&:owner?).empty?
       errors.add(:roster, 'must have an associated owner')
     end
   end
