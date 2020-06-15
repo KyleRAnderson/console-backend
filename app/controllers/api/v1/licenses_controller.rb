@@ -36,9 +36,11 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def prepare_license
-    @license ||= License.joins(hunt: :roster)
+    @license ||= License.joins(hunt: { roster: :permissions })
                         .find_by(id: params[:id],
-                                 hunts: { rosters: { user_id: current_user.id } })
+                                 hunts: { rosters: { permissions: {
+                                   user_id: current_user.id,
+                                 } } })
     head :not_found unless @license
   end
 end

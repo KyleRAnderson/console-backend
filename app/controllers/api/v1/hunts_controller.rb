@@ -36,7 +36,8 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def prepare_hunt
-    @hunt ||= Hunt.joins(:roster).find_by(id: params[:id], rosters: { user_id: current_user.id })
+    @hunt ||= Hunt.joins(roster: :permission)
+      .find_by(id: params[:id], rosters: { permission: { user_id: current_user.id } })
     head :not_found unless @hunt
   end
 end
