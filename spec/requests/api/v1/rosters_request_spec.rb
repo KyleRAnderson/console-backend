@@ -26,7 +26,6 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
           roster = JSON.parse(response.body)
           expect(roster['id']).not_to be_empty
           expect(roster['name']).to eq('Test roster 1')
-          expect(roster['user_id']).to eq(@steve.id)
           expect(roster['participant_properties']).to be_empty
         end
       end
@@ -60,7 +59,6 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
           roster = JSON.parse(response.body)
           expect(roster['id']).not_to be_empty
           expect(roster['name']).to eq('Test roster 2')
-          expect(roster['user_id']).to eq(@steve.id)
           expect(roster['participant_properties'].count).to eq(3)
           expect(roster['participant_properties'][0]).to eq('one')
           expect(roster['participant_properties'][1]).to eq('two')
@@ -74,7 +72,6 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
         get api_v1_roster_path(@steve.rosters.first)
         expect(response).to have_http_status(:success)
         roster = JSON.parse(response.body)
-        expect(roster['user_id']).to eq(@steve.id)
         expect(roster['name']).to eq(@steve.rosters.first.name)
         expect(roster['participant_properties'].count).to eq(3)
       end
@@ -93,7 +90,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
         expect(response).to have_http_status(:success)
         rosters = JSON.parse(response.body)
         expect(rosters.count).to eq(1)
-        expect(rosters.first['name']).to eq(@steve.rosters.first.name)
+        expect(rosters.first['roster']['name']).to eq(@steve.rosters.first.name)
       end
     end
 
@@ -102,7 +99,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
         to_delete = @steve.rosters.first
         delete api_v1_roster_path(to_delete)
         expect(response).to have_http_status(:success)
-        expect(to_delete).to be_destroyed
+        expect(Roster.exists?(to_delete.id)).to be false
       end
     end
   end
