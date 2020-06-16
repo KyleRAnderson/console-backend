@@ -1,5 +1,5 @@
 class Permission < ApplicationRecord
-  belongs_to :roster, optional: true
+  belongs_to :roster
   belongs_to :user
 
   enum level: %i[owner administrator operator viewer]
@@ -10,7 +10,7 @@ class Permission < ApplicationRecord
 
   # Order of the following two are important, need to destroy associated roster first if it's empty
   after_destroy :clean_up_roster,
-                if: proc { |permission| permission.roster&.permissions&.empty? }
+                if: proc { |permission| permission.roster&.permissions&.reload&.blank? }
   after_destroy :reassign_owner,
                 if: proc { |permission| permission.owner? && permission.roster && !permission.roster.destroyed? }
 
@@ -27,6 +27,6 @@ class Permission < ApplicationRecord
 
   def reassign_owner
     roster.permissions.order(level: :asc, created_at: :asc)
-      .take(1).first.owner!
+      .first.owner!
   end
 end

@@ -20,6 +20,10 @@ class Roster < ApplicationRecord
 
   before_validation :strip_properties
 
+  def owner
+    permissions.find_by(level: :owner)
+  end
+
   private
 
   def strip_properties
