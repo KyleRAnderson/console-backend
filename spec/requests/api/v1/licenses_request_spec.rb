@@ -9,8 +9,8 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
   before(:each) { sign_in(@user) }
 
   describe 'with logged in user' do
-    let(:roster) { create(:roster_with_participants_hunts, user: @user, num_hunts: 2, num_participants: 10) }
-    let(:hunt) { create(:hunt_with_licenses_rounds, roster: roster) }
+    let(:roster) { create(:full_roster, user: @user, num_hunts: 2, num_participants: 10) }
+    let(:hunt) { create(:full_hunt, roster: roster) }
     let(:participant) { create(:participant, roster: roster) }
     let(:other_participant) { create(:participant, roster: roster) }
     let(:license) { create(:license, hunt: hunt, participant: participant) }
@@ -87,8 +87,8 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     end
 
     describe 'get licenses (INDEX)' do
-      let(:roster_50_participants) { create(:roster_with_participants_hunts, num_hunts: 0, num_participants: 50, user: @user) }
-      let(:hunt_50_licenses) { create(:hunt_with_licenses_rounds, roster: roster_50_participants, num_rounds: 0) }
+      let(:roster_50_participants) { create(:full_roster, num_hunts: 0, num_participants: 50, user: @user) }
+      let(:hunt_50_licenses) { create(:full_hunt, roster: roster_50_participants, num_rounds: 0) }
 
       it 'gets all the licenses associated with the hunt' do
         previous_licenses = nil

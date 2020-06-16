@@ -6,8 +6,8 @@ RSpec.describe 'Api::V1::Participants', type: :request do
   context 'with logged in user' do
     before(:all) do
       @steve = create(:user)
-      create(:roster_with_participants_hunts, num_participants: 10,
-                                              user: @steve, participant_properties: ['one', 'two'])
+      create(:full_roster, num_participants: 10,
+                           user: @steve, participant_properties: ['one', 'two'])
     end
 
     after(:all) { @steve.destroy! }
@@ -85,7 +85,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
 
       context 'for a roster with no participant properties' do
         let(:roster_no_properties) do
-          create(:roster_with_participants_hunts,
+          create(:full_roster,
                  num_participants: 15, num_participant_properties: 0, user: @steve)
         end
 
@@ -113,7 +113,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
   context 'without authorized user' do
     it 'returns 401 for all requests' do
       steve = create(:user_with_rosters, num_rosters: 4)
-      roster = create(:roster_with_participants_hunts, user: steve, num_participants: 10)
+      roster = create(:full_roster, user: steve, num_participants: 10)
 
       get api_v1_roster_participants_path(steve.rosters.first)
       expect(response).to have_http_status(:unauthorized)

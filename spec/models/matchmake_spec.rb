@@ -123,7 +123,7 @@ RSpec.describe Matchmake do
   PROPERTIES = ['num', 'food'].freeze
 
   # Has to be referenced after roster creation.
-  let(:hunt) { create(:hunt_with_licenses_rounds, roster: roster, num_rounds: 1) }
+  let(:hunt) { create(:full_hunt, roster: roster, num_rounds: 1) }
   let(:roster) { create(:roster, participant_properties: participant_properties) }
 
   describe 'within matchmaking' do

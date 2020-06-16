@@ -4,7 +4,7 @@ RSpec.describe Roster, type: :model do
   let(:user) { create(:user) }
 
   it 'deletes associated participants upon destroy' do
-    roster = create(:roster_with_participants_hunts, user: user, num_participants: 100)
+    roster = create(:full_roster, user: user, num_participants: 100)
     roster.destroy!
 
     expect(Roster.count).to eq(0)

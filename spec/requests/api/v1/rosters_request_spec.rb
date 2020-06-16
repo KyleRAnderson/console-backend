@@ -4,7 +4,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
   context 'with logged in user' do
     before(:all) do
       @steve = create(:user)
-      create(:roster_with_participants_hunts, num_participant_properties: 3, user: @steve)
+      create(:full_roster, num_participant_properties: 3, user: @steve)
     end
     after(:all) { @steve.destroy! }
 

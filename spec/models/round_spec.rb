@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Round, type: :model do
-  let(:hunt) { create(:hunt_with_licenses_rounds, num_rounds: 4) }
+  let(:hunt) { create(:full_hunt, num_rounds: 4) }
   subject(:round) { build(:round, hunt: hunt) }
 
   describe 'with valid configuration, no specified number' do
