@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-DEFAULT_PASSWORD = '321Passwd$$$'
+DEFAULT_PASSWORD = (('a'..'z').to_a * 6).shuffle[0..rand(8..12)].join
 
 FactoryBot.define do
   factory :user do
