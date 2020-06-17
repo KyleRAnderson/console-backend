@@ -1,4 +1,6 @@
 class Roster < ApplicationRecord
+  include PermissionJSON
+
   serialize :participant_properties, Array
 
   # Use delete_all so that we don't call hooks on the roster permissions.
