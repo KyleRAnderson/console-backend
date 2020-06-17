@@ -9,13 +9,13 @@ class Api::V1::RoundsController < ApplicationController
     render json: current_hunt.rounds, status: :ok
   end
 
+  def show
+    render json: @round, status: :ok
+  end
+
   def create
     round = current_hunt.rounds.build(round_params)
     save_and_render_resource(round)
-  end
-
-  def show
-    render json: @round, status: :ok
   end
 
   def destroy

@@ -7,12 +7,12 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       shallow do
-        resources :rosters, only: %i[index create show destroy], defaults: { format: 'json' } do
-          resources :participants, only: %i[index create show destroy update], defaults: { format: 'json' }
-          resources :hunts, only: %i[index create show destroy update], defaults: { format: 'json' } do
-            resources :licenses, only: %i[index create show destroy update], defaults: { format: 'json' }
-            resources :rounds, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number, shallow: false
-            resources :matches, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number, shallow: false
+        resources :rosters, only: %i[index show create destroy], defaults: { format: 'json' } do
+          resources :participants, only: %i[index show create update destroy], defaults: { format: 'json' }
+          resources :hunts, only: %i[index show create update destroy], defaults: { format: 'json' } do
+            resources :licenses, only: %i[index show create update destroy], defaults: { format: 'json' }
+            resources :rounds, only: %i[index show create destroy], defaults: { format: 'json' }, param: :number, shallow: false
+            resources :matches, only: %i[index show create destroy], defaults: { format: 'json' }, param: :number, shallow: false
             post '/matchmake/', to: 'matches#matchmake'
           end
         end

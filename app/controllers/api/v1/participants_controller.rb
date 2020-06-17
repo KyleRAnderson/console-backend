@@ -11,21 +11,21 @@ class Api::V1::ParticipantsController < ApplicationController
     render json: paginated_ordered(participants, key: :participants), status: :ok
   end
 
-  def create
-    save_and_render_resource(current_roster.participants.build(participant_params))
-  end
-
-  def destroy
-    destroy_and_render_resource(@participant)
-  end
-
   def show
     render json: @participant, status: :ok
+  end
+
+  def create
+    save_and_render_resource(current_roster.participants.build(participant_params))
   end
 
   def update
     @participant.update(participant_params)
     render_resource(@participant)
+  end
+
+  def destroy
+    destroy_and_render_resource(@participant)
   end
 
   private

@@ -2,6 +2,15 @@ class Api::V1::RostersController < ApplicationController
   before_action :authenticate_user!
   before_action :prepare_roster, except: %i[index create]
 
+  def index
+    # render json: current_user.permissions.includes(:roster).as_json(only: :level, include: :roster) # FIXME method needs fixing
+    render json: current_user.rosters
+  end
+
+  def show
+    render json: @roster.as_json.merge(@permission.as_json(only: :level)), status: :ok
+  end
+
   def create
     roster = current_user.rosters.build(roster_params)
     roster.permissions.build(user: current_user)

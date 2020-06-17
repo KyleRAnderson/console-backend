@@ -12,6 +12,10 @@ class Api::V1::LicensesController < ApplicationController
                            key: :licenses), status: :ok
   end
 
+  def show
+    render json: @license, status: :ok
+  end
+
   def create
     save_and_render_resource(current_hunt.licenses.build(license_params))
   end
@@ -19,10 +23,6 @@ class Api::V1::LicensesController < ApplicationController
   def update
     @license.update(license_params)
     render_resource(@license)
-  end
-
-  def show
-    render json: @license, status: :ok
   end
 
   def destroy
