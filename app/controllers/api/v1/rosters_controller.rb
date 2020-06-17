@@ -17,12 +17,8 @@ class Api::V1::RostersController < ApplicationController
     save_and_render_resource(roster)
   end
 
-  def show
-    render json: @roster.as_json.merge(@permission.as_json(only: :level)), status: :ok
-  end
-
-  def index
-    render json: current_user.permissions.includes(:roster).as_json(only: :level, include: :roster)
+  def update
+    render_resource(@roster.update(roster_params))
   end
 
   def destroy
@@ -37,8 +33,8 @@ class Api::V1::RostersController < ApplicationController
 
   def prepare_roster
     # Reason I use find_by instead of find is because find_by sets nil when not found
-    @permission ||= current_user.permissions.find_by(roster_id: params[:id])
-    @roster ||= @permission&.roster
-    head :not_found unless @roster && @permission
+    @roster ||= current_user.rosters.find_by(id: params[:id])
+    head :not_found unless @roster
+    authorize @roster
   end
 end
