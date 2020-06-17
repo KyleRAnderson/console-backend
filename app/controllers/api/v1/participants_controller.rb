@@ -45,6 +45,6 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def ordering_params
-    params.permit(:first, :last)
+    params.slice(:first, :last)
   end
 end
