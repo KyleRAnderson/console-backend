@@ -1,6 +1,22 @@
 class ApplicationPolicy
   attr_reader :user, :record, :permission
 
+  class Scope
+    attr_reader :user, :scope
+
+    def initialize(user, scope)
+      # This should never get raised if authentication is done properly
+      raise Pundit::NotAuthorizedError, 'must be logged in' unless user
+
+      @user = user
+      @scope = scope
+    end
+
+    def resolve
+      scope.all
+    end
+  end
+
   def initialize(user, record)
     # This should never get raised if authentication is done properly
     raise Pundit::NotAuthorizedError, 'must be logged in' unless user
@@ -19,11 +35,15 @@ class ApplicationPolicy
     true
   end
 
-  def create?
-    permission.owner? || permission.administrator? || permission.operator?
+  def new?
+    create?
   end
 
-  def new?
+  def edit?
+    update?
+  end
+
+  def create?
     permission.owner? || permission.administrator? || permission.operator?
   end
 
@@ -31,27 +51,7 @@ class ApplicationPolicy
     permission.owner? || permission.administrator? || permission.operator?
   end
 
-  def edit?
-    permission.owner? || permission.administrator? || permission.operator?
-  end
-
   def destroy?
     permission.owner? || permission.administrator? || permission.operator?
-  end
-
-  class Scope
-    attr_reader :user, :scope
-
-    def initialize(user, scope)
-      # This should never get raised if authentication is done properly
-      raise Pundit::NotAuthorizedError, 'must be logged in' unless user
-
-      @user = user
-      @scope = scope
-    end
-
-    def resolve
-      scope.all
-    end
   end
 end
