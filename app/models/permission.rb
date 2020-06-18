@@ -4,10 +4,10 @@ class Permission < ApplicationRecord
 
   enum level: %i[owner administrator operator viewer]
 
-  validates :level, uniqueness: { scope: :roster, message: 'Only one owner per roster may exist.' },
-                    if: proc { |permission| permission.owner? }
   validate :validate_unchanged_properties, on: :update
+  validate :validate_unchanged_owner, on: :update
 
+  before_save :demote_owner, if: proc { |permission| permission.owner? && (permission.new_record? || permission.level_changed?) }
   # Order of the following two are important, need to destroy associated roster first if it's empty
   after_destroy :clean_up_roster,
                 if: proc { |permission| permission.roster&.permissions&.reload&.blank? }
@@ -19,6 +19,18 @@ class Permission < ApplicationRecord
   def validate_unchanged_properties
     errors.add(:permission, 'cannot change associated user') if user_id_changed?
     errors.add(:permission, 'cannot change associated roster') if roster_id_changed?
+  end
+
+  def validate_unchanged_owner
+    return unless level_changed? && level_was == 'owner'
+    errors.add :permission, 'cannot demote and leave roster with no owner'
+  end
+
+  def demote_owner
+    # Demotes the owner in this permission's roster to an administrator
+    # If this permission is just being created, the roster might not exist yet,
+    # or may not have an owner yet. This might be the owner.
+    roster&.owner&.update(level: :administrator)
   end
 
   def clean_up_roster
