@@ -90,7 +90,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
         expect(response).to have_http_status(:success)
         rosters = JSON.parse(response.body)
         expect(rosters.count).to eq(1)
-        expect(rosters.first['roster']['name']).to eq(@steve.rosters.first.name)
+        expect(rosters.first['name']).to eq(@steve.rosters.first.name)
       end
     end
 
