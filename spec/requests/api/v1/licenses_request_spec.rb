@@ -1,15 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Licenses', type: :request do
-  before(:all) do
-    @user = create(:user_with_rosters)
+  let(:user) do
+    user = create(:user_with_rosters)
+    sign_in(user)
+    user
   end
-  after(:all) { @user.destroy! }
-
-  before(:each) { sign_in(@user) }
 
   describe 'with logged in user' do
-    let(:roster) { create(:full_roster, user: @user, num_hunts: 2, num_participants: 10) }
+    let(:roster) { create(:full_roster, user: user, num_hunts: 2, num_participants: 10) }
     let(:hunt) { create(:full_hunt, roster: roster) }
     let(:participant) { create(:participant, roster: roster) }
     let(:other_participant) { create(:participant, roster: roster) }
@@ -87,7 +86,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     end
 
     describe 'get licenses (INDEX)' do
-      let(:roster_50_participants) { create(:full_roster, num_hunts: 0, num_participants: 50, user: @user) }
+      let(:roster_50_participants) { create(:full_roster, num_hunts: 0, num_participants: 50, user: user) }
       let(:hunt_50_licenses) { create(:full_hunt, roster: roster_50_participants, num_rounds: 0) }
 
       it 'gets all the licenses associated with the hunt' do
@@ -110,6 +109,9 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
   describe 'with incorrect logged in user' do
     let(:wrong_user_license) { create(:license) }
+
+    # Just need to reference the user to log them in.
+    before(:each) { user }
 
     describe 'show action' do
       it 'returns 404' do
