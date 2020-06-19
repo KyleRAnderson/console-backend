@@ -1,7 +1,9 @@
 class Round < ApplicationRecord
   belongs_to :hunt
 
+  has_one :roster, through: :hunt
   has_many :matches, dependent: :destroy
+  has_many :permissions, through: :roster
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }
   validate :validate_no_other_round_with_same_number

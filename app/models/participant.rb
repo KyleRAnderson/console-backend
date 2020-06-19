@@ -3,6 +3,7 @@ class Participant < ApplicationRecord
 
   has_many :licenses, dependent: :destroy, before_add: :ensure_license_participant_unset
   has_many :matches, through: :licenses
+  has_many :permissions, through: :roster
 
   validates :first, presence: true
   validates :last, presence: true

@@ -7,9 +7,7 @@ class Permission < ApplicationRecord
   validate :validate_unchanged_properties, on: :update
   validate :validate_unchanged_owner, on: :update
 
-  before_save :demote_owner, if: proc do |permission|
-    permission.owner? && roster&.owner != permission
-  end
+  before_save :demote_owner, if: proc { owner? && roster&.owner != self }
   # Order of the following two are important, need to destroy associated roster first if it's empty
   after_destroy :clean_up_roster,
                 if: proc { |permission| permission.roster&.permissions&.reload&.blank? }

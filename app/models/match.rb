@@ -1,7 +1,10 @@
 class Match < ApplicationRecord
   belongs_to :round
+
+  has_one :roster, through: :round
   has_and_belongs_to_many :licenses, before_add: :on_add_license
   has_many :participants, through: :licenses
+  has_many :permissions, through: :roster
 
   validate :validate_two_unique_licenses
   validate :validate_unchanged_properties
