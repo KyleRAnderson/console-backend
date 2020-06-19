@@ -20,10 +20,6 @@ class Api::V1::MatchesController < ApplicationController
     save_and_render_resource(match)
   end
 
-  def destroy
-    destroy_and_render_resource(@match)
-  end
-
   def matchmake
     MatchmakeLicensesJob.perform_later(current_hunt, matchmake_params.to_h)
     head :ok
