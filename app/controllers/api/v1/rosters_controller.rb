@@ -17,7 +17,9 @@ class Api::V1::RostersController < ApplicationController
   end
 
   def update
-    render_resource(@roster.update(roster_params))
+    @roster.assign_attributes(roster_params)
+    authorize @roster
+    save_and_render_resource(@roster)
   end
 
   def destroy
@@ -34,9 +36,10 @@ class Api::V1::RostersController < ApplicationController
     # Reason I use find_by instead of find is because find_by sets nil when not found
     @roster ||= current_user.rosters.find_by(id: params[:id])
     if @roster
-      authorize @roster
+      # Authorization on update has to be done after record is modified.
+      authorize @roster unless action_name == 'update'
     else
-      head :not_found unless @roster
+      head :not_found
     end
   end
 end
