@@ -56,9 +56,10 @@ RSpec.describe Permission, type: :model do
 
   describe 'behaviour' do
     context 'with an owner already in the roster' do
-      it 'cannot create another owner for that roster' do
-        new_permission = build(:permission, roster: roster, level: :owner)
-        cannot_save_and_errors(new_permission)
+      it 'demotes the owner to administrator, and promotes the permission' do
+        new_permission = create(:permission, roster: roster, level: :owner)
+        expect(permission.reload).to be_administrator
+        expect(new_permission).to be_owner
       end
     end
 

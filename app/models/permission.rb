@@ -7,7 +7,9 @@ class Permission < ApplicationRecord
   validate :validate_unchanged_properties, on: :update
   validate :validate_unchanged_owner, on: :update
 
-  before_save :demote_owner, if: proc { |permission| permission.owner? && (permission.new_record? || permission.level_changed?) }
+  before_save :demote_owner, if: proc do |permission|
+    permission.owner? && roster&.owner != permission
+  end
   # Order of the following two are important, need to destroy associated roster first if it's empty
   after_destroy :clean_up_roster,
                 if: proc { |permission| permission.roster&.permissions&.reload&.blank? }
@@ -41,9 +43,8 @@ class Permission < ApplicationRecord
 
   def demote_owner
     # Demotes the owner in this permission's roster to an administrator
-    # If this permission is just being created, the roster might not exist yet,
-    # or may not have an owner yet. This might be the owner.
-    roster&.owner&.update(level: :administrator)
+    # Need to skip validations and callbacks.
+    roster&.owner&.update_attribute(:level, :administrator)
   end
 
   def clean_up_roster
