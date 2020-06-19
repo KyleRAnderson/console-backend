@@ -1,5 +1,5 @@
 class ApplicationPolicy
-  attr_reader :user, :record, :permission
+  attr_reader :user, :record
 
   class Scope
     attr_reader :user, :scope
@@ -23,16 +23,14 @@ class ApplicationPolicy
 
     @user = user
     @record = record
-    @permission = record.permissions.find_by(user_id: user.id)
-    raise Pundit::NotAuthorizedError, 'must have permission record' unless permission
   end
 
   def index?
-    true
+    false
   end
 
   def show?
-    true
+    false
   end
 
   def new?
@@ -44,14 +42,14 @@ class ApplicationPolicy
   end
 
   def create?
-    permission.owner? || permission.administrator? || permission.operator?
+    false
   end
 
   def update?
-    permission.owner? || permission.administrator? || permission.operator?
+    false
   end
 
   def destroy?
-    permission.owner? || permission.administrator? || permission.operator?
+    false
   end
 end
