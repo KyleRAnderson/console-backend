@@ -4,24 +4,18 @@ class Match < ApplicationRecord
   has_many :participants, through: :licenses
 
   validate :validate_two_unique_licenses
+  validate :validate_unchanged_properties
+  validate :validate_licenses_in_hunt
   validate :validate_round_not_closed
 
   before_create :assign_local_id
   after_create :update_hunt_match_id
-  before_destroy :allow_destroy
-  after_destroy :disallow_destroy
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],
                                include: {
             participant: { only: %i[id first last extras] },
           } } }, **options)
-  end
-
-  protected
-
-  def readonly?
-    (!new_record? && !@being_destroyed) || super
   end
 
   private
@@ -31,21 +25,22 @@ class Match < ApplicationRecord
     errors.add(:match, 'must have exactly two licenses.') unless licenses.length == 2
   end
 
+  def validate_unchanged_properties
+    errors.add(:match, 'cannot have attributes changed') if changed? && !new_record?
+  end
+
+  def validate_licenses_in_hunt
+    proper_licenses = licenses.all? { |license| license.hunt == round.hunt }
+    errors.add(:match, 'must have licenses which belong to the round\'s hunt') unless proper_licenses
+  end
+
   def validate_round_not_closed
     errors.add(:match, 'Cannot be associated with a closed round.') if round&.closed?
   end
 
-  def allow_destroy
-    @being_destroyed = true
-  end
-
-  def disallow_destroy
-    @being_destroyed = false
-  end
-
   # Needs to be called after validations, which means that round has been assigned.
   def assign_local_id
-    self.local_id = round.hunt.current_match_id + 1
+    self.local_id = round.hunt.next_match_id
   end
 
   def update_hunt_match_id

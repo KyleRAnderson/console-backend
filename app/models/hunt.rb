@@ -21,7 +21,11 @@ class Hunt < ApplicationRecord
   end
 
   def current_round
-    rounds.order(number: :desc).take(1).first
+    rounds.order(number: :desc).first
+  end
+
+  def next_match_id
+    current_match_id + 1
   end
 
   private

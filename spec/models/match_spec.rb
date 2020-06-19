@@ -29,10 +29,19 @@ RSpec.describe Match, type: :model do
     expect(match.licenses.to_a).not_to include(other_license)
   end
 
+  context 'with licenses from different hunts' do
+    it 'cannot be saved' do
+      license1 = build(:license)
+      match.licenses.delete(match.licenses.first)
+      match.licenses << license1
+      cannot_save_and_errors(match)
+    end
+  end
+
   it 'cannot change round after save' do
     expect(match.save).to be true
     match.round = other_round
-    cannot_save_readonly(match)
+    cannot_save_and_errors(match)
   end
 
   describe 'with closed round' do
