@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-DEFAULT_PASSWORD = (('a'..'z').to_a * 6).shuffle[0..rand(8..12)].join
+PASSWORD_CHARS = (('a'..'z').to_a * 2 + ('A'..'Z').to_a * 2 + ('0'..'9').to_a + "!@#$%^&*()_=-".chars).freeze
 
 FactoryBot.define do
   factory :user do
     email { Faker::Internet.email }
-    password { DEFAULT_PASSWORD }
+    password { PASSWORD_CHARS.shuffle[0..rand(8..12)].join }
     confirmed_at { DateTime.now }
 
     trait :with_rosters do
@@ -170,8 +170,8 @@ FactoryBot.define do
     hunt
   end
 
-  factory(:match) do
+  factory :match do
     round
-    licenses { create_list(:license, 2) }
+    licenses { create_list(:license, 2, hunt: round.hunt) }
   end
 end
