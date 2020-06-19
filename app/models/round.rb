@@ -8,11 +8,11 @@ class Round < ApplicationRecord
   validates :number, numericality: { only_integer: true, greater_than: 0 }
   validate :validate_no_other_round_with_same_number
 
-  before_validation :auto_assign_number, on: :create, if: Proc.new { number.nil? }
+  before_validation :auto_assign_number, on: :create, if: proc { number.blank? }
 
   # Determines if this round is "closed" (it is not the current round)
   def closed?
-    hunt.rounds.order(number: :desc).take(1).first.number > number
+    hunt.rounds.order(number: :desc).first.number > number
   end
 
   private
