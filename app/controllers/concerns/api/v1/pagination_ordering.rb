@@ -4,7 +4,7 @@ module Api::V1::PaginationOrdering
   def paginated(models, key: nil)
     page = params.fetch(:page, 1)
     per_page = params.fetch(:per_page, 40)
-    num_pages = (models.count.to_f / per_page.to_i).ceil if key
+    num_pages = (models.length.to_f / per_page.to_i).ceil if key
     paginated = models.paginate(page: page, per_page: per_page)
     { key => paginated, num_pages: num_pages } if key
   end
