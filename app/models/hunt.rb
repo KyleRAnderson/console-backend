@@ -5,7 +5,7 @@ class Hunt < ApplicationRecord
   has_many :rounds, dependent: :destroy
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
-  has_many :permission, through: :roster
+  has_many :permissions, through: :roster
 
   validates :name, presence: true
 
