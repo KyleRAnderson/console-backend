@@ -11,7 +11,7 @@ class RosterPolicy < ConsolePolicy
   end
 
   def update?
-    permission&.is_at_least?(:administrator)
+    permission&.at_least?(:administrator)
   end
 
   def destroy?

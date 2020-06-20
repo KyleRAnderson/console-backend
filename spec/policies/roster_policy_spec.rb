@@ -1,16 +1,14 @@
 require 'rails_helper'
 
-def filter_users(levels)
-  levels = levels.map(&:to_s)
-  users_to_policy(users.filter { |key, _| levels.include?(key) }
-    .values)
+def filter_to_policy(levels)
+  users_to_policy(users.slice(*levels.map(&:to_s)))
 end
 
 def users_to_policy(users)
   users.map { |user| subject.new(user, roster) }
 end
 
-RSpec.fdescribe RosterPolicy do
+RSpec.describe RosterPolicy do
   subject { RosterPolicy }
 
   let(:users) do
@@ -20,7 +18,7 @@ RSpec.fdescribe RosterPolicy do
   end
   let(:roster) { create(:roster) }
 
-  describe 'roster scope' do
+  describe '::Scope' do
     let(:user) { create(:user) }
     let!(:permitted_rosters) do
       %i[owner administrator operator viewer].map do |level|
@@ -45,16 +43,6 @@ RSpec.fdescribe RosterPolicy do
     end
   end
 
-  describe :index do
-    it 'denies operators, viewers and no permissions' do
-      expect(filter_users(%w[operator viewer])).to all forbid_action(described_class)
-    end
-
-    it 'allows owners and administrators' do
-      expect(filter_users(%w[owner administrator])).to all permit_action(described_class)
-    end
-  end
-
   describe :show do
     it 'permits users with a permission in the roster' do
       expect(users_to_policy(users)).to all permit_action(described_class)
@@ -69,17 +57,17 @@ RSpec.fdescribe RosterPolicy do
 
   describe :update do
     it 'denies operators and viewers' do
-      expect(filter_users(%w[operator viewer])).to all forbid_action(described_class)
+      expect(filter_to_policy(%w[operator viewer])).to all forbid_action(described_class)
     end
 
     it 'permits owners and administrators' do
-      expect(filter_users(%w[owner administrator])).to all permit_action(described_class)
+      expect(filter_to_policy(%w[owner administrator])).to all permit_action(described_class)
     end
   end
 
   describe :destroy do
     it 'denies all but owner' do
-      expect(filter_users(%w[administrator operator viewer])).to all forbid_action(described_class)
+      expect(filter_to_policy(%w[administrator operator viewer])).to all forbid_action(described_class)
     end
 
     it 'permits owners' do
