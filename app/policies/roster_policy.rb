@@ -6,10 +6,6 @@ class RosterPolicy < ConsolePolicy
     super(*args, require_permission: false)
   end
 
-  def index?
-    permission&.is_at_least?(:administrator)
-  end
-
   def create?
     true
   end

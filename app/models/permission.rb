@@ -14,7 +14,7 @@ class Permission < ApplicationRecord
   after_destroy :reassign_owner,
                 if: proc { |permission| permission.owner? && permission.roster && !permission.roster.destroyed? }
 
-  def is_at_least?(level)
+  def at_least?(level)
     # True if this permission is the same as the given level or higher.
     level = level.to_s
     role_order = Permission.levels.keys.reverse
