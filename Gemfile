@@ -62,6 +62,8 @@ group :test do
   gem 'factory_bot_rails', '~>5.2.0'
   # Database cleaner for after running tests
   gem 'database_cleaner'
+  # RSpec helpers for pundit
+  gem 'pundit-matchers', '~> 1.6.0'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
