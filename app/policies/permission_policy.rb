@@ -1,5 +1,5 @@
 class PermissionPolicy < ApplicationPolicy
-  alias_method :record, :permission
+  alias_method :permission, :record
 
   class Scope < Scope
     def resolve
@@ -22,7 +22,7 @@ class PermissionPolicy < ApplicationPolicy
   end
 
   def update?
-    # Must authorize the permission after the attributes have beeb changed
+    # Must authorize the permission after the attributes have been changed
     # but not saved. Need to know what things are changing to in order to authorize
     # the changes
     if permision.level_changed?(to: 'owner')
