@@ -4,6 +4,9 @@ class PermissionPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
       scope.where(user: user)
+        .or(scope.where(roster: user.rosters.joins(:permissions)
+                          .where(permissions: { level: %i[owner administrator operator] })))
+        .distinct
     end
   end
 
@@ -14,37 +17,36 @@ class PermissionPolicy < ApplicationPolicy
 
   def show?
     # Permission is one of their own or user is an owner or admin on the permission's roster.
-    owns_permission? || owner_or_admin?
+    owns_permission? || user_roster_permission.at_least?(:operator)
   end
 
   def create?
-    owner_or_admin?
+    # Will need built object to know if user has permission to create.
+    user_roster_permission.owner? ||
+      (user_roster_permission.administrator? &&
+       !permission.owner?)
   end
 
   def update?
     # Must authorize the permission after the attributes have been changed
     # but not saved. Need to know what things are changing to in order to authorize
     # the changes
-    if permision.level_changed?(to: 'owner')
-      user_roster_permission.owner?
-    else
-      # Nobody can demote an owner, instead an owner is demoted by promoting
-      # another user to owner.
-      !permission.level_changed?(from: 'owner') && owner_or_admin?
-    end
+    user_roster_permission.owner? ||
+      (user_roster_permission.administrator? &&
+       !permission.level_changed?(from: 'owner') &&
+       !permission.level_changed?(to: 'owner'))
   end
 
   def destroy?
-    owns_permission? || owner_or_admin?
+    owns_permission? ||
+      user_roster_permission.owner? ||
+      (user_roster_permission.administrator? &&
+       !permission.at_least?(:administrator))
   end
 
   private
 
   attr_reader :user_roster_permission
-
-  def owner_or_admin?
-    user_roster_permission&.is_at_least(:administrator)
-  end
 
   def owns_permission?
     # True if the current user owns the current permission, false otherwise
