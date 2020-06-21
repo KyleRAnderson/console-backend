@@ -8,7 +8,7 @@ def users_to_policy(users)
   users.map { |user| subject.new(user, roster) }
 end
 
-RSpec.describe RosterPolicy do
+RSpec.describe RosterPolicy, type: :policy do
   subject { RosterPolicy }
 
   let(:users) do

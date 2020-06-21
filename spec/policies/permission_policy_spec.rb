@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe PermissionPolicy do
+RSpec.describe PermissionPolicy, type: :policy do
   subject { PermissionPolicy }
   let(:users) { permission_matrix.to_h { |k, v| [k, v.user] } }
   let(:owner_permission) { create(:permission, level: :owner, roster: roster) }
