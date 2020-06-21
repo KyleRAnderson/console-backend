@@ -42,7 +42,7 @@ class Api::V1::HuntsController < ApplicationController
     head :not_found unless @hunt
   end
 
-  def authroize_hunt
+  def authorize_hunt
     authorize @hunt
   end
 end
