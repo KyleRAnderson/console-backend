@@ -5,9 +5,10 @@ class Api::V1::ParticipantsController < ApplicationController
   before_action :authenticate_user!
   before_action :current_roster, only: %i[index create]
   before_action :prepare_participant, except: %i[index create]
+  before_action :authorize_user, except: %i[index create update]
 
   def index
-    participants = current_roster.participants
+    participants = policy_scope(current_roster.participants)
     render json: paginated_ordered(participants, key: :participants), status: :ok
   end
 
@@ -16,12 +17,13 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def create
-    save_and_render_resource(current_roster.participants.build(participant_params))
+    participant = current_roster.participants.build(participant_params)
+    save_and_render_resource(authorize(participant))
   end
 
   def update
-    @participant.update(participant_params)
-    render_resource(@participant)
+    @participant.assign_attributes(participant_params)
+    render_resource(authorize(@participant))
   end
 
   def destroy
@@ -38,10 +40,12 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def prepare_participant
-    @participant ||= Participant.joins(roster: :permissions)
-                                .find_by(id: params[:id],
-                                         rosters: { permissions: { user_id: current_user.id } })
+    @participant ||= Participant.find_by(id: params[:id])
     head :not_found unless @participant
+  end
+
+  def authorize_user
+    authorize @participant
   end
 
   def ordering_params
