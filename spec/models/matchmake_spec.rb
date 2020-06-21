@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/unique_collection_generator'
 
 =begin
 Side note: I could have made several of these into their own

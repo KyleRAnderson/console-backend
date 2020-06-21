@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/record_saving'
 
 RSpec.describe Match, type: :model do
   let(:round) { create(:round) }

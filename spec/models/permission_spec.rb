@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/record_saving'
 
 RSpec.describe Permission, type: :model do
   subject(:permission) { create(:permission) }

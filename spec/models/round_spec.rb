@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/record_saving'
 
 RSpec.describe Round, type: :model do
   let(:hunt) { create(:full_hunt, num_rounds: 4) }
