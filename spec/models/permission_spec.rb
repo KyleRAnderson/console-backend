@@ -95,9 +95,9 @@ RSpec.describe Permission, type: :model do
 
         # Skip the very last promotee because this one should cause deletion.
         promotion_order[0..-2].each do |promotee|
-          roster.owner.destroy!
+          roster.owner_permission.destroy!
           expect(promotee.reload).to be_owner
-          expect(roster.owner).to eq(promotee)
+          expect(roster.owner_permission).to eq(promotee)
         end
       end
 
