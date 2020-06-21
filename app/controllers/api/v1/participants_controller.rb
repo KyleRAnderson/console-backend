@@ -5,7 +5,7 @@ class Api::V1::ParticipantsController < ApplicationController
   before_action :authenticate_user!
   before_action :current_roster, only: %i[index create]
   before_action :prepare_participant, except: %i[index create]
-  before_action :authorize_user, except: %i[index create update]
+  before_action :authorize_participant, except: %i[index create update]
 
   def index
     participants = policy_scope(current_roster.participants)
@@ -44,7 +44,7 @@ class Api::V1::ParticipantsController < ApplicationController
     head :not_found unless @participant
   end
 
-  def authorize_user
+  def authorize_participant
     authorize @participant
   end
 
