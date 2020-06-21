@@ -1,0 +1,2 @@
+class ParticipantPolicy < ConsolePolicy
+end
