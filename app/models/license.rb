@@ -1,7 +1,10 @@
 class License < ApplicationRecord
   belongs_to :hunt
   belongs_to :participant
+
+  has_one :roster, through: :hunt
   has_and_belongs_to_many :matches, before_add: :on_add_match
+  has_many :permissions, through: :roster
 
   validates :participant, uniqueness: { scope: :hunt,
                                         message: 'one license may exist per participant per hunt.' }
