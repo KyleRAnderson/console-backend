@@ -1,6 +1,8 @@
 class MatchesChannel < ApplicationCable::Channel
   def subscribed
-    hunt = Hunt.joins(:roster).find_by(id: params[:hunt_id], rosters: { user_id: current_user.id })
-    stream_for hunt
+    hunt = Hunt.find_by(id: params[:hunt_id])
+    if HuntPolicy.new(current_user, hunt).show?
+      stream_for hunt
+    end
   end
 end
