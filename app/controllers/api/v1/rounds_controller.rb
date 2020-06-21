@@ -4,9 +4,10 @@ class Api::V1::RoundsController < ApplicationController
   before_action :authenticate_user!
   before_action :current_hunt
   before_action :prepare_round, except: %i[index create]
+  before_action :authorize_round, except: %i[index create]
 
   def index
-    render json: current_hunt.rounds, status: :ok
+    render json: policy_scope(current_hunt.rounds), status: :ok
   end
 
   def show
@@ -15,7 +16,7 @@ class Api::V1::RoundsController < ApplicationController
 
   def create
     round = current_hunt.rounds.build(round_params)
-    save_and_render_resource(round)
+    save_and_render_resource(authorize(round))
   end
 
   def destroy
@@ -31,5 +32,9 @@ class Api::V1::RoundsController < ApplicationController
   def prepare_round
     @round ||= current_hunt.rounds.find_by(number: params[:number])
     head :not_found unless @round
+  end
+
+  def authorize_round
+    authorize @round
   end
 end
