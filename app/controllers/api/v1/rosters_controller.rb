@@ -19,7 +19,7 @@ class Api::V1::RostersController < ApplicationController
 
   def update
     @roster.assign_attributes(roster_params)
-    save_and_render_resource(authorize(@roster))
+    save_and_render_resource(authorize(@roster), :ok)
   end
 
   def destroy
@@ -34,7 +34,7 @@ class Api::V1::RostersController < ApplicationController
 
   def prepare_roster
     # Reason I use find_by instead of find is because find_by sets nil when not found
-    @roster ||= current_user.rosters.find_by(id: params[:id])
+    @roster ||= Roster.find_by(id: params[:id])
     head :not_found unless @roster
   end
 

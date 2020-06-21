@@ -24,7 +24,7 @@ class Api::V1::LicensesController < ApplicationController
 
   def update
     @license.assign_attributes(license_params)
-    render_resource(authorize(@license))
+    save_and_render_resource(authorize(@license), :ok)
   end
 
   def destroy

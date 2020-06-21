@@ -24,7 +24,7 @@ class Api::V1::HuntsController < ApplicationController
 
   def update
     @hunt.assign_attributes(hunts_params)
-    render_resource(authorize(@hunt))
+    save_and_render_resource(authorize(@hunt), :ok)
   end
 
   def destroy

@@ -23,7 +23,7 @@ class Api::V1::ParticipantsController < ApplicationController
 
   def update
     @participant.assign_attributes(participant_params)
-    render_resource(authorize(@participant))
+    save_and_render_resource(authorize(@participant), :ok)
   end
 
   def destroy
