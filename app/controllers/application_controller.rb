@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   after_action :set_csrf_cookie
+  rescue_from Pundit::NotAuthorizedError, with: :unauthorized_access
 
   protected
 
@@ -41,5 +42,13 @@ class ApplicationController < ActionController::Base
       title: 'Bad Request',
       detail: resource.errors,
     }, status: :bad_request
+  end
+
+  def unauthorized_access
+    if %w[create update destroy].include?(action_name)
+      head :forbidden
+    else
+      head :not_found
+    end
   end
 end

@@ -31,8 +31,5 @@ module RailsReactTs
 
     # Don't generate system test files.
     config.generators.system_tests = nil
-
-    # Render a forbidden status code when pundit authorization fails
-    config.action_dispatch.rescue_responses['Pundit::NotAuthorizedError'] = :forbidden
   end
 end
