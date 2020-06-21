@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/console_policy'
 
 RSpec.describe MatchPolicy, type: :policy do
   subject { MatchPolicy }
