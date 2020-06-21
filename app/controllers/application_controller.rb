@@ -45,10 +45,10 @@ class ApplicationController < ActionController::Base
   end
 
   def unauthorized_access
-    if %w[create update destroy].include?(action_name)
-      head :forbidden
-    else
+    if %w[index show].include?(action_name)
       head :not_found
+    else
+      head :forbidden
     end
   end
 end
