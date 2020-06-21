@@ -27,8 +27,10 @@ FactoryBot.define do
     roster { false }
 
     after(:build) do |permission|
-      # Doing == false because don't want to create it if given nil.
-      permission.roster = build(:roster, owner_permission: permission) if permission.roster == false
+      # == false because don't want to create it if given nil.
+      if permission.roster == false
+        permission.roster = build(:roster, permissions: [permission])
+      end
     end
 
     factory :administrator do
@@ -65,9 +67,11 @@ FactoryBot.define do
       end
 
       after(:build) do |roster, evaluator|
-        owner_permission = evaluator.owner_permission ||
-                           build(:permission, roster: roster, user: evaluator.user)
-        roster.permissions << owner_permission
+        if roster.permissions.select(&:owner?).blank?
+          owner_permission = evaluator.owner_permission ||
+                             build(:permission, roster: roster, user: evaluator.user)
+          roster.permissions << owner_permission
+        end
       end
     end
 
@@ -108,6 +112,12 @@ FactoryBot.define do
     factory :roster do
       with_participant_properties
       with_owner
+    end
+
+    factory :roster_with_participants do
+      with_participant_properties
+      with_owner
+      with_participants
     end
 
     factory :full_roster do
