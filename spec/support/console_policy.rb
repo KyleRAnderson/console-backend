@@ -11,8 +11,10 @@ RSpec.shared_examples 'console policy' do |exclude = {}|
   context 'with a user that has no permission in the roster' do
     let(:user_no_access) { create(:user) }
 
-    it 'denies access' do
-      expect { subject.new(user_no_access, record) }.to raise_error(Pundit::NotAuthorizedError)
+    it 'denies access to all operations' do
+      %i[index show create update destroy].reject { |level| exclude.include?(level) }.each do |action|
+        expect(subject.new(user_no_access, record)).to forbid_action(action)
+      end
     end
   end
 

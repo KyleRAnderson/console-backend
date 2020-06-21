@@ -5,11 +5,6 @@ class ConsolePolicy < ApplicationPolicy
     end
   end
 
-  def initialize(*args, require_permission: true)
-    super(*args)
-    raise Pundit::NotAuthorizedError if require_permission && !permission.present?
-  end
-
   def index?
     permission.present?
   end
