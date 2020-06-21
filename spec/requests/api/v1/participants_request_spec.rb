@@ -21,82 +21,99 @@ RSpec.describe 'Api::V1::Participants', type: :request do
                params: { participant: { first: 'test', last: 'gilly',
                                        extras: { 'one' => 'test1', 'two' => 'test2' } } }
           expect(response).to have_http_status(:created)
-          participant = JSON.parse(response.body)
-          expect(participant['first']).to eq('test')
-          expect(participant['last']).to eq('gilly')
-          expect(participant['extras']['one']).to eq('test1')
-          expect(participant['extras']['two']).to eq('test2')
+          participant = Participant.new.from_json(response.body)
+          expect(participant.first).to eq('test')
+          expect(participant.last).to eq('gilly')
+          expect(participant.extras['one']).to eq('test1')
+          expect(participant.extras['two']).to eq('test2')
+          expect(Participant.find_by(id: participant['id'])).to eq(participant)
         end
       end
+    end
 
-      describe 'GET participants (index)' do
-        it 'returns a pagified list of participants in the roster' do
+    describe 'PATCH participants (update)' do
+      let(:participant) { create(:participant, roster: @steve.rosters.first) }
+      it 'updates the participant with correct values set' do
+        call = expect do
+          patch api_v1_participant_path(participant),
+            params: { participant: { first: 'testing', last: 'participant' } }
+        end
+        call.not_to(change { participant.reload.extras })
+        expect(response).to have_http_status(:ok)
+        parsed = Participant.new.from_json(response.body)
+        expect(parsed.first).to eq('testing')
+        expect(parsed.last).to eq('participant')
+        expect(participant.reload).to eq(parsed)
+      end
+    end
+
+    describe 'GET participants (index)' do
+      it 'returns a pagified list of participants in the roster' do
+        get api_v1_roster_participants_path(@steve.rosters.first),
+            params: { page: 1, per_page: @steve.rosters.first.participants.count }
+        expect(response).to have_http_status(:ok)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('participants')
+        expect(parsed_response).to have_key('num_pages')
+        expect(parsed_response['participants'].count).to eq(@steve.rosters.first.participants.count)
+      end
+
+      context 'while requesting more participants than can fit on one page' do
+        it 'paginates properly' do
+          participants_per_page = (@steve.rosters.first.participants.count / 2).ceil
           get api_v1_roster_participants_path(@steve.rosters.first),
-              params: { page: 1, per_page: @steve.rosters.first.participants.count }
+              params: { page: 1, per_page: participants_per_page }
+
           expect(response).to have_http_status(:ok)
           parsed_response = JSON.parse(response.body)
           expect(parsed_response).to have_key('participants')
           expect(parsed_response).to have_key('num_pages')
-          expect(parsed_response['participants'].count).to eq(@steve.rosters.first.participants.count)
-        end
+          expect(parsed_response['num_pages']).to eq(2)
+          first_participants = parsed_response['participants']
+          expect(first_participants.count).to eq(participants_per_page)
 
-        context 'while requesting more participants than can fit on one page' do
-          it 'paginates properly' do
-            participants_per_page = (@steve.rosters.first.participants.count / 2).ceil
-            get api_v1_roster_participants_path(@steve.rosters.first),
-                params: { page: 1, per_page: participants_per_page }
-
-            expect(response).to have_http_status(:ok)
-            parsed_response = JSON.parse(response.body)
-            expect(parsed_response).to have_key('participants')
-            expect(parsed_response).to have_key('num_pages')
-            expect(parsed_response['num_pages']).to eq(2)
-            first_participants = parsed_response['participants']
-            expect(first_participants.count).to eq(participants_per_page)
-
-            get api_v1_roster_participants_path(@steve.rosters.first),
-                params: { page: 2, per_page: participants_per_page }
-            expect(response).to have_http_status(:ok)
-            parsed_response = JSON.parse(response.body)
-            expect(parsed_response).to have_key('participants')
-            expect(parsed_response).to have_key('num_pages')
-            expect(parsed_response['num_pages']).to eq(2)
-            second_participants = parsed_response['participants']
-            expect(second_participants.count).to be <= participants_per_page
-
-            expect(first_participants).not_to eq(second_participants)
-          end
-        end
-      end
-
-      describe 'GET participant (show)' do
-        it 'returns the information for that participant' do
-          roster = @steve.rosters.first
-          expected_participant = roster.participants.first
-          get api_v1_participant_path(expected_participant)
+          get api_v1_roster_participants_path(@steve.rosters.first),
+              params: { page: 2, per_page: participants_per_page }
           expect(response).to have_http_status(:ok)
-          participant = JSON.parse(response.body)
-          expect(participant['first']).to eq(expected_participant.first)
-          expect(participant['last']).to eq(expected_participant.last)
-          expect(participant['extras']).to have_key('one')
-          expect(participant['extras']).to have_key('two')
+          parsed_response = JSON.parse(response.body)
+          expect(parsed_response).to have_key('participants')
+          expect(parsed_response).to have_key('num_pages')
+          expect(parsed_response['num_pages']).to eq(2)
+          second_participants = parsed_response['participants']
+          expect(second_participants.count).to be <= participants_per_page
+
+          expect(first_participants).not_to eq(second_participants)
         end
       end
+    end
 
-      context 'for a roster with no participant properties' do
-        let(:roster_no_properties) do
-          create(:full_roster,
-                 num_participants: 15, num_participant_properties: 0, user: @steve)
-        end
+    describe 'GET participant (show)' do
+      it 'returns the information for that participant' do
+        roster = @steve.rosters.first
+        expected_participant = roster.participants.first
+        get api_v1_participant_path(expected_participant)
+        expect(response).to have_http_status(:ok)
+        participant = JSON.parse(response.body)
+        expect(participant['first']).to eq(expected_participant.first)
+        expect(participant['last']).to eq(expected_participant.last)
+        expect(participant['extras']).to have_key('one')
+        expect(participant['extras']).to have_key('two')
+      end
+    end
 
-        it 'can be created without specifying participant extras' do
-          post api_v1_roster_participants_path(roster_no_properties),
-               params: { participant: { first: 'pete', last: 'mator' } }
-          expect(response).to have_http_status(:created)
-          participant = JSON.parse(response.body)
-          expect(participant['first']).to eq('pete')
-          expect(participant['last']).to eq('mator')
-        end
+    context 'for a roster with no participant properties' do
+      let(:roster_no_properties) do
+        create(:full_roster,
+               num_participants: 15, num_participant_properties: 0, user: @steve)
+      end
+
+      it 'can be created without specifying participant extras' do
+        post api_v1_roster_participants_path(roster_no_properties),
+             params: { participant: { first: 'pete', last: 'mator' } }
+        expect(response).to have_http_status(:created)
+        participant = JSON.parse(response.body)
+        expect(participant['first']).to eq('pete')
+        expect(participant['last']).to eq('mator')
       end
     end
 
@@ -129,7 +146,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
     end
   end
 
-  describe 'with incorrect authorized user' do
+  context 'with incorrect authorized user' do
     before(:each) do
       @right_user = create(:user_with_rosters, num_rosters: 3)
       @wrong_user = create(:user_with_rosters, num_rosters: 10)

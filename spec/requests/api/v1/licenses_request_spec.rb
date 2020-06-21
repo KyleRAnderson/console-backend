@@ -45,10 +45,13 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
     describe 'edit license (UPDATE)' do
       it 'allows updating the eliminated attribute' do
-        patch api_v1_license_path(license),
-          params: { license: { eliminated: true } }
+        expectation = expect do
+          patch api_v1_license_path(license),
+            params: { license: { eliminated: true } }
+        end
+        expectation.to change { license.reload.eliminated }.from(false).to(true)
+        expect(JSON.parse(response.body)['eliminated']).to be false
         expect(response).to have_http_status(:success)
-        expect(license.reload.eliminated).to be true
       end
 
       it 'does not allow update to other attributes' do
