@@ -22,7 +22,7 @@ class ConsolePolicy < ApplicationPolicy
     # Use case: something like roster.hunts.build(name: 'whatever')
     # will still have .permissions available without being saved
     # so this should still work.s
-    permission & at_least?(:operator)
+    permission&.at_least?(:operator)
   end
 
   def update?
@@ -30,7 +30,7 @@ class ConsolePolicy < ApplicationPolicy
   end
 
   def destroy?
-    permission & at_least?(:operator)
+    permission&.at_least?(:operator)
   end
 
   protected
