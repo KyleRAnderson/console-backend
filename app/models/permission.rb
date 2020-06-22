@@ -4,6 +4,7 @@ class Permission < ApplicationRecord
 
   enum level: %i[owner administrator operator viewer]
 
+  validates :user, uniqueness: { scope: :roster, message: 'only one permission may exist per user per roster.' }
   validate :validate_unchanged_properties, on: :update
   validate :validate_unchanged_owner, on: :update
 
@@ -14,17 +15,34 @@ class Permission < ApplicationRecord
   after_destroy :reassign_owner,
                 if: proc { |permission| permission.owner? && permission.roster && !permission.roster.destroyed? }
 
+  def self.at_least?(level, desired_access)
+    # level is current level, desired_access is level to check it against.
+    # Determines if level is desired_access or higher.
+    level = level.to_s
+    desired_access = desired_access.to_s
+    all_levels = self.levels.keys.reverse
+    index = all_levels.index(desired_access)
+    all_levels[index..].include?(level)
+  end
+
+  def self.at_most?(level, desired_access)
+    # level is current level, desired_access is level to check against.
+    # Determines if level is desired_access or lower.
+    level = level.to_s
+    desired_access = desired_access.to_s
+    all_levels = self.levels.keys
+    index = all_levels.index(desired_access)
+    all_levels[index..].include?(level)
+  end
+
   def at_least?(level)
     # True if this permission is the same as the given level or higher.
-    level = level.to_s
-    role_order = Permission.levels.keys.reverse
-    index = role_order.index(level)
-    return false unless index
+    Permission.at_least?(self.level, level)
+  end
 
-    role_order[index..].each do |role|
-      return true if send(role + '?')
-    end
-    false
+  def at_most?(level)
+    # True if this permission is the same as the given level or lower
+    Permission.at_most?(self.level, level)
   end
 
   private
