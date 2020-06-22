@@ -124,7 +124,7 @@ RSpec.describe PermissionPolicy, type: :policy do
 
     it 'allows administrator to manage up to administrator' do
       administrator = administrator_permission.user
-      permission_matrix.except(:owner).each do |from_level, permission|
+      permission_matrix.except(:owner, :administrator).each do |from_level, permission|
         permission_matrix.except(:owner, from_level).keys.each do |to_level|
           permission.level = to_level
           expect(subject.new(administrator, permission)).to permit_action(described_class)
@@ -136,6 +136,14 @@ RSpec.describe PermissionPolicy, type: :policy do
       administrator = administrator_permission.user
       viewer_permission.level = :owner
       expect(subject.new(administrator, viewer_permission)).to forbid_action(described_class)
+    end
+
+    %w[operator viewer].each do |to_level|
+      it "denies administrator change from administrator to #{to_level}" do
+        administrator = administrator_permission.user
+        administrator_permission.level = to_level
+        expect(subject.new(administrator, administrator_permission)).to forbid_action(described_class)
+      end
     end
 
     it 'denies viewer and operator all access to update' do

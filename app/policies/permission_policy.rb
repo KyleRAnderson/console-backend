@@ -34,6 +34,7 @@ class PermissionPolicy < ApplicationPolicy
     user_roster_permission.owner? ||
       (user_roster_permission.administrator? &&
        !permission.level_changed?(from: 'owner') &&
+       !permission.level_changed?(from: 'administrator') &&
        !permission.level_changed?(to: 'owner'))
   end
 
