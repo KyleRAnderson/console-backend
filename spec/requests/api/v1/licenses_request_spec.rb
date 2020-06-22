@@ -50,7 +50,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
             params: { license: { eliminated: true } }
         end
         expectation.to change { license.reload.eliminated }.from(false).to(true)
-        expect(JSON.parse(response.body)['eliminated']).to be false
+        expect(JSON.parse(response.body)['eliminated']).to be true
         expect(response).to have_http_status(:success)
       end
 

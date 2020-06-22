@@ -4,7 +4,6 @@ class Api::V1::PermissionsController < ApplicationController
   # Order for the next two matter, authorize permission after finding it.
   before_action :prepare_permission, except: %i[index create]
   before_action :authorize_permission, except: %i[index create update]
-  before_action :user, only: [:create]
 
   include Api::V1::Rosters
 
@@ -17,7 +16,7 @@ class Api::V1::PermissionsController < ApplicationController
   end
 
   def create
-    permission = current_roster.permissions.build(level: params[:permission][:level], user: @user)
+    permission = current_roster.permissions.build(level: params[:permission][:level], user: user)
     save_and_render_resource(authorize(permission))
   end
 
@@ -43,7 +42,6 @@ class Api::V1::PermissionsController < ApplicationController
 
   def user
     @user ||= User.find_by(email: params[:permission][:email])
-    render json: { message: 'user doesn\'t exist' }, status: :bad_request unless @user
   end
 
   def authorize_permission
