@@ -1,5 +1,6 @@
 class Api::V1::RostersController < ApplicationController
   before_action :authenticate_user!
+  # Prepare roster before authorizing it.
   before_action :prepare_roster, except: %i[index create]
   before_action :authorize_roster, except: %i[index create update]
 
@@ -19,7 +20,7 @@ class Api::V1::RostersController < ApplicationController
 
   def update
     @roster.assign_attributes(roster_params)
-    save_and_render_resource(authorize(@roster), :ok)
+    save_and_render_resource(authorize(@roster))
   end
 
   def destroy

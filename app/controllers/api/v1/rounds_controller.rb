@@ -3,6 +3,7 @@ class Api::V1::RoundsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_hunt
+  # Prepare round before authorizing
   before_action :prepare_round, except: %i[index create]
   before_action :authorize_round, except: %i[index create]
 

@@ -4,6 +4,7 @@ class Api::V1::MatchesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_hunt
+  # Prepare match before authorizing it.
   before_action :prepare_match, except: %i[index create matchmake]
   before_action :authorize_match, except: %i[index create matchmake]
 

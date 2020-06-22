@@ -15,8 +15,11 @@ class ApplicationController < ActionController::Base
     cookies['X-CSRF-Token'] = form_authenticity_token
   end
 
-  def save_and_render_resource(resource, status = :created)
+  def save_and_render_resource(resource, status = nil)
     resource.save
+    if status.blank?
+      status = action_name == 'create' ? :created : :ok
+    end
     render_resource(resource, status)
   end
 

@@ -5,6 +5,7 @@ class Api::V1::HuntsController < ApplicationController
   # This will make sure that the current roster is set,
   # if not render 404 before action is called.
   before_action :current_roster, only: %i[index create]
+  # Prepare hunt before authorizing it.
   before_action :prepare_hunt, except: %i[index create]
   before_action :authorize_hunt, except: %i[index create update]
 
@@ -24,7 +25,7 @@ class Api::V1::HuntsController < ApplicationController
 
   def update
     @hunt.assign_attributes(hunts_params)
-    save_and_render_resource(authorize(@hunt), :ok)
+    save_and_render_resource(authorize(@hunt))
   end
 
   def destroy

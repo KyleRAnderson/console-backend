@@ -4,6 +4,7 @@ class Api::V1::LicensesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_hunt, only: %i[index create]
+  # Prepare license before authorizing it.
   before_action :prepare_license, except: %i[index create]
   before_action :authorize_license, except: %i[index create update]
 
@@ -24,7 +25,7 @@ class Api::V1::LicensesController < ApplicationController
 
   def update
     @license.assign_attributes(license_params)
-    save_and_render_resource(authorize(@license), :ok)
+    save_and_render_resource(authorize(@license))
   end
 
   def destroy

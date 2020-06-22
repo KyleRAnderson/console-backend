@@ -4,6 +4,7 @@ class Api::V1::ParticipantsController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_roster, only: %i[index create]
+  # Prepare participant before authorizing
   before_action :prepare_participant, except: %i[index create]
   before_action :authorize_participant, except: %i[index create update]
 
@@ -23,7 +24,7 @@ class Api::V1::ParticipantsController < ApplicationController
 
   def update
     @participant.assign_attributes(participant_params)
-    save_and_render_resource(authorize(@participant), :ok)
+    save_and_render_resource(authorize(@participant))
   end
 
   def destroy
