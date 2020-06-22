@@ -86,6 +86,8 @@ FactoryBot.define do
         create_list(:administrator, evaluator.num_administrators, roster: roster)
         create_list(:operator, evaluator.num_operators, roster: roster)
         create_list(:viewer, evaluator.num_viewers, roster: roster)
+        # Not sure why this one needs a reload, works without for the others.
+        roster.permissions.reload
       end
     end
 
