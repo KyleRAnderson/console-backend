@@ -29,10 +29,4 @@ class Hunt < ApplicationRecord
   def current_round
     rounds.order(number: :desc).first
   end
-
-  private
-
-  def num_active_licenses
-    licenses.where(eliminated: false).count
-  end
 end
