@@ -12,7 +12,6 @@ class Match < ApplicationRecord
   validate :validate_round_not_closed
 
   before_create :assign_local_id
-  after_create :update_hunt_match_id
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],
@@ -43,11 +42,7 @@ class Match < ApplicationRecord
 
   # Needs to be called after validations, which means that round has been assigned.
   def assign_local_id
-    self.local_id = round.hunt.next_match_id
-  end
-
-  def update_hunt_match_id
-    round.hunt.increment_match_id
+    self.local_id = round.hunt.increment_match_id
   end
 
   def on_add_license(_)

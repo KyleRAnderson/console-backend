@@ -14,7 +14,11 @@ class Hunt < ApplicationRecord
   end
 
   def increment_match_id
-    self.update(current_match_id: current_match_id + 1)
+    with_lock do
+      self.current_match_id += 1
+      save
+    end
+    self.current_match_id
   end
 
   def current_highest_round_number
@@ -24,10 +28,6 @@ class Hunt < ApplicationRecord
 
   def current_round
     rounds.order(number: :desc).first
-  end
-
-  def next_match_id
-    current_match_id + 1
   end
 
   private
