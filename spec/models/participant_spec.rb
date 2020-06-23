@@ -48,9 +48,9 @@ RSpec.describe Participant, type: :model do
     describe 'while adding a license' do
       describe 'with a license that belongs to a participant already' do
         it 'doesn\'t add the license' do
-          num_before = participant.licenses.length
+          num_before = participant.licenses.size
           participant.licenses << license
-          expect(participant.licenses.length).to eq(num_before)
+          expect(participant.licenses.size).to eq(num_before)
           expect(participant.licenses.to_a).not_to include(license)
         end
       end

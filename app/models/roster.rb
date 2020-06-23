@@ -43,7 +43,7 @@ class Roster < ApplicationRecord
   end
 
   def validate_unique_properties
-    unless self.participant_properties.uniq.length == self.participant_properties.length
+    unless self.participant_properties.uniq.size == self.participant_properties.size
       errors.add :roster, 'has duplicate properties.'
     end
   end

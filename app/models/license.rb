@@ -29,13 +29,13 @@ class License < ApplicationRecord
   end
 
   def validate_only_changed_eliminated
-    if (changed.reject { |attribute| attribute == 'eliminated' }).length > 0
+    if (changed.reject { |attribute| attribute == 'eliminated' }).size > 0
       errors.add(:license, 'Can only change \'eliminated\' property on licenses.')
     end
   end
 
   def on_add_match(match)
-    throw :abort unless match.new_record? && match.licenses.length < 2
+    throw :abort unless match.new_record? && match.licenses.size < 2
   end
 
   def match_ids

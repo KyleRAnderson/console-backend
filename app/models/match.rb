@@ -23,8 +23,8 @@ class Match < ApplicationRecord
   private
 
   def validate_two_unique_licenses
-    errors.add(:match, 'must have unique licenses.') unless licenses.uniq.length == licenses.length
-    errors.add(:match, 'must have exactly two licenses.') unless licenses.length == 2
+    errors.add(:match, 'must have unique licenses.') unless licenses.uniq.size == licenses.size
+    errors.add(:match, 'must have exactly two licenses.') unless licenses.size == 2
   end
 
   def validate_unchanged_properties
@@ -46,6 +46,6 @@ class Match < ApplicationRecord
   end
 
   def on_add_license(_)
-    throw :abort unless new_record? && licenses.length < 2
+    throw :abort unless new_record? && licenses.size < 2
   end
 end
