@@ -6,9 +6,11 @@ class Api::V1::PermissionsController < ApplicationController
   before_action :authorize_permission, except: %i[index create update]
 
   include Api::V1::Rosters
+  include Api::V1::PaginationOrdering
 
   def index
-    render json: policy_scope(current_roster.permissions), status: :ok
+    permissions = policy_scope(current_roster.permissions)
+    render json: paginated(permissions, key: :permissions), status: :ok
   end
 
   def show

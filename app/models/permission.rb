@@ -45,7 +45,15 @@ class Permission < ApplicationRecord
     Permission.at_most?(self.level, level)
   end
 
+  def as_json(**options)
+    super(except: %i[user_id roster_id], methods: :email, **options)
+  end
+
   private
+
+  def email
+    user.email
+  end
 
   def validate_unchanged_properties
     errors.add(:permission, 'cannot change associated user') if user_id_changed?

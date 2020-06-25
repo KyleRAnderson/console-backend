@@ -1,5 +1,20 @@
 require 'rails_helper'
 
+def get_permissions_expects(page, num_pages, per_page: nil, expected_count: nil)
+  expected_count ||= per_page || Api::V1::PaginationOrdering::DEFAULT_PER_PAGE
+  params = { page: page }
+  params[:per_page] = per_page if per_page
+  get api_v1_roster_permissions_path(roster), params: params
+  expect(response).to have_http_status(:ok)
+  parsed = JSON.parse(response.body)
+  expect(parsed).to have_key('num_pages')
+  expect(parsed).to have_key('permissions')
+  expect(parsed['num_pages']).to eq(num_pages)
+  permissions = parsed['permissions']
+  expect(permissions.size).to eq(expected_count)
+  permissions
+end
+
 RSpec.describe 'Api::V1::Permissions', type: :request do
   Permission.levels.keys.each do |level|
     context "with #{level} user" do
@@ -20,21 +35,60 @@ RSpec.describe 'Api::V1::Permissions', type: :request do
       before(:each) { sign_in(user) }
 
       describe 'GET permissions (index)' do
-        it 'renders all roster permissions', unless: level == 'viewer' do
-          get api_v1_roster_permissions_path(roster)
-          expect(response).to have_http_status(:ok)
-          parsed = JSON.parse(response.body)
-          expect(parsed.count).to eq(roster.permissions.count)
-          expect(parsed.map { |json| json['id'] }).to match_array(roster.permissions.map(&:id))
+        # Just to have finer control over the numbers.
+        let!(:roster) do
+          # If we are owner, then no owner will be created. Otherwise, we need to decrement by 2:
+          # 1 for owner that will be created, 1 for the user's permission.
+          # This keeps number of permissions to 30.
+          num_viewers = (level == 'owner') ? 9 : 8
+          # 30 permissions in total, with the owner.
+          create(:roster, :multiple_permissions, permissions: [user_permission],
+                                                 num_administrators: 10, num_operators: 10, num_viewers: num_viewers)
         end
 
-        it 'renders the user\'s permission only', if: level == 'viewer' do
-          get api_v1_roster_permissions_path(roster)
+        it 'renders all permission on one page when per_page is set to num rosters', if: Permission.at_least?(level, 'operator') do
+          permissions = get_permissions_expects(1, 1, per_page: 30)
+          expect(permissions.map { |json| json['id'] }).to match_array(roster.permissions.map(&:id))
+        end
+
+        it 'paginated permissions across pages when necessary', if: Permission.at_least?(level, 'operator') do
+          permissions = []
+          3.times do |page|
+            permissions += get_permissions_expects(page + 1, 3, per_page: 10)
+          end
+          expect(permissions.map { |json| json['id'] }).to match_array(roster.permissions.map(&:id))
+        end
+
+        context 'when per_page isn\'t specified' do
+          # More control over the numbers
+          let!(:roster) do
+            num_administrators = (Api::V1::PaginationOrdering::DEFAULT_PER_PAGE * 1.5).ceil
+            # If we aren't owner, then there are two unaccounted for permissions: the owner that will be created and the user's own permission.
+            num_administrators -= 1 unless level == 'owner'
+            create(:roster, :multiple_permissions, permissions: [user_permission],
+                                                   num_administrators: num_administrators,
+                                                   num_operators: 0, num_viewers: 0)
+          end
+
+          it 'renders using default per_page', if: Permission.at_least?(level, 'operator') do
+            permissions = get_permissions_expects(1, 2, expected_count: Api::V1::PaginationOrdering::DEFAULT_PER_PAGE)
+            # + 1 in numbe of expected permissions for the owner permission.
+            permissions += get_permissions_expects(2, 2, expected_count: (Api::V1::PaginationOrdering::DEFAULT_PER_PAGE * 0.5).ceil + 1)
+            expect(permissions.map { |json| json['id'] }).to match_array(roster.permissions.map(&:id))
+          end
+        end
+
+        it 'render\'s only the user\'s own permission', if: level == 'viewer' do
+          get api_v1_roster_permissions_path(roster), params: { page: 1 }
           expect(response).to have_http_status(:ok)
           parsed = JSON.parse(response.body)
-          expect(parsed.count).to eq(1)
-          expect(parsed[0]['id']).to eq(user_permission.id)
-          expect(parsed[0]['level']).to eq(user_permission.level)
+          expect(parsed).to have_key('num_pages')
+          expect(parsed).to have_key('permissions')
+          expect(parsed['num_pages']).to eq(1)
+          permissions = parsed['permissions']
+          expect(permissions.size).to eq(1)
+          expect(permissions[0]['id']).to eq(user_permission.id)
+          expect(permissions[0]['level']).to eq(user_permission.level)
         end
       end
 
