@@ -5,6 +5,7 @@ class Permission < ApplicationRecord
   enum level: %i[owner administrator operator viewer]
 
   validates :user, uniqueness: { scope: :roster, message: 'only one permission may exist per user per roster.' }
+  validates :level, presence: true
   validate :validate_unchanged_properties, on: :update
   validate :validate_unchanged_owner, on: :update
 

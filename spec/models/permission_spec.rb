@@ -26,8 +26,13 @@ RSpec.describe Permission, type: :model do
     end
 
     context 'with invalid construction of permission' do
-      it 'cannot be saved and is invalid' do
+      it 'cannot be saved and is invalid with no roster' do
         permission.roster = nil
+        cannot_save_and_errors(permission)
+      end
+
+      it 'cannot be saved and is invalid with no level' do
+        permission.level = nil
         cannot_save_and_errors(permission)
       end
     end
