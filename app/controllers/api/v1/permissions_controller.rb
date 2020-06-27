@@ -1,4 +1,6 @@
 class Api::V1::PermissionsController < ApplicationController
+  wrap_parameters :permission, include: %i[email level]
+
   before_action :authenticate_user!
   before_action :current_roster, only: %i[index create]
   # Order for the next two matter, authorize permission after finding it.
