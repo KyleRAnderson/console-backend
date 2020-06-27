@@ -18,7 +18,7 @@ class Roster < ApplicationRecord
   validate :validate_owner_present
   validate :validate_unchanged_participant_properties, on: :update
 
-  before_validation :strip_properties
+  before_validation :format_properties
 
   def owner_permission
     permissions.find_by(level: :owner)
@@ -30,14 +30,17 @@ class Roster < ApplicationRecord
 
   private
 
-  def strip_properties
-    participant_properties.each(&:strip!)
+  def format_properties
+    participant_properties.each do |property|
+      property.strip!
+      property.downcase!
+    end
   end
 
   def validate_proper_properties
     participant_properties.each do |property|
-      unless property.match?(/^\S(.*\S)?$/)
-        errors.add :roster, 'Participant properties must not have leading or trailing whitespace.'
+      unless property.match?(/^\w(\w+\ ?\w+)*$/i)
+        errors.add :roster, 'participant properties must be all word characters (a-z, A-Z, 0-9, _) with only words separated by spaces'
       end
     end
   end
