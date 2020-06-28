@@ -35,15 +35,15 @@ class Api::V1::ParticipantsController < ApplicationController
     authorize current_roster, policy_class: ParticipantPolicy
     imports = Participant.csv_import(params[:file], current_roster)
     if imports.failed_instances.blank?
-      head :ok
+      head :created
     else
       render json: imports.failed_instances.map { |record| record.as_json(methods: :errors, only: %i[first last extras]) },
              status: :bad_request
     end
   rescue ArgumentError
-    render json: 'Invalid file type', status: :bad_request
+    render plain: 'Invalid file type', status: :bad_request
   rescue CSV::MalformedCSVError
-    render json: 'Error parsing file', status: :bad_request
+    render plain: 'Error parsing file', status: :bad_request
   end
 
   private
