@@ -10,12 +10,15 @@ Rails.application.routes.draw do
       shallow do
         resources :rosters, only: %i[index show create update destroy], defaults: { format: 'json' } do
           resources :permissions, only: %i[index show create update destroy], defaults: { format: 'json' }
-          resources :participants, only: %i[index show create update destroy], defaults: { format: 'json' }
+          resources :participants, only: %i[index show create update destroy], defaults: { format: 'json' } do
+            post 'upload', action: :upload, on: :collection
+          end
           resources :hunts, only: %i[index show create update destroy], defaults: { format: 'json' } do
             resources :licenses, only: %i[index show create update destroy], defaults: { format: 'json' }
             resources :rounds, only: %i[index show create destroy], defaults: { format: 'json' }, param: :number, shallow: false
-            resources :matches, only: %i[index show create], defaults: { format: 'json' }, param: :number, shallow: false
-            post '/matchmake/', to: 'matches#matchmake'
+            resources :matches, only: %i[index show create], defaults: { format: 'json' }, param: :number, shallow: false do
+              post 'matchmake', action: :matchmake, on: :collection
+            end
           end
         end
       end

@@ -5,8 +5,8 @@ class Api::V1::ParticipantsController < ApplicationController
   before_action :authenticate_user!
   before_action :current_roster, only: %i[index create]
   # Prepare participant before authorizing
-  before_action :prepare_participant, except: %i[index create]
-  before_action :authorize_participant, except: %i[index create update]
+  before_action :prepare_participant, except: %i[index create upload]
+  before_action :authorize_participant, except: %i[index create update upload]
 
   def index
     participants = policy_scope(current_roster.participants)
@@ -29,6 +29,21 @@ class Api::V1::ParticipantsController < ApplicationController
 
   def destroy
     destroy_and_render_resource(@participant)
+  end
+
+  def upload
+    authorize current_roster, policy_class: ParticipantPolicy
+    imports = Participant.csv_import(params[:file], current_roster)
+    if imports.failed_instances.blank?
+      head :ok
+    else
+      render json: imports.failed_instances.map { |record| record.as_json(methods: :errors, only: %i[first last extras]) },
+             status: :bad_request
+    end
+  rescue ArgumentError
+    render json: 'Invalid file type', status: :bad_request
+  rescue CSV::MalformedCSVError
+    render json: 'Error parsing file', status: :bad_request
   end
 
   private
