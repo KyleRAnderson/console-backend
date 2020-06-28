@@ -7,6 +7,18 @@ RSpec.describe ParticipantPolicy, type: :policy do
   include_examples 'console policy' do
     let(:record) { create(:participant, roster: roster) }
 
+    describe :upload do
+      it 'denies access to viewers' do
+        expect(subject.new(users[:viewer], roster)).to forbid_action(described_class)
+      end
+
+      it 'permits access to owners, administrators and operators' do
+        users.slice(:owner, :administrator, :operator).values.each do |user|
+          expect(subject.new(user, roster)).to permit_action(described_class)
+        end
+      end
+    end
+
     include_examples 'console scope', Participant do
       let(:expected_records) do
         records = []
