@@ -51,7 +51,7 @@ RSpec.describe 'Api::V1::Permissions', type: :request do
           expect(permissions.map { |json| json['id'] }).to match_array(roster.permissions.map(&:id))
         end
 
-        it 'paginated permissions across pages when necessary', if: Permission.at_least?(level, 'operator') do
+        it 'paginates permissions across pages when necessary', if: Permission.at_least?(level, 'operator') do
           permissions = []
           3.times do |page|
             permissions += get_permissions_expects(page + 1, 3, per_page: 10)
@@ -99,6 +99,20 @@ RSpec.describe 'Api::V1::Permissions', type: :request do
           parsed = JSON.parse(response.body)
           expect(parsed['id']).to eq(user_permission.id)
           expect(parsed['level']).to eq(user_permission.level)
+        end
+
+        it 'denies access to other users\' permissions', if: Permission.at_most?(level, :viewer) do
+          permission_matrix.values.each do |permission|
+            get api_v1_permission_path(permission)
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        it 'renders other users\' permissions', unless: Permission.at_most?(level, :viewer) do
+          permission_matrix.values.each do |permission|
+            get api_v1_permission_path(permission)
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
 
