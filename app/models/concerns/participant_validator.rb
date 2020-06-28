@@ -4,9 +4,6 @@ class ParticipantValidator < ActiveModel::Validator
     participant_extras = participant.extras.clone
     participant.roster.participant_properties.each do |key|
       if participant_extras.has_key?(key)
-        unless participant_extras[key].class == String
-          participant.errors.add(:extras, "property #{key} is supposed to have a string value.")
-        end
         participant_extras.delete(key)
       else
         participant.errors.add(:extras,
