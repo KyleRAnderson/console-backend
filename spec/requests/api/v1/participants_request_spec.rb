@@ -140,6 +140,66 @@ RSpec.describe 'Api::V1::Participants', type: :request do
           expect(Participant.exists?(roster.participants.first.id)).to be true
         end
       end
+
+      describe 'POST participants/upload (upload)' do
+        let!(:roster) { create(:roster, permissions: [user_permission], participant_properties: ['test']) }
+        let(:wrong_extension) { fixture_file_upload('files/wrong_extension.tar') }
+        let(:malformed_csv) { fixture_file_upload('files/malformed_csv.csv') }
+        let(:invalid_participants) { fixture_file_upload('files/invalid_participants.csv') }
+        let(:valid_file) { fixture_file_upload('files/valid.csv') }
+
+        if Permission.at_least?(level, :operator)
+          shared_examples 'bad upload' do
+            it 'refuses file with bad request' do
+              post upload_api_v1_roster_participants_path(roster), params: { file: file }
+              expect(response).to have_http_status(:bad_request)
+              expect(response.body).to be_a String
+            end
+          end
+
+          context 'with wrong file extension' do
+            let(:file) { wrong_extension }
+            include_examples 'bad upload'
+          end
+          context 'with malformed CSV file' do
+            let(:file) { malformed_csv }
+            include_examples 'bad upload'
+          end
+
+          it 'doesn\'t upload any participants if any are invalid' do
+            post upload_api_v1_roster_participants_path(roster), params: { file: invalid_participants }
+            expect(response).to have_http_status(:bad_request)
+            body = JSON.parse(response.body)
+            # No participants should have been created.
+            expect(roster.participants.reload.size).to be_zero
+            expect(body).to be_an Array
+            expect(body.size).to eq(2)
+            body.each do |participant_error|
+              expect(participant_error).to have_key('first')
+              expect(participant_error).to have_key('last')
+              expect(participant_error).to have_key('extras')
+              expect(participant_error).to have_key('errors')
+              expect(participant_error['errors']).to be_a Hash
+            end
+          end
+
+          it 'uploads and processes a valid CSV file' do
+            post upload_api_v1_roster_participants_path(roster), params: { file: valid_file }
+            expect(response).to have_http_status(:created)
+            expect(response.body).to be_blank
+            expect(roster.participants.reload.size).to eq(33)
+            33.times do |i|
+              expect(roster.participants.find_by(first: "First_#{i + 1}", last: "Last_#{i + 1}")).not_to be_nil
+            end
+          end
+        end
+
+        it 'denies the upload request', if: Permission.at_most?(level, :viewer) do
+          post upload_api_v1_roster_participants_path(roster), params: { file: valid_file }
+          expect(response).to have_http_status(:forbidden)
+          expect(roster.participants.reload.size).to be_zero
+        end
+      end
     end
   end
 
