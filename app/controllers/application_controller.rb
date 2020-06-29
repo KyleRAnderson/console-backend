@@ -1,7 +1,10 @@
 class ApplicationController < ActionController::Base
+  include Pundit
+
   protect_from_forgery with: :exception
 
   after_action :set_csrf_cookie
+  rescue_from Pundit::NotAuthorizedError, with: :unauthorized_access
 
   protected
 
@@ -12,8 +15,11 @@ class ApplicationController < ActionController::Base
     cookies['X-CSRF-Token'] = form_authenticity_token
   end
 
-  def save_and_render_resource(resource, status = :created)
+  def save_and_render_resource(resource, status = nil)
     resource.save
+    if status.blank?
+      status = action_name == 'create' ? :created : :ok
+    end
     render_resource(resource, status)
   end
 
@@ -39,5 +45,13 @@ class ApplicationController < ActionController::Base
       title: 'Bad Request',
       detail: resource.errors,
     }, status: :bad_request
+  end
+
+  def unauthorized_access
+    if %w[index show].include?(action_name)
+      head :not_found
+    else
+      head :forbidden
+    end
   end
 end

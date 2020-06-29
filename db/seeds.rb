@@ -1,16 +1,14 @@
 require 'faker'
 
-16.times do
-  user = User.new
-  user.email = Faker::Internet.free_email
-  user.password = '321Passwd$$$'
-  user.password_confirmation = '321Passwd$$$'
-  user.confirmed_at = DateTime.now
-  user.save!
+16.times do |i|
+  user = User.create!(email: "#{i}#{Faker::Internet.free_email}",
+                      password: '321Passwd$$$', confirmed_at: DateTime.now)
   rand(1..5).times do |j| # Creating rosters
     properties = ((j + 1).times.map { Faker::Lorem.word }).uniq
+    # Careful with construction of rosters, cannot use create here for instance.
     roster = user.rosters.build(name: "#{user.email} roster #{j + 1}",
-                                participant_properties: properties)
+                                participant_properties: properties,
+                                permissions: [user.permissions.build])
     roster.save!
     participant_properties_values = roster.participant_properties.to_h do |property|
       attribute_values = rand(3..5).times.map do

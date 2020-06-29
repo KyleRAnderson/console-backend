@@ -4,25 +4,28 @@ class Api::V1::LicensesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_hunt, only: %i[index create]
+  # Prepare license before authorizing it.
   before_action :prepare_license, except: %i[index create]
+  before_action :authorize_license, except: %i[index create update]
 
   def index
-    licenses = current_hunt.licenses
+    licenses = policy_scope(current_hunt.licenses)
     render json: paginated(licenses.includes(:participant, :matches),
                            key: :licenses), status: :ok
   end
 
+  def show
+    render json: @license, status: :ok
+  end
+
   def create
-    save_and_render_resource(current_hunt.licenses.build(license_params))
+    license = current_hunt.licenses.build(license_params)
+    save_and_render_resource(authorize(license))
   end
 
   def update
-    @license.update(license_params)
-    render_resource(@license)
-  end
-
-  def show
-    render json: @license, status: :ok
+    @license.assign_attributes(license_params)
+    save_and_render_resource(authorize(@license))
   end
 
   def destroy
@@ -36,9 +39,11 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def prepare_license
-    @license ||= License.joins(hunt: :roster)
-                        .find_by(id: params[:id],
-                                 hunts: { rosters: { user_id: current_user.id } })
+    @license ||= License.find_by(id: params[:id])
     head :not_found unless @license
+  end
+
+  def authorize_license
+    authorize @license
   end
 end

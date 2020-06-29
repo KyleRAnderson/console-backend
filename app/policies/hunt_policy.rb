@@ -1,0 +1,2 @@
+class HuntPolicy < ConsolePolicy
+end

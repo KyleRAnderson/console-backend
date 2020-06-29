@@ -42,8 +42,8 @@ class Matchmake
   # Sets the @leftovers variable to the one remaining license.
   def matchmake_within(licenses = @licenses)
     # Can't use safe navigation operator because of >=
-    if licenses && licenses.length >= 2
-      split_groups = licenses.shuffle.each_slice(licenses.length / 2).to_a
+    if licenses && licenses.size >= 2
+      split_groups = licenses.shuffle.each_slice(licenses.size / 2).to_a
       matches = matchmake_two(split_groups[0], split_groups[1])
       leftover = split_groups[2] || []
     else
@@ -58,7 +58,7 @@ class Matchmake
   def matchmake_between(licenses = @licenses)
     leftovers = []
     matches = licenses.shuffle.each_slice(2).map do |groups|
-      if groups.length >= 2
+      if groups.size >= 2
         current_matches = matchmake_two(groups[0], groups[1])
         leftovers += groups.first + groups.second
       else
@@ -83,7 +83,7 @@ class Matchmake
   # Mutates the given arrays so that only the leftovers are left.
   # Thus, one or both of first_group and second_group will be empty afterward.
   def matchmake_two(first_group, second_group)
-    smallest_length = [first_group.length, second_group.length].min
+    smallest_length = [first_group.size, second_group.size].min
     sized_first = first_group.shift(smallest_length)
     sized_second = second_group.shift(smallest_length)
     sized_first.zip(sized_second).map { |licenses| Match.new(licenses: licenses, round_id: @round_id) }

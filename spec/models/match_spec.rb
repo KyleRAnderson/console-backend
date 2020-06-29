@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/record_saving'
 
 RSpec.describe Match, type: :model do
   let(:round) { create(:round) }
@@ -27,6 +28,15 @@ RSpec.describe Match, type: :model do
     expect { match.licenses.push(other_license) }.not_to change(match.licenses, :length)
     # I use to_a here because something funny happens with include? on an active record association proxy.
     expect(match.licenses.to_a).not_to include(other_license)
+  end
+
+  context 'with licenses from different hunts' do
+    it 'cannot be saved' do
+      license1 = build(:license)
+      match.licenses.delete(match.licenses.first)
+      match.licenses << license1
+      cannot_save_and_errors(match)
+    end
   end
 
   it 'cannot change round after save' do

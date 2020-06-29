@@ -1,18 +1,24 @@
 class Hunt < ApplicationRecord
-  validates :name, presence: true
-
   belongs_to :roster
+
   has_many :licenses, dependent: :destroy
   has_many :rounds, dependent: :destroy
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
+  has_many :permissions, through: :roster
+
+  validates :name, presence: true
 
   def as_json(**options)
     super(methods: :num_active_licenses, **options)
   end
 
   def increment_match_id
-    self.update(current_match_id: current_match_id + 1)
+    with_lock do
+      self.current_match_id += 1
+      save
+    end
+    self.current_match_id
   end
 
   def current_highest_round_number

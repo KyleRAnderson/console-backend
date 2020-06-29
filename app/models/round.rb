@@ -1,11 +1,14 @@
 class Round < ApplicationRecord
   belongs_to :hunt
-  has_many :matches, dependent: :destroy
 
-  before_validation :auto_assign_number, on: :create, if: Proc.new { number.nil? }
+  has_one :roster, through: :hunt
+  has_many :matches, dependent: :destroy
+  has_many :permissions, through: :roster
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }
   validate :validate_no_other_round_with_same_number
+
+  before_validation :auto_assign_number, on: :create, if: proc { number.blank? }
 
   # Determines if this round is "closed" (it is not the current round)
   def closed?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_04_004617) do
+ActiveRecord::Schema.define(version: 2020_06_13_193813) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
@@ -62,13 +62,20 @@ ActiveRecord::Schema.define(version: 2020_06_04_004617) do
     t.index ["roster_id"], name: "index_participants_on_roster_id"
   end
 
+  create_table "permissions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.integer "level", default: 0, null: false
+    t.uuid "user_id", null: false
+    t.uuid "roster_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id", "roster_id"], name: "index_permissions_on_user_id_and_roster_id", unique: true
+  end
+
   create_table "rosters", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
     t.text "participant_properties"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.uuid "user_id"
-    t.index ["user_id"], name: "index_rosters_on_user_id"
   end
 
   create_table "rounds", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -103,6 +110,7 @@ ActiveRecord::Schema.define(version: 2020_06_04_004617) do
   add_foreign_key "licenses_matches", "matches"
   add_foreign_key "matches", "rounds"
   add_foreign_key "participants", "rosters"
-  add_foreign_key "rosters", "users"
+  add_foreign_key "permissions", "rosters"
+  add_foreign_key "permissions", "users"
   add_foreign_key "rounds", "hunts"
 end

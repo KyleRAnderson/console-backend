@@ -5,14 +5,12 @@ class Api::V1::HuntsController < ApplicationController
   # This will make sure that the current roster is set,
   # if not render 404 before action is called.
   before_action :current_roster, only: %i[index create]
+  # Prepare hunt before authorizing it.
   before_action :prepare_hunt, except: %i[index create]
+  before_action :authorize_hunt, except: %i[index create update]
 
   def index
-    render json: current_roster.hunts.includes(:licenses), status: :ok
-  end
-
-  def create
-    save_and_render_resource(current_roster.hunts.build(hunt_params))
+    render json: policy_scope(current_roster.hunts).includes(:licenses), status: :ok
   end
 
   def show
@@ -20,9 +18,14 @@ class Api::V1::HuntsController < ApplicationController
              .as_json(include: { roster: { only: :participant_properties } }), status: :ok
   end
 
+  def create
+    hunt = current_roster.hunts.build(hunt_params)
+    save_and_render_resource(authorize(hunt))
+  end
+
   def update
-    @hunt.update(hunts_params)
-    render_resource(@hunt)
+    @hunt.assign_attributes(hunts_params)
+    save_and_render_resource(authorize(@hunt))
   end
 
   def destroy
@@ -36,7 +39,11 @@ class Api::V1::HuntsController < ApplicationController
   end
 
   def prepare_hunt
-    @hunt ||= Hunt.joins(:roster).find_by(id: params[:id], rosters: { user_id: current_user.id })
+    @hunt ||= Hunt.find_by(id: params[:id])
     head :not_found unless @hunt
+  end
+
+  def authorize_hunt
+    authorize @hunt
   end
 end

@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/record_saving'
 
 def disallow_association_with(match)
   expect { license.matches.push(match) }.not_to change(license.matches, :length)

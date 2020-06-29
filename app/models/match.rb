@@ -1,14 +1,17 @@
 class Match < ApplicationRecord
   belongs_to :round
+
+  has_one :roster, through: :round
   has_and_belongs_to_many :licenses, before_add: :on_add_license
   has_many :participants, through: :licenses
-
-  before_create :assign_local_id
-  after_create :update_hunt_match_id
+  has_many :permissions, through: :roster
 
   validate :validate_two_unique_licenses
+  validate :validate_unchanged_properties
+  validate :validate_licenses_in_hunt
   validate :validate_round_not_closed
-  validate :validate_unchanged_properties, on: :update
+
+  before_create :assign_local_id
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],
@@ -20,29 +23,29 @@ class Match < ApplicationRecord
   private
 
   def validate_two_unique_licenses
-    errors.add(:match, 'Match must have unique licenses.') unless licenses.uniq.length == licenses.length
-    errors.add(:match, 'Match must have exactly two licenses.') unless licenses.length == 2
+    errors.add(:match, 'must have unique licenses.') unless licenses.uniq.size == licenses.size
+    errors.add(:match, 'must have exactly two licenses.') unless licenses.size == 2
   end
 
   def validate_unchanged_properties
-    errors.add(:match, 'Cannot change local id after creation.') if local_id_changed?
-    errors.add(:match, 'Cannot change round after creation.') if round_id_changed?
+    errors.add(:match, 'cannot have attributes changed') if changed? && !new_record?
+  end
+
+  def validate_licenses_in_hunt
+    proper_licenses = licenses.all? { |license| license.hunt == round.hunt }
+    errors.add(:match, 'must have licenses which belong to the round\'s hunt') unless proper_licenses
   end
 
   def validate_round_not_closed
-    errors.add(:match, 'Cannot be associated with a closed round.') if round.closed?
+    errors.add(:match, 'Cannot be associated with a closed round.') if round&.closed?
   end
 
   # Needs to be called after validations, which means that round has been assigned.
   def assign_local_id
-    self.local_id = round.hunt.current_match_id + 1
-  end
-
-  def update_hunt_match_id
-    round.hunt.increment_match_id
+    self.local_id = round.hunt.increment_match_id
   end
 
   def on_add_license(_)
-    throw :abort unless new_record? && licenses.length < 2
+    throw :abort unless new_record? && licenses.size < 2
   end
 end

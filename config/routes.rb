@@ -3,17 +3,22 @@
 Rails.application.routes.draw do
   devise_for :users, path: '', path_prefix: 'api/v1/', defaults: { format: 'json' },
                      path_names: { sign_in: 'login', sign_out: 'logout', registration: 'signup' },
-                     controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations', passwords: 'api/v1/passwords', confirmations: 'api/v1/confirmations' }
+                     controllers: { sessions: 'api/v1/sessions', registrations: 'api/v1/registrations',
+                                    passwords: 'api/v1/passwords', confirmations: 'api/v1/confirmations' }
   namespace :api do
     namespace :v1 do
       shallow do
-        resources :rosters, only: %i[index create show destroy], defaults: { format: 'json' } do
-          resources :participants, only: %i[index create show destroy update], defaults: { format: 'json' }
-          resources :hunts, only: %i[index create show destroy update], defaults: { format: 'json' } do
-            resources :licenses, only: %i[index create show destroy update], defaults: { format: 'json' }
-            resources :rounds, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number, shallow: false
-            resources :matches, only: %i[index create show destroy], defaults: { format: 'json' }, param: :number, shallow: false
-            post '/matchmake/', to: 'matches#matchmake'
+        resources :rosters, only: %i[index show create update destroy], defaults: { format: 'json' } do
+          resources :permissions, only: %i[index show create update destroy], defaults: { format: 'json' }
+          resources :participants, only: %i[index show create update destroy], defaults: { format: 'json' } do
+            post 'upload', action: :upload, on: :collection
+          end
+          resources :hunts, only: %i[index show create update destroy], defaults: { format: 'json' } do
+            resources :licenses, only: %i[index show create update destroy], defaults: { format: 'json' }
+            resources :rounds, only: %i[index show create destroy], defaults: { format: 'json' }, param: :number, shallow: false
+            resources :matches, only: %i[index show create], defaults: { format: 'json' }, param: :number, shallow: false do
+              post 'matchmake', action: :matchmake, on: :collection
+            end
           end
         end
       end

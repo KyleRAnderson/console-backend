@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/unique_collection_generator'
 
 =begin
 Side note: I could have made several of these into their own
@@ -123,7 +124,7 @@ RSpec.describe Matchmake do
   PROPERTIES = ['num', 'food'].freeze
 
   # Has to be referenced after roster creation.
-  let(:hunt) { create(:hunt_with_licenses_rounds, roster: roster, num_rounds: 1) }
+  let(:hunt) { create(:full_hunt, roster: roster, num_rounds: 1) }
   let(:roster) { create(:roster, participant_properties: participant_properties) }
 
   describe 'within matchmaking' do
@@ -236,7 +237,7 @@ RSpec.describe Matchmake do
           check_matches(matchmake,
                         hunt.licenses,
                         between_properties: participant_properties) do |associations|
-            expect(associations.length).to eq(2)
+            expect(associations.size).to eq(2)
             associations.each do |association, match_count|
               expect(match_count).to eq(15)
               association.each do |association_value|
@@ -260,7 +261,7 @@ RSpec.describe Matchmake do
                         hunt.licenses,
                         between_properties: participant_properties,
                         leftover: true) do |associations|
-            expect(associations.length).to eq(3)
+            expect(associations.size).to eq(3)
             expect(associations).to satisfy do |a|
               a == { [%w[0], %w[1]] => 6, [%w[1], %w[2]] => 1, [%w[2], %w[2]] => 3 } ||
                 a == { [%w[0], %w[2]] => 6, [%w[1], %w[2]] => 2, [%w[1], %w[1]] => 2 } ||

@@ -1,16 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe 'Api::V1::Licenses', type: :request do
-  before(:all) do
-    @user = create(:user_with_rosters)
+  let(:user) do
+    user = create(:user_with_rosters)
+    sign_in(user)
+    user
   end
-  after(:all) { @user.destroy! }
-
-  before(:each) { sign_in(@user) }
 
   describe 'with logged in user' do
-    let(:roster) { create(:roster_with_participants_hunts, user: @user, num_hunts: 2, num_participants: 10) }
-    let(:hunt) { create(:hunt_with_licenses_rounds, roster: roster) }
+    let(:roster) { create(:full_roster, user: user, num_hunts: 2, num_participants: 10) }
+    let(:hunt) { create(:full_hunt, roster: roster) }
     let(:participant) { create(:participant, roster: roster) }
     let(:other_participant) { create(:participant, roster: roster) }
     let(:license) { create(:license, hunt: hunt, participant: participant) }
@@ -40,16 +39,19 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       it 'succeeds and destroys the provided license' do
         delete api_v1_license_path(license)
         expect(response).to have_http_status(:success)
-        expect(License.find_by(id: license.id)).to be_nil
+        expect(License.exists?(license.id)).to be false
       end
     end
 
     describe 'edit license (UPDATE)' do
       it 'allows updating the eliminated attribute' do
-        patch api_v1_license_path(license),
-          params: { license: { eliminated: true } }
+        expectation = expect do
+          patch api_v1_license_path(license),
+            params: { license: { eliminated: true } }
+        end
+        expectation.to change { license.reload.eliminated }.from(false).to(true)
+        expect(JSON.parse(response.body)['eliminated']).to be true
         expect(response).to have_http_status(:success)
-        expect(license.reload.eliminated).to be true
       end
 
       it 'does not allow update to other attributes' do
@@ -87,8 +89,8 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
     end
 
     describe 'get licenses (INDEX)' do
-      let(:roster_50_participants) { create(:roster_with_participants_hunts, num_hunts: 0, num_participants: 50, user: @user) }
-      let(:hunt_50_licenses) { create(:hunt_with_licenses_rounds, roster: roster_50_participants, num_rounds: 0) }
+      let(:roster_50_participants) { create(:full_roster, num_hunts: 0, num_participants: 50, user: user) }
+      let(:hunt_50_licenses) { create(:full_hunt, roster: roster_50_participants, num_rounds: 0) }
 
       it 'gets all the licenses associated with the hunt' do
         previous_licenses = nil
@@ -110,6 +112,9 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
   describe 'with incorrect logged in user' do
     let(:wrong_user_license) { create(:license) }
+
+    # Just need to reference the user to log them in.
+    before(:each) { user }
 
     describe 'show action' do
       it 'returns 404' do
