@@ -5,8 +5,8 @@ class Api::V1::LicensesController < ApplicationController
   before_action :authenticate_user!
   before_action :current_hunt, only: %i[index create]
   # Prepare license before authorizing it.
-  before_action :prepare_license, except: %i[index create]
-  before_action :authorize_license, except: %i[index create update]
+  before_action :prepare_license, only: %i[show update destroy]
+  before_action :authorize_license, only: %i[show destroy]
 
   def index
     licenses = policy_scope(current_hunt.licenses)
@@ -30,6 +30,18 @@ class Api::V1::LicensesController < ApplicationController
 
   def destroy
     destroy_and_render_resource(@license)
+  end
+
+  def eliminate_all
+    authorize current_hunt, policy_class: LicensePolicy
+    EliminateRemainingLicensesJob.perform_now(current_hunt)
+    head :ok
+  end
+
+  def eliminate_half
+    authorize current_hunt, policy_class: LicensePolicy
+    EliminateHalfLicensesJob.perform_now(current_hunt.current_round)
+    head :ok
   end
 
   private

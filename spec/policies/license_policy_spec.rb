@@ -7,6 +7,20 @@ RSpec.describe LicensePolicy, type: :policy do
   include_examples 'console policy' do
     let(:record) { create(:license, hunt: create(:hunt, roster: roster)) }
 
+    %i[eliminate_all eliminate_half].each do |action|
+      describe action do
+        it 'denies viewers' do
+          expect(subject.new(users[:viewer], record.hunt)).to forbid_action(described_class)
+        end
+
+        it 'permits owners, administrators and operators' do
+          users.slice(:owner, :administrator, :operator).values.each do |user|
+            expect(subject.new(user, record.hunt)).to permit_action(described_class)
+          end
+        end
+      end
+    end
+
     include_examples 'console scope', License do
       let(:expected_records) do
         records = []
