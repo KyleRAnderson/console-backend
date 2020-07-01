@@ -5,8 +5,8 @@ class Round < ApplicationRecord
   has_many :matches, dependent: :destroy
   has_many :permissions, through: :roster
 
-  validates :number, numericality: { only_integer: true, greater_than: 0 }
-  validate :validate_no_other_round_with_same_number
+  validates :number, numericality: { only_integer: true, greater_than: 0 },
+                     uniqueness: { scope: :hunt, message: 'must be unique across the hunt' }
 
   before_validation :auto_assign_number, on: :create, if: proc { number.blank? }
 
@@ -16,12 +16,6 @@ class Round < ApplicationRecord
   end
 
   private
-
-  def validate_no_other_round_with_same_number
-    if hunt&.rounds&.find_by(number: number)
-      errors.add(:round, "Only one round with number #{number} may exist per hunt.")
-    end
-  end
 
   def auto_assign_number
     unless hunt.nil?
