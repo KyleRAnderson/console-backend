@@ -13,6 +13,9 @@ class License < ApplicationRecord
   # Match must be valid so we don't get more/less than two licenses per match
   validates_associated :matches
 
+  scope :eliminated, -> { where(eliminated: true) }
+  scope :not_eliminated, -> { where(eliminated: false) }
+
   def as_json(**options)
     super(include: { participant: { only: %i[first last extras id] } },
           except: :participant_id, methods: :match_ids,
