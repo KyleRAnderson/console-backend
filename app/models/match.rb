@@ -13,11 +13,22 @@ class Match < ApplicationRecord
 
   before_create :assign_local_id
 
+  scope :open, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: false }).having('count(licenses) = 2') }
+  scope :closed, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: true }).having('count(licenses) >= 1') }
+
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],
                                include: {
             participant: { only: %i[id first last extras] },
           } } }, **options)
+  end
+
+  def open?
+    !closed?
+  end
+
+  def closed?
+    licenses.any?(&:eliminated)
   end
 
   private

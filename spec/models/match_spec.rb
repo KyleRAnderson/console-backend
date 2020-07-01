@@ -2,6 +2,7 @@ require 'rails_helper'
 require 'support/record_saving'
 
 RSpec.describe Match, type: :model do
+  let(:hunt) { round.hunt }
   let(:round) { create(:round) }
   let(:other_round) { create(:round) }
   let(:latest_round) { create(:round, hunt: round.hunt) }
@@ -12,10 +13,10 @@ RSpec.describe Match, type: :model do
 
   describe 'with valid configuration' do
     it 'can be saved and assigns itself a local id' do
-      prev_round_match_id = round.hunt.current_match_id
+      prev_round_match_id = hunt.current_match_id
       expect(match.save).to be true
       expect(match.local_id).to eq(prev_round_match_id + 1)
-      expect(round.hunt.current_match_id).to eq(prev_round_match_id + 1)
+      expect(hunt.current_match_id).to eq(prev_round_match_id + 1)
     end
   end
 
@@ -50,5 +51,17 @@ RSpec.describe Match, type: :model do
       latest_round
       cannot_save_and_errors(match)
     end
+  end
+
+  it 'reports open and closed properly' do
+    match = create(:match, round: round, licenses: create_list(:license, 2, hunt: hunt, eliminated: false))
+    expect(match).to be_open
+    expect(match).not_to be_closed
+    match.licenses.first.eliminated = true
+    expect(match).not_to be_open
+    expect(match).to be_closed
+    match.licenses.last.eliminated = true
+    expect(match).not_to be_open
+    expect(match).to be_closed
   end
 end
