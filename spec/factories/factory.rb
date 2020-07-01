@@ -139,6 +139,13 @@ FactoryBot.define do
     roster factory: :roster
 
     trait :with_licenses do
+      transient do
+        # If a roster isn't provided, this will govern how many participants to create in the roster.
+        num_licenses { rand(10..30) }
+      end
+
+      roster { create(:roster_with_participants, num_participants: num_licenses) }
+
       after(:create) do |hunt|
         hunt.roster.participants.each do |participant|
           create(:license, participant: participant, hunt: hunt)
@@ -172,6 +179,22 @@ FactoryBot.define do
 
   factory :round do
     hunt
+
+    trait :with_matches do
+      transient do
+        num_matches { rand(20..50) }
+      end
+
+      hunt { create(:hunt_with_licenses, num_licenses: num_matches * 2) }
+
+      after(:create) do |round|
+        round.hunt.licenses.each_slice(2) do |licenses|
+          create(:match, licenses: licenses, round: round)
+        end
+      end
+    end
+
+    factory :round_with_matches, traits: [:with_matches]
   end
 
   factory :match do
