@@ -198,7 +198,27 @@ FactoryBot.define do
   end
 
   factory :match do
+    transient do
+      # State for the match. One of:
+      # :ongoing (both license in the match are not eliminated)
+      # :closed (one license is eliminated)
+      # :both_eliminated (both licenses are eliminated)
+      state { :ongoing }
+    end
+
     round
-    licenses { create_list(:license, 2, hunt: round.hunt) }
+    licenses do
+      case state
+      when :ongoing
+        create_list(:license, 2, hunt: round.hunt, eliminated: false)
+      when :closed
+        licenses = []
+        licenses << create(:license, hunt: round.hunt, eliminated: true)
+        licenses << create(:license, hunt: round.hunt, eliminated: false)
+        licenses
+      when :both_eliminated
+        create_list(:license, 2, hunt: round.hunt, eliminated: true)
+      end
+    end
   end
 end
