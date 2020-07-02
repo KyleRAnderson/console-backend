@@ -16,7 +16,7 @@ class Hunt < ApplicationRecord
   def increment_match_id
     with_lock do
       self.current_match_id += 1
-      save
+      save!
     end
     self.current_match_id
   end
