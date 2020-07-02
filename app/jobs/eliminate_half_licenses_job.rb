@@ -5,7 +5,7 @@ class EliminateHalfLicensesJob < ApplicationJob
   queue_as :default
 
   def perform(round)
-    licenses_to_update = round.matches.open.map do |match|
+    licenses_to_update = round.matches.ongoing.map do |match|
       license = match.licenses.sample
       license.eliminated = true
       license

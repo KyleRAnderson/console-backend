@@ -13,7 +13,7 @@ class Match < ApplicationRecord
 
   before_create :assign_local_id
 
-  scope :open, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: false }).having('count(licenses) = 2') }
+  scope :ongoing, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: false }).having('count(licenses) = 2') }
   scope :closed, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: true }).having('count(licenses) >= 1') }
 
   def as_json(**options)

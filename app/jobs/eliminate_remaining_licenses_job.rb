@@ -3,7 +3,7 @@ class EliminateRemainingLicensesJob < ApplicationJob
 
   # Eliminates all licenses that are in open matches.
   def perform(hunt)
-    open_matches_ids = hunt.matches.open.select(:id)
+    open_matches_ids = hunt.matches.ongoing.select(:id)
     # Joins will only load the licenses that have an associated match
     License
       .joins(:matches)
