@@ -7,7 +7,6 @@ class Round < ApplicationRecord
 
   validates :number, numericality: { only_integer: true, greater_than: 0 },
                      uniqueness: { scope: :hunt, message: 'must be unique across the hunt' }
-  validate :validate_current_round_over, on: :create
 
   before_validation :auto_assign_number, on: :create, if: proc { number.blank? }
 
@@ -27,9 +26,5 @@ class Round < ApplicationRecord
       # We use count here specifically, since count refers to the number in the database.
       self.number = hunt.current_highest_round_number + 1
     end
-  end
-
-  def validate_current_round_over
-    errors.add(:round, 'cannot be created with a round still ongoing') if hunt&.current_round&.ongoing?
   end
 end

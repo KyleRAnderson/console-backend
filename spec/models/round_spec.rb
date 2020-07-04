@@ -29,13 +29,6 @@ RSpec.describe Round, type: :model do
         expect(round).to be_closed
       end
     end
-
-    context 'with the current round being ongoing' do
-      it 'does not allow save' do
-        create_list(:match, 5, round: hunt.current_round, state: :ongoing)
-        cannot_save_and_errors(round)
-      end
-    end
   end
 
   subject(:round) { create(:round) }
