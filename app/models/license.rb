@@ -15,6 +15,7 @@ class License < ApplicationRecord
 
   scope :eliminated, -> { where(eliminated: true) }
   scope :not_eliminated, -> { where(eliminated: false) }
+  scope :in_round, ->(round_numbers) { joins(matches: :round).where(matches: { rounds: { number: round_numbers } }) }
 
   def as_json(**options)
     super(include: { participant: { only: %i[first last extras id] } },
