@@ -32,18 +32,6 @@ FactoryBot.define do
         permission.roster = build(:roster, permissions: [permission])
       end
     end
-
-    factory :administrator do
-      level { :administrator }
-    end
-
-    factory :operator do
-      level { :operator }
-    end
-
-    factory :viewer do
-      level { :viewer }
-    end
   end
 
   factory :blank_roster, class: Roster do
@@ -83,9 +71,9 @@ FactoryBot.define do
       end
 
       after(:create) do |roster, evaluator|
-        create_list(:administrator, evaluator.num_administrators, roster: roster)
-        create_list(:operator, evaluator.num_operators, roster: roster)
-        create_list(:viewer, evaluator.num_viewers, roster: roster)
+        create_list(:permission, evaluator.num_administrators, level: :administrator, roster: roster)
+        create_list(:permission, evaluator.num_operators, level: :operator, roster: roster)
+        create_list(:permission, evaluator.num_viewers, level: :viewer, roster: roster)
         # Not sure why this one needs a reload, works without for the others.
         roster.permissions.reload
       end

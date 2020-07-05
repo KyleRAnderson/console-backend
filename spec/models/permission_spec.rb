@@ -79,9 +79,9 @@ RSpec.describe Permission, type: :model do
     context 'with other permissions in the roster' do
       let(:owner) { create(:permission) }
       let(:roster) { owner.roster }
-      let(:admins) { create_list(:administrator, 2, roster: roster) }
-      let(:ops) { create_list(:operator, 3, roster: roster) }
-      let(:viewers) { create_list(:viewer, 5, roster: roster) }
+      let(:admins) { create_list(:permission, 2, level: :administrator, roster: roster) }
+      let(:ops) { create_list(:permission, 3, level: :operator, roster: roster) }
+      let(:viewers) { create_list(:permission, 5, level: :viewer, roster: roster) }
 
       it 'promotes the oldest and highest permission user if owner is destroyed' do
         # Some very manual setup
