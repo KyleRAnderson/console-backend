@@ -2,6 +2,8 @@ require 'rails_helper'
 require 'support/record_saving'
 
 RSpec.describe Round, type: :model do
+  subject(:round) { create(:round) }
+
   describe 'construction' do
     let(:hunt) { create(:full_hunt, num_rounds: 4) }
     subject(:round) { build(:round, hunt: hunt) }
@@ -31,22 +33,42 @@ RSpec.describe Round, type: :model do
     end
   end
 
-  subject(:round) { create(:round) }
-
   describe 'ongoing matches' do
     it 'returns true if it has matches that are ongoing' do
       create_list(:match, 5, state: :ongoing, round: round)
-      expect(round).to be_ongoing
+      expect(round).to have_ongoing_matches
     end
 
     it 'returns false if it has matches but they are all closed' do
       create_list(:match, 5, state: :closed, round: round)
       create_list(:match, 5, state: :both_eliminated, round: round)
-      expect(round).not_to be_ongoing
+      expect(round).not_to have_ongoing_matches
     end
 
     it 'returns false if it has no matches' do
-      expect(round).not_to be_ongoing
+      expect(round).not_to have_ongoing_matches
+    end
+  end
+
+  describe 'open/closed' do
+    let(:hunt) { round.hunt }
+    subject(:round) { create(:round) }
+
+    it 'reports open/not closed when it is the current round in the hunt' do
+      expect(round).to be_open
+      expect(round).not_to be_closed
+    end
+
+    it 'reports closed/not open if there are rounds after it' do
+      hunt.rounds.create
+      expect(round).not_to be_open
+      expect(round).to be_closed
+    end
+
+    it 'reports open/not closed if it is unsaved' do
+      new_round = build(:round, hunt: hunt)
+      expect(new_round).to be_open
+      expect(new_round).not_to be_closed
     end
   end
 end
