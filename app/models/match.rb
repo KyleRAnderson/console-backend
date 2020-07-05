@@ -43,6 +43,8 @@ class Match < ApplicationRecord
   end
 
   def validate_licenses_in_hunt
+    return unless round
+
     proper_licenses = licenses.all? { |license| license.hunt == round.hunt }
     errors.add(:match, 'must have licenses which belong to the round\'s hunt') unless proper_licenses
   end
