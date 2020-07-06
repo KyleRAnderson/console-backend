@@ -7,7 +7,8 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
 
   Permission.levels.keys.each do |level|
     context "with logged in #{level} user" do
-      let(:roster) { create(:roster, permissions: [build(:permission, user: user, level: level)]) }
+      let(:user_permission) { build(:permission, level: level, user: user) }
+      let(:roster) { create(:roster, permissions: [user_permission]) }
       let(:hunt) { create(:hunt, roster: roster) }
       let(:participant) { create(:participant, roster: roster) }
       let(:other_participant) { create(:participant, roster: roster) }
@@ -112,13 +113,11 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
       end
 
       describe 'get licenses (INDEX)' do
-        let(:roster_50_participants) { create(:full_roster, num_hunts: 0, num_participants: 50, user: user) }
-        let(:hunt_50_licenses) { create(:full_hunt, roster: roster_50_participants, num_rounds: 0) }
-
         it 'gets all the licenses associated with the hunt' do
-          previous_licenses = nil
+          expected_licenses = [true, false].reduce([]) { |total, value| total + create_list(:license, 25, hunt: hunt, eliminated: value) }
+          received_ids = []
           (1..5).each do |i|
-            get api_v1_hunt_licenses_path(hunt_50_licenses), params: { page: i, per_page: 10 }
+            get api_v1_hunt_licenses_path(hunt), params: { page: i, per_page: 10 }
             expect(response).to have_http_status(:success)
             parsed_response = JSON.parse(response.body)
             expect(parsed_response).to have_key('licenses')
@@ -126,8 +125,43 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
             expect(parsed_response['num_pages']).to eq(5)
             parsed_licenses = parsed_response['licenses']
             expect(parsed_licenses.length).to eq(10)
-            expect(parsed_licenses).not_to eq(previous_licenses)
-            previous_licenses = parsed_licenses
+            received_ids += parsed_licenses.map { |license| license['id'] }
+          end
+          expect(received_ids).to match_array(expected_licenses.map(&:id))
+        end
+
+        context 'with filter params provided' do
+          let!(:licenses_by_eliminated) do
+            [true, false].to_h { |value| [value, create_list(:license, 25, hunt: hunt, eliminated: value)] }
+          end
+          let(:all_licenses) { licenses_by_eliminated.values.flatten }
+
+          describe 'on eliminated status' do
+            [true, false].each do |eliminated|
+              it "renders all licenses with eliminated: #{eliminated} in one page when per_page set to num licenses" do
+                get api_v1_hunt_licenses_path(hunt), params: { page: 1, per_page: all_licenses.size,
+                                                               eliminated: eliminated }
+                expect(response).to have_http_status(:success)
+                parsed_response = JSON.parse(response.body)
+                expect(parsed_response['num_pages']).to eq(1)
+                expect(parsed_response['licenses'].map { |license| license['id'] }).to match_array(licenses_by_eliminated[eliminated].map(&:id))
+              end
+            end
+            [true, false].each do |eliminated|
+              it "renders licenses paginated with eliminated filtered to #{eliminated}" do
+                expected_licenses = licenses_by_eliminated[eliminated]
+                per_page = (expected_licenses.size * 0.5).ceil
+                received_ids = []
+                (1..2).each do |page|
+                  get api_v1_hunt_licenses_path(hunt), params: { page: page, per_page: per_page, eliminated: eliminated }
+                  expect(response).to have_http_status(:success)
+                  parsed_response = JSON.parse(response.body)
+                  expect(parsed_response['num_pages']).to eq(2)
+                  received_ids += parsed_response['licenses'].map { |license| license['id'] }
+                end
+                expect(received_ids).to match_array(expected_licenses.map(&:id))
+              end
+            end
           end
         end
       end

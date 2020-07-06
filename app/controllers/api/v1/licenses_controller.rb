@@ -9,7 +9,7 @@ class Api::V1::LicensesController < ApplicationController
   before_action :authorize_license, only: %i[show destroy]
 
   def index
-    licenses = policy_scope(current_hunt.licenses)
+    licenses = policy_scope(apply_filters(current_hunt.licenses))
     render json: paginated(licenses.includes(:participant, :matches),
                            key: :licenses), status: :ok
   end
@@ -48,6 +48,11 @@ class Api::V1::LicensesController < ApplicationController
 
   def license_params
     params.require(:license).permit(:eliminated, :participant_id)
+  end
+
+  def apply_filters(licenses)
+    licenses = licenses.where(eliminated: params[:eliminated]) if params.key?(:eliminated)
+    licenses
   end
 
   def prepare_license
