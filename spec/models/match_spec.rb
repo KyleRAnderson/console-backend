@@ -11,7 +11,8 @@ RSpec.describe Match, type: :model do
   subject(:match) { create(:match) }
 
   describe 'construction' do
-    subject(:match) { build(:match, round: round) }
+    let(:licenses) { create_list(:license, 2, hunt: hunt) }
+    subject(:match) { build(:match, round: round, licenses: licenses) }
 
     describe 'with valid configuration' do
       it 'can be saved and assigns itself a local id' do
@@ -41,9 +42,20 @@ RSpec.describe Match, type: :model do
         cannot_save_and_errors(match)
       end
     end
-    describe 'with closed round' do
+
+    context 'with closed round' do
       it 'cannot be saved' do
         latest_round
+        cannot_save_and_errors(match)
+      end
+    end
+
+    context 'with licenses associated with a match in the same round' do
+      before(:each) do
+        create(:match, round: round, licenses: licenses)
+      end
+
+      it 'cannot be saved' do
         cannot_save_and_errors(match)
       end
     end

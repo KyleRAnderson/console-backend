@@ -2,14 +2,17 @@ class Match < ApplicationRecord
   belongs_to :round
 
   has_one :roster, through: :round
-  has_and_belongs_to_many :licenses, before_add: :on_add_license
+  # validate: false because validating the license would cause it to validate
+  # matches again, and it's a bit of an unnecessary mess
+  has_and_belongs_to_many :licenses, before_add: :on_add_license, validate: false
   has_many :participants, through: :licenses
   has_many :permissions, through: :roster
 
   validate :validate_two_unique_licenses
-  validate :validate_unchanged_properties
+  validate :validate_unchanged_properties, on: :update
   validate :validate_licenses_in_hunt
   validate :validate_round_not_closed
+  validate :validate_licenses_no_other_matches_in_round
 
   before_create :assign_local_id
 
@@ -50,7 +53,7 @@ class Match < ApplicationRecord
   end
 
   def validate_round_not_closed
-    errors.add(:match, 'Cannot be associated with a closed round.') if round&.closed?
+    errors.add(:match, 'cannot be associated with a closed round.') if round&.closed?
   end
 
   # Needs to be called after validations, which means that round has been assigned.
@@ -60,5 +63,13 @@ class Match < ApplicationRecord
 
   def on_add_license(_)
     throw :abort unless new_record? && licenses.size < 2
+  end
+
+  def validate_licenses_no_other_matches_in_round
+    return unless round
+
+    if round.matches.joins(:licenses).where(licenses: { id: licenses.map(&:id) }).present?
+      errors.add(:match, 'cannot be associated with licenses that already have a match in the round')
+    end
   end
 end

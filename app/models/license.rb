@@ -3,6 +3,8 @@ class License < ApplicationRecord
   belongs_to :participant
 
   has_one :roster, through: :hunt
+  # Destroy all matches when the license is destroyed, since there's no point in keeping a record
+  # of matches with only one license in them.
   has_and_belongs_to_many :matches, before_add: :on_add_match
   has_many :permissions, through: :roster
 
@@ -11,7 +13,11 @@ class License < ApplicationRecord
   validate :validate_participant_in_roster
   validate :validate_only_changed_eliminated, on: :update
   # Match must be valid so we don't get more/less than two licenses per match
+  # Use case is a license gets updated to have one less match, but that would leave
+  # the match in an invalid state with only one license.
   validates_associated :matches
+
+  before_destroy :destroy_associated_matches
 
   scope :eliminated, -> { where(eliminated: true) }
   scope :not_eliminated, -> { where(eliminated: false) }
@@ -44,5 +50,9 @@ class License < ApplicationRecord
 
   def match_ids
     matches.map(&:id)
+  end
+
+  def destroy_associated_matches
+    Match.joins(:licenses).destroy_by(licenses: { id: id })
   end
 end

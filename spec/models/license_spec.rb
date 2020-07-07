@@ -78,4 +78,19 @@ RSpec.describe License, type: :model do
       disallow_association_with(saved_match)
     end
   end
+
+  describe 'upon destruction' do
+    subject(:license) { create(:license, hunt: hunt) }
+    let!(:associated_matches) do
+      # Reason for creating rounds here is we can't have the same license in a match in the same round.
+      3.times.map do
+        create(:match, licenses: [license, create(:license, hunt: hunt)], round: create(:round, hunt: hunt))
+      end
+    end
+
+    it 'destroys associated matches' do
+      license.destroy!
+      associated_matches.each { |match| expect(Match.exists?(match.id)).to be false }
+    end
+  end
 end
