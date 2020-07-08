@@ -16,8 +16,10 @@ class Match < ApplicationRecord
 
   before_create :assign_local_id
 
-  scope :ongoing, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: false }).having('count(licenses) = 2') }
-  scope :closed, -> { joins(:licenses).group('matches.id').where(licenses: { eliminated: true }).having('count(licenses) >= 1') }
+  scope :ongoing_group, -> { joins(:licenses).distinct.group('matches.id').where(licenses: { eliminated: false }).having('count(licenses) = 2') }
+  scope :ongoing, -> { where(id: ongoing_group.select(:id)) }
+  scope :closed_group, -> { joins(:licenses).distinct.group('matches.id').where(licenses: { eliminated: true }).having('count(licenses) >= 1') }
+  scope :closed, -> { where(id: closed_group.select(:id)) }
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],
