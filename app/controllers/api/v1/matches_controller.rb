@@ -9,7 +9,7 @@ class Api::V1::MatchesController < ApplicationController
   before_action :authorize_match, except: %i[index create matchmake]
 
   def index
-    matches = policy_scope(current_hunt.matches)
+    matches = policy_scope(apply_filters(current_hunt.matches))
     render json: paginated(matches.includes(:licenses, :participants), key: :matches), status: :ok
   end
 
@@ -45,5 +45,11 @@ class Api::V1::MatchesController < ApplicationController
 
   def matchmake_params
     params.require(:matchmake).permit(within: [], between: [])
+  end
+
+  def apply_filters(matches)
+    matches = matches.joins(:round).where(rounds: { number: params[:round] }) if params.key?(:round)
+    matches = params[:ongoing] == 'true' ? matches.ongoing : matches.closed if params.key?(:ongoing)
+    matches
   end
 end
