@@ -10,7 +10,7 @@ class Hunt < ApplicationRecord
   validates :name, presence: true
 
   def as_json(**options)
-    super(methods: :num_active_licenses, **options)
+    super(methods: %i[num_active_licenses current_round_number], **options)
   end
 
   def increment_match_id
@@ -21,7 +21,7 @@ class Hunt < ApplicationRecord
     self.current_match_id
   end
 
-  def current_highest_round_number
+  def current_round_number
     # Use count instead of length or size specificaly to get the saved ones.
     current_round&.number || 0
   end

@@ -68,11 +68,11 @@ RSpec.describe Hunt, type: :model do
 
   describe 'current highest round' do
     it 'returns 0 when no rounds have been created' do
-      expect(hunt.current_highest_round_number).to be_zero
+      expect(hunt.current_round_number).to be_zero
     end
 
     it 'increases when new rounds are created' do
-      expect { create(:round, hunt: hunt) }.to change(hunt, :current_highest_round_number).by(1)
+      expect { create(:round, hunt: hunt) }.to change(hunt, :current_round_number).by(1)
     end
   end
 end
