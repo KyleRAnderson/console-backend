@@ -23,8 +23,12 @@ gem 'devise', '~> 4.7'
 gem 'redis', '~> 4.0'
 # Use Active Model has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
-# ActiveRecord Import for bulk saving records
+
+# ActiveRecord Import for bulk inserting records
 gem 'activerecord-import'
+
+# Search engine
+gem 'pg_search', '~> 2.3', '>= 2.3.2'
 
 # User autorization and permissions
 gem 'pundit'
