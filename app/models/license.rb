@@ -23,6 +23,15 @@ class License < ApplicationRecord
   scope :not_eliminated, -> { where(eliminated: false) }
   scope :with_match_in_round, ->(round_numbers) { joins(matches: :round).where(matches: { rounds: { number: round_numbers } }).distinct }
 
+  include PgSearch::Model
+  pg_search_scope :search_identifiable, associated_against: {
+                                          participant: %i[first last extras],
+                                        }, using: {
+                                          tsearch: {
+                                            prefix: true,
+                                          },
+                                        }
+
   def as_json(**options)
     super(include: { participant: { only: %i[first last extras id] } },
           except: :participant_id, methods: :match_ids,

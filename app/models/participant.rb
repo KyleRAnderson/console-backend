@@ -11,6 +11,16 @@ class Participant < ApplicationRecord
   validates :last, presence: true
   validates_with ParticipantValidator
 
+  include PgSearch::Model
+  pg_search_scope :search_by_name, against: %i[first last], using: {
+                                     tsearch: { prefix: true },
+                                   }
+  pg_search_scope :search_identifiable,
+                  against: %i[first last extras],
+                  using: {
+                    tsearch: { prefix: true },
+                  }
+
   singleton_class.class_eval do # Same as class << self
     def csv_import(file, roster)
       raise ArgumentError, 'Invalid Extension' unless file.path.match?(/.*\.csv/i)
