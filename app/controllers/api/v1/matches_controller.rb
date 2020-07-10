@@ -48,8 +48,8 @@ class Api::V1::MatchesController < ApplicationController
   end
 
   def apply_filters(matches)
-    matches = matches.joins(:round).where(rounds: { number: params[:round] }) if params.key?(:round)
-    matches = params[:ongoing] == 'true' ? matches.ongoing : matches.closed if params.key?(:ongoing)
+    matches = matches.joins(:round).where(rounds: { number: params[:round] }) if params[:round].present?
+    matches = params[:ongoing] == 'true' ? matches.ongoing : matches.closed if params[:ongoing].present?
     matches
   end
 end

@@ -51,7 +51,7 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def apply_filters(licenses)
-    licenses = licenses.where(eliminated: params[:eliminated]) if params.key?(:eliminated)
+    licenses = licenses.where(eliminated: params[:eliminated]) if params[:eliminated].present?
     licenses
   end
 
