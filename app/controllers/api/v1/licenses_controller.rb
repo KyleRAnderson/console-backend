@@ -9,7 +9,7 @@ class Api::V1::LicensesController < ApplicationController
   before_action :authorize_license, only: %i[show destroy]
 
   def index
-    licenses = policy_scope(apply_filters(current_hunt.licenses))
+    licenses = apply_search(policy_scope(apply_filters(current_hunt.licenses)))
     render json: paginated(licenses.includes(:participant, :matches),
                            key: :licenses), status: :ok
   end
@@ -62,5 +62,11 @@ class Api::V1::LicensesController < ApplicationController
 
   def authorize_license
     authorize @license
+  end
+
+  def apply_search(licenses)
+    return licenses unless params[:q].present?
+
+    licenses.search_identifiable(params[:q])
   end
 end
