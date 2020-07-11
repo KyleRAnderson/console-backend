@@ -1,4 +1,7 @@
 class Api::V1::PermissionsController < ApplicationController
+  include Api::V1::Rosters
+  include Api::V1::PaginationOrdering
+
   wrap_parameters :permission, include: %i[email level]
 
   before_action :authenticate_user!
@@ -6,9 +9,6 @@ class Api::V1::PermissionsController < ApplicationController
   # Order for the next two matter, authorize permission after finding it.
   before_action :prepare_permission, except: %i[index create]
   before_action :authorize_permission, except: %i[index create update]
-
-  include Api::V1::Rosters
-  include Api::V1::PaginationOrdering
 
   def index
     permissions = policy_scope(current_roster.permissions)
