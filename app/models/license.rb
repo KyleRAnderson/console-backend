@@ -32,6 +32,21 @@ class License < ApplicationRecord
                                           },
                                         }
 
+  singleton_class.class_eval do
+    # Creates licenses for each of the participants given by ID in the given hunt.
+    # If the participant_ids are nil, then every participant in the hunt's roster will have
+    # a license created for them in the hunt.
+    def create_for_participants(hunt, participant_ids = nil)
+      # Use Participant here instead of hunt.roster.participants because we want to provide error messages
+      # for unexpected participants
+      participants = Participant.no_license_in(hunt)
+      participants = participants.where(id: participant_ids) if participant_ids.present?
+      participant_ids = participants.pluck(:id)
+      licenses = participant_ids.map { |participant_id| License.new(participant_id: participant_id, hunt: hunt) }
+      imported = import licenses
+      BulkLicenses.new(imported.ids, imported.failed_instances)
+    end
+  end
 
   private
 
