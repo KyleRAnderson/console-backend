@@ -36,6 +36,11 @@ class Match < ApplicationRecord
     licenses.any?(&:eliminated)
   end
 
+  def to_param
+    # Use local ID instead of actual ID for URLs.
+    local_id
+  end
+
   private
 
   def validate_two_unique_licenses

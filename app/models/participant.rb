@@ -1,5 +1,6 @@
 class Participant < ApplicationRecord
   require 'csv'
+  include PgSearch::Model
 
   belongs_to :roster
 
@@ -16,7 +17,6 @@ class Participant < ApplicationRecord
             .where(licenses: { hunt: nil })
         end
 
-  include PgSearch::Model
   pg_search_scope :search_by_name, against: %i[first last], using: {
                                      tsearch: { prefix: true },
                                    }

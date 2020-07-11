@@ -25,6 +25,11 @@ class Round < ApplicationRecord
     matches.ongoing.present?
   end
 
+  def to_param
+    # Using custom param of number instead of ID.
+    number
+  end
+
   private
 
   def auto_assign_number
