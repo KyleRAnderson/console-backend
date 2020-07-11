@@ -1,4 +1,6 @@
-RSpec.shared_examples 'console policy' do |exclude = {}|
+RSpec.shared_examples 'console policy' do |exclude: [], only: %i[show create update destroy]|
+  only -= exclude
+
   let(:owner) { build(:user) }
   let(:roster) { create(:roster, user: owner) }
   let(:users) do
@@ -18,7 +20,7 @@ RSpec.shared_examples 'console policy' do |exclude = {}|
     end
   end
 
-  describe :show, if: exclude.exclude?(:show) do
+  describe :show, if: only.include?(:show) do
     it 'allows all users access to the record' do
       users.values.each do |user|
         expect(subject.new(user, record)).to permit_action(described_class)
@@ -40,7 +42,7 @@ RSpec.shared_examples 'console policy' do |exclude = {}|
     end
   end
 
-  %i[create update destroy].reject { |action| exclude.include?(action) }.each do |action|
+  %i[create update destroy].intersection(only).each do |action|
     include_examples 'modifiers', action
   end
 end

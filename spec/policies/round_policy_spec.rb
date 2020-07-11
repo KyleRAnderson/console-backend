@@ -4,7 +4,7 @@ require 'support/console_policy'
 RSpec.describe RoundPolicy, type: :policy do
   subject { RoundPolicy }
 
-  include_examples 'console policy', [:update] do
+  include_examples 'console policy', exclude: [:update] do
     let(:record) { create(:round, hunt: create(:hunt, roster: roster)) }
 
     include_examples 'console scope', Round do

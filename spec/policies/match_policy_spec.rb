@@ -4,7 +4,7 @@ require 'support/console_policy'
 RSpec.describe MatchPolicy, type: :policy do
   subject { MatchPolicy }
 
-  include_examples 'console policy', %i[update destroy] do
+  include_examples 'console policy', exclude: %i[update destroy] do
     let(:owner) { roster.owner }
     let(:roster) { record.roster }
     let(:record) { create(:match) }
