@@ -16,6 +16,7 @@ Rails.application.routes.draw do
           resources :hunts, only: %i[index show create update destroy], defaults: { format: 'json' } do
             resources :licenses, only: %i[index show create update destroy], defaults: { format: 'json' } do
               collection do
+                post 'bulk', controller: 'licenses/bulk', action: :create
                 patch 'eliminate_all', action: :eliminate_all
                 patch 'eliminate_half', action: :eliminate_half
               end
