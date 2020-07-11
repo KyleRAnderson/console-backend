@@ -101,6 +101,7 @@ FactoryBot.define do
 
     factory :roster, traits: %i[with_participant_properties with_owner]
     factory :roster_with_participants, traits: %i[with_participant_properties with_owner with_participants]
+    factory :roster_with_hunts, traits: %i[with_participant_properties with_owner with_hunts]
 
     factory :full_roster do
       with_participant_properties # First before participants for participants to get properties
