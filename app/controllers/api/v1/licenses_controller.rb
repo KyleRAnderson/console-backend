@@ -2,6 +2,9 @@ class Api::V1::LicensesController < ApplicationController
   include Api::V1::Hunts
   include Api::V1::PaginationOrdering
 
+  AS_JSON_OPTIONS = { include: { participant: { only: %i[first last extras id] } },
+                      except: :participant_id, methods: :match_ids }.freeze
+
   before_action :authenticate_user!
   before_action :current_hunt, only: %i[index create]
   # Prepare license before authorizing it.
@@ -10,22 +13,22 @@ class Api::V1::LicensesController < ApplicationController
 
   def index
     licenses = apply_search(policy_scope(apply_filters(current_hunt.licenses)))
-    render json: paginated(licenses.includes(:participant, :matches),
-                           key: :licenses), status: :ok
+    render json: paginated(licenses.includes(:participant, :matches), key: :licenses)
+             .as_json(**AS_JSON_OPTIONS), status: :ok
   end
 
   def show
-    render json: @license, status: :ok
+    render json: @license.as_json(**AS_JSON_OPTIONS), status: :ok
   end
 
   def create
     license = current_hunt.licenses.build(license_params)
-    save_and_render_resource(authorize(license))
+    save_and_render_resource(authorize(license), json_opts: AS_JSON_OPTIONS)
   end
 
   def update
     @license.assign_attributes(license_params)
-    save_and_render_resource(authorize(@license))
+    save_and_render_resource(authorize(@license), json_opts: AS_JSON_OPTIONS)
   end
 
   def destroy

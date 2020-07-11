@@ -32,11 +32,6 @@ class License < ApplicationRecord
                                           },
                                         }
 
-  def as_json(**options)
-    super(include: { participant: { only: %i[first last extras id] } },
-          except: :participant_id, methods: :match_ids,
-          **options)
-  end
 
   private
 
