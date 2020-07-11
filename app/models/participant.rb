@@ -11,6 +11,11 @@ class Participant < ApplicationRecord
   validates :last, presence: true
   validates_with ParticipantValidator
 
+  scope :no_license_in, ->(hunt) do
+          joins(sanitize_sql_array(['LEFT OUTER JOIN licenses ON licenses.participant_id = participants.id AND licenses.hunt_id = ?', hunt.id]))
+            .where(licenses: { hunt: nil })
+        end
+
   include PgSearch::Model
   pg_search_scope :search_by_name, against: %i[first last], using: {
                                      tsearch: { prefix: true },

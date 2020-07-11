@@ -94,4 +94,59 @@ RSpec.describe Participant, type: :model do
       end
     end
   end
+
+  describe 'scope for no license in hunt' do
+    let(:roster) { create(:roster) }
+    let(:hunt) { create(:hunt, roster: roster) }
+
+    context 'with a mix of participants' do
+      let(:already_in_hunt) { create_list(:license, 13, hunt: hunt).map(&:participant) }
+      let(:in_other_hunts) { create_list(:participant, 11, roster: roster) }
+      let(:in_no_hunts) { create_list(:participant, 7, roster: roster) }
+
+      before(:each) do
+        other_hunts = create_list(:hunt, 2, roster: roster)
+        # Add some of the participants already in the main hunt to other hunts
+        already_in_hunt[0..(already_in_hunt.size / 2)].each do |participant|
+          other_hunts.each do |current_hunt|
+            create(:license, participant: participant, hunt: current_hunt)
+          end
+        end
+        in_other_hunts[0..(in_other_hunts.size / 3)].each do |participant|
+          other_hunts.each do |current_hunt|
+            create(:license, participant: participant, hunt: current_hunt)
+          end
+        end
+        in_other_hunts[(in_other_hunts.size / 3 + 1)...(in_other_hunts.size)].each do |participant|
+          create(:license, participant: participant, hunt: other_hunts.first)
+        end
+      end
+
+      it 'correctly determines which participants are not in the hunt' do
+        expect(roster.participants.no_license_in(hunt)).to match_array(in_other_hunts + in_no_hunts)
+      end
+    end
+
+    context 'with all participants in the hunt' do
+      let(:roster) { create(:roster_with_participants, num_participants: 23) }
+      let!(:hunt) { create(:hunt_with_licenses, roster: roster) }
+
+      before(:each) do
+        create_list(:hunt_with_licenses, 2, roster: roster)
+      end
+
+      it 'returns nothing' do
+        expect(roster.participants.no_license_in(hunt)).to be_empty
+      end
+    end
+
+    context 'with no participants in the hunt' do
+      let(:roster) { create(:roster_with_participants, num_participants: 23) }
+      let!(:hunt) { create(:hunt) }
+
+      it 'returns all the participants in the roster' do
+        expect(roster.participants.no_license_in(hunt)).to match_array(roster.participants)
+      end
+    end
+  end
 end
