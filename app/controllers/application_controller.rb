@@ -15,17 +15,17 @@ class ApplicationController < ActionController::Base
     cookies['X-CSRF-Token'] = form_authenticity_token
   end
 
-  def save_and_render_resource(resource, status = nil)
+  def save_and_render_resource(resource, **options)
     resource.save
-    if status.blank?
-      status = action_name == 'create' ? :created : :ok
+    unless options.key?(:status)
+      options[:status] = action_name == 'create' ? :created : :ok
     end
-    render_resource(resource, status)
+    render_resource(resource, **options)
   end
 
-  def render_resource(resource, status = :ok)
+  def render_resource(resource, status: :ok, json_opts: {})
     if resource.errors.empty?
-      render json: resource, status: status
+      render json: resource.as_json(**json_opts), status: status
     else
       validation_error(resource)
     end
