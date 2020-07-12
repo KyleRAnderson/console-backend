@@ -95,6 +95,52 @@ RSpec.describe 'Api::V1::Participants', type: :request do
             expect(first_participants).not_to eq(second_participants)
           end
         end
+
+        context 'with a filter on hunt' do
+          let(:roster) { create(:roster_with_participants, num_participants: 23, permissions: [user_permission]) }
+          let(:hunt) { create(:hunt, roster: roster) }
+
+          context 'with no participants in the hunt' do
+            it 'returns all participants in the roster' do
+              get api_v1_roster_participants_path(roster), params: { page: 1, per_page: roster.participants.size, exclude_hunt_id: hunt.id }
+              expect(response).to have_http_status(:ok)
+              parsed = JSON.parse(response.body)
+              expect(parsed).to have_key('participants')
+              expect(parsed['participants'].map { |p| p['id'] }).to match_array(roster.participants.pluck(:id))
+            end
+          end
+
+          context 'with all participants in the hunt' do
+            before(:each) do
+              roster.participants.each { |participant| create(:license, participant: participant, hunt: hunt) }
+            end
+            it 'returns no results' do
+              get api_v1_roster_participants_path(roster), params: { page: 1, per_page: roster.participants.size, exclude_hunt_id: hunt.id }
+              expect(response).to have_http_status(:ok)
+              parsed = JSON.parse(response.body)
+              expect(parsed).to have_key('participants')
+              expect(parsed['participants']).to be_empty
+            end
+          end
+
+          context 'with some participants with licenses' do
+            let(:without_licenses) { roster.participants.first(10) }
+
+            before(:each) do
+              # Just to make sure that these participants don't get picked up, being outside of the roster.
+              create_list(:participant, 11)
+              (roster.participants - without_licenses).each { |participant| create(:license, hunt: hunt, participant: participant) }
+            end
+
+            it 'returns participants withot licenses' do
+              get api_v1_roster_participants_path(roster), params: { page: 1, per_page: roster.participants.size, exclude_hunt_id: hunt.id }
+              expect(response).to have_http_status(:ok)
+              parsed = JSON.parse(response.body)
+              expect(parsed).to have_key('participants')
+              expect(parsed['participants'].map { |p| p['id'] }).to match_array(without_licenses.map(&:id))
+            end
+          end
+        end
       end
 
       describe 'GET participant (show)' do

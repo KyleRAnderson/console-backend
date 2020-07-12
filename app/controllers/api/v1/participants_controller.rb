@@ -9,7 +9,7 @@ class Api::V1::ParticipantsController < ApplicationController
   before_action :authorize_participant, except: %i[index create update upload]
 
   def index
-    participants = apply_search(policy_scope(current_roster.participants))
+    participants = apply_filters(policy_scope(current_roster.participants))
     render json: paginated_ordered(participants, key: :participants), status: :ok
   end
 
@@ -66,6 +66,16 @@ class Api::V1::ParticipantsController < ApplicationController
 
   def ordering_params
     params.slice(:first, :last)
+  end
+
+  def filter(participants)
+    participants = apply_filters(participants)
+    apply_search(participants)
+  end
+
+  def apply_filters(participants)
+    participants = participants.no_license_in(params[:exclude_hunt_id]) if params[:exclude_hunt_id].present?
+    participants
   end
 
   def apply_search(participants)
