@@ -17,43 +17,93 @@ RSpec.describe License, type: :model do
   let(:saved_match) { create(:match, round: round, licenses: [hunt.licenses.first, hunt.licenses.second]) }
   let(:unsaved_match) { build(:match, round: round, licenses: [hunt.licenses.first, hunt.licenses.second]) }
 
-  subject(:license) do
-    build(:license,
-          participant: participant,
-          hunt: hunt)
-  end
+  subject(:license) { create(:license, hunt: hunt) }
 
-  it 'can be created with valid arguments' do
-    expect(license.save).to be true
-  end
+  describe 'construction' do
+    subject(:license) do
+      build(:license,
+            participant: participant,
+            hunt: hunt)
+    end
 
-  context 'with participant in different roster from hunt' do
-    it 'cannot be created' do
-      license.participant = participant_wrong_hunt
+    it 'can be created with valid arguments' do
+      expect(license.save).to be true
+    end
+
+    context 'with participant in different roster from hunt' do
+      it 'cannot be created' do
+        license.participant = participant_wrong_hunt
+        cannot_save_and_errors(license)
+      end
+    end
+
+    it 'cannot be created without participant' do
+      license.participant = nil
       cannot_save_and_errors(license)
     end
-  end
 
-  it 'cannot be created without participant' do
-    license.participant = nil
-    cannot_save_and_errors(license)
-  end
-
-  it 'cannot be created without hunt' do
-    license.hunt = nil
-    cannot_save_and_errors(license)
-  end
-
-  context 'with a license already existing for the participant' do
-    it 'cannot be saved, and has errors' do
-      create(:license, participant: participant, hunt: hunt)
+    it 'cannot be created without hunt' do
+      license.hunt = nil
       cannot_save_and_errors(license)
+    end
+
+    context 'with a license already existing for the participant' do
+      it 'cannot be saved, and has errors' do
+        create(:license, participant: participant, hunt: hunt)
+        cannot_save_and_errors(license)
+      end
+    end
+
+    describe 'concurrency' do
+      # Need to use before(:all) otherwise it's too late to turn off transactional tests.
+      before(:all) do
+        self.use_transactional_tests = false
+        @test_roster = create(:roster)
+        @test_hunt, @other_hunt = create_list(:hunt, 2, roster: @test_roster)
+        @test_participant = create(:participant, roster: @test_roster)
+      end
+      after(:all) do
+        # Destroy owner since then everything else will be destroyed too.
+        @test_roster.owner.destroy!
+        self.use_transactional_tests = true
+      end
+
+      it 'prevents simultaneous increments to the math id' do
+        begin
+          # Make sure the connection pool size is what we expect before proceeding.
+          expect(ActiveRecord::Base.connection.pool.size).to eq(5)
+          license_count_before = License.count
+          NUM_THREADS = 4
+          waiting = true
+          num_created = 0
+          participant_id = @test_participant.id
+
+          threads = NUM_THREADS.times.map do |i|
+            Thread.new do
+              construction_params = i.odd? ? { participant: @test_participant } : { participant_id: participant_id }
+              true while waiting
+              license = @test_hunt.licenses.create(**construction_params)
+              num_created += 1 if license.persisted?
+            end
+          end
+          waiting = false
+          threads.each(&:join)
+
+          expect(num_created).to eq(1)
+          expect(License.count).to eq(license_count_before + 1)
+
+          # Now make sure the lock is released
+          license = @other_hunt.licenses.create(participant_id: participant_id)
+          expect(license).to be_persisted
+        ensure
+          ActiveRecord::Base.connection_pool.disconnect!
+        end
+      end
     end
   end
 
   describe 'upon updating attributes other than eliminated' do
     it 'doesn\'t update' do
-      license.save! # Bang because this should work.
       license.participant = participant_wrong_hunt
       cannot_save_and_errors(license)
     end
@@ -61,7 +111,6 @@ RSpec.describe License, type: :model do
 
   describe 'upon updating eliminated attribute only' do
     it 'updates successfully' do
-      license.save!
       license.eliminated = true
       expect(license.save).to be true
     end

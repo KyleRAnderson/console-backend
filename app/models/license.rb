@@ -8,8 +8,8 @@ class License < ApplicationRecord
   has_and_belongs_to_many :matches, before_add: :on_add_match
   has_many :permissions, through: :roster
 
-  validates :participant, uniqueness: { scope: :hunt,
-                                        message: 'one license may exist per participant per hunt.' }
+  validates :participant_id, uniqueness: { scope: :hunt,
+                                           message: 'one license may exist per participant per hunt.' }
   validate :validate_participant_in_roster
   validate :validate_only_changed_eliminated, on: :update
   # Match must be valid so we don't get more/less than two licenses per match
@@ -17,6 +17,7 @@ class License < ApplicationRecord
   # the match in an invalid state with only one license.
   validates_associated :matches
 
+  before_validation :obtain_participant_lock, on: :create
   before_destroy :destroy_associated_matches
 
   scope :eliminated, -> { where(eliminated: true) }
@@ -72,5 +73,11 @@ class License < ApplicationRecord
 
   def destroy_associated_matches
     Match.joins(:licenses).destroy_by(licenses: { id: id })
+  end
+
+  def obtain_participant_lock
+    return unless participant
+
+    participant.lock!
   end
 end
