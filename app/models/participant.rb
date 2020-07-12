@@ -13,7 +13,8 @@ class Participant < ApplicationRecord
   validates_with ParticipantValidator
 
   scope :no_license_in, ->(hunt) do
-          joins(sanitize_sql_array(['LEFT OUTER JOIN licenses ON licenses.participant_id = participants.id AND licenses.hunt_id = ?', hunt.id]))
+          hunt = hunt.id if hunt.instance_of? Hunt
+          joins(sanitize_sql_array(['LEFT OUTER JOIN licenses ON licenses.participant_id = participants.id AND licenses.hunt_id = ?', hunt]))
             .where(licenses: { hunt: nil })
         end
 
