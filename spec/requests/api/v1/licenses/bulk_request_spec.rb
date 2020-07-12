@@ -81,6 +81,11 @@ RSpec.describe 'Api::V1::Licenses::Bulks', type: :request do
             include_examples 'denies request'
             include_examples 'creates licenses for expected' if Permission.at_least?(level, :operator)
           end
+          context 'with participants in other rosters' do
+            before(:each) { create_list(:participant, 10) }
+            include_examples 'denies request'
+            include_examples 'creates licenses for expected' if Permission.at_least?(level, :operator)
+          end
         end
 
         describe 'upon invalid participants sent' do
@@ -88,11 +93,11 @@ RSpec.describe 'Api::V1::Licenses::Bulks', type: :request do
           let(:other_participant_ids) { other_participants.map(&:id) }
 
           context 'with no other participants requested to create' do
-            let(:params) { { participant_ids: other_participant_ids } }
+            let(:params) { { licenses: { participant_ids: other_participant_ids } } }
             include_examples 'denies request'
             it 'creates no licenses', if: Permission.at_least?(level, :operator) do
               expect do
-                post bulk_api_v1_hunt_licenses_path(hunt), params: { participant_ids: other_participant_ids }
+                post bulk_api_v1_hunt_licenses_path(hunt), params: params
               end.not_to(change { License.count })
               expect(response).to have_http_status(:multi_status)
               parsed = JSON.parse(response.body)
@@ -112,7 +117,7 @@ RSpec.describe 'Api::V1::Licenses::Bulks', type: :request do
             include_examples 'denies request'
             it 'creates licenses for the valid participants but not for the invalid ones', if: Permission.at_least?(level, :operator) do
               expect do
-                post bulk_api_v1_hunt_licenses_path(hunt), params: { participant_ids: all_participant_ids }
+                post bulk_api_v1_hunt_licenses_path(hunt), params: { licenses: { participant_ids: all_participant_ids } }
               end.to(change { License.count }.by(valid_participants.size))
               expect(response).to have_http_status(:multi_status)
               parsed = JSON.parse(response.body)
@@ -121,6 +126,24 @@ RSpec.describe 'Api::V1::Licenses::Bulks', type: :request do
               expect(parsed).to have_key('succeeded')
               expect(License.where(id: parsed['succeeded']).map(&:participant_id)).to match_array(valid_participant_ids)
             end
+          end
+        end
+
+        context 'when specifying specific participants to create licenses for' do
+          let(:no_create_participants) { create_list(:participant, 13, roster: roster) }
+          let(:create_participants) { create_list(:participant, 11, roster: roster) }
+          let(:create_participant_ids) { create_participants.map(&:id) }
+          let(:params) { { licenses: { participant_ids: create_participant_ids } } }
+
+          include_examples 'denies request'
+          it 'only creates licenses for the specified participants', if: Permission.at_least?(level, :operator) do
+            expect { post bulk_api_v1_hunt_licenses_path(hunt), params: params }.to(change { License.count }.by(create_participants.size))
+            expect(response).to have_http_status(:created)
+            parsed = JSON.parse(response.body)
+            expect(parsed).to have_key('succeeded')
+            expect(parsed).to have_key('failed')
+            expect(License.where(id: parsed['succeeded']).map(&:participant_id)).to match_array(create_participant_ids)
+            expect(parsed['failed']).to be_empty
           end
         end
       end

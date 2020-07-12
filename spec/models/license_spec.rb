@@ -178,6 +178,13 @@ RSpec.describe License, type: :model do
         before(:each) { create_list(:hunt_with_licenses, 2, roster: roster) }
         include_examples 'bulk license creation'
       end
+      context 'with participants outside of the hunt\'s roster' do
+        # Testing to make sure that it doesn't try to create licenses for outsider participants with default arguments.
+        before(:each) do
+          create_list(:participant, 10)
+        end
+        include_examples 'bulk license creation'
+      end
 
       context 'when participants from other roster are specified' do
         let(:other_participants) { create_list(:participant, 11) }

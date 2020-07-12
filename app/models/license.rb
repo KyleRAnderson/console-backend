@@ -39,9 +39,8 @@ class License < ApplicationRecord
     def create_for_participants(hunt, participant_ids = nil)
       # Use Participant here instead of hunt.roster.participants because we want to provide error messages
       # for unexpected participants
-      participants = Participant.no_license_in(hunt)
-      participants = participants.where(id: participant_ids) if participant_ids.present?
-      participant_ids = participants.pluck(:id)
+      participants = participant_ids.present? ? Participant.where(id: participant_ids) : hunt.roster.participants
+      participant_ids = participants.no_license_in(hunt).pluck(:id)
       licenses = participant_ids.map { |participant_id| License.new(participant_id: participant_id, hunt: hunt) }
       imported = import licenses
       BulkLicenses.new(imported.ids, imported.failed_instances)
