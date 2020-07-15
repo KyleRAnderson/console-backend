@@ -12,9 +12,10 @@ class Permission < ApplicationRecord
   before_save :demote_owner, if: proc { owner? && roster&.owner_permission != self }
   # Order of the following two are important, need to destroy associated roster first if it's empty
   after_destroy :clean_up_roster,
-                if: proc { |permission| permission.roster&.permissions&.reload&.blank? }
+                if: proc { roster&.permissions&.reload&.blank? }
   after_destroy :reassign_owner,
-                if: proc { |permission| permission.owner? && permission.roster && !permission.roster.destroyed? }
+                # Check if the roster is destroyed in this one because the previous callback may have destroyed it.
+                if: proc { owner? && roster && !roster.destroyed? }
 
   def self.at_least?(level, desired_access)
     # level is current level, desired_access is level to check it against.
