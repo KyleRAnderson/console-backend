@@ -20,6 +20,15 @@ class Match < ApplicationRecord
   scope :ongoing, -> { where(id: ongoing_group.select(:id)) }
   scope :closed_group, -> { joins(:licenses).distinct.group('matches.id').where(licenses: { eliminated: true }).having('count(licenses) >= 1') }
   scope :closed, -> { where(id: closed_group.select(:id)) }
+  scope :exact_licenses, ->(licenses) do
+          joins(:licenses)
+            .where(licenses: { id: licenses.map { |license| license.instance_of?(String) ? license : license.id } })
+            .distinct
+            .group(:id)
+            .having('count(licenses) >= 2')
+        end
+
+  include MatchConcern
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],

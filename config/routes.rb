@@ -25,6 +25,9 @@ Rails.application.routes.draw do
             resources :matches, only: %i[index show create], defaults: { format: 'json' }, param: :number, shallow: false do
               post 'matchmake', action: :matchmake, on: :collection
             end
+            namespace :matches do
+              resource 'edits', only: :create
+            end
           end
         end
       end
