@@ -32,7 +32,7 @@ class Api::V1::ParticipantsController < ApplicationController
   end
 
   def upload
-    authorize current_roster, policy_class: ParticipantPolicy
+    authorize Participant.new(roster: current_roster)
     imports = Participant.csv_import(params[:file], current_roster)
     if imports.failed_instances.blank?
       head :created

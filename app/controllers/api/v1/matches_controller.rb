@@ -23,7 +23,7 @@ class Api::V1::MatchesController < ApplicationController
   end
 
   def matchmake
-    authorize current_hunt, policy_class: MatchPolicy
+    authorize Match.new(hunt: current_hunt)
     MatchmakeLicensesJob.perform_later(current_hunt, matchmake_params.to_h)
     head :ok
   end
