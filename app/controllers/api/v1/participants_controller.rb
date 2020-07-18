@@ -38,7 +38,7 @@ class Api::V1::ParticipantsController < ApplicationController
       head :created
     else
       render json: imports.failed_instances.map { |record| record.as_json(methods: :errors, only: %i[first last extras]) },
-             status: :bad_request
+             status: :unprocessable_entity
     end
   rescue ArgumentError
     render plain: 'Invalid file type', status: :bad_request

@@ -42,7 +42,7 @@ RSpec.describe 'Api::V1::Rosters', type: :request do
                  }
           end
           e.not_to(change { Roster.count })
-          expect(response).to have_http_status(:bad_request)
+          expect(response).to have_http_status(:unprocessable_entity)
         end
       end
 

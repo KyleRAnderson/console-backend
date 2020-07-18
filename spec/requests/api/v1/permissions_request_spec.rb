@@ -144,7 +144,7 @@ RSpec.describe 'Api::V1::Permissions', type: :request do
           it 'denies creation of permission for user with one already', if: %w[owner administrator].include?(level) do
             post api_v1_roster_permissions_path(roster),
                  params: { permission: { level: 'operator', email: user_already_in.email } }
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:unprocessable_entity)
           end
         end
 
@@ -203,7 +203,7 @@ RSpec.describe 'Api::V1::Permissions', type: :request do
             it "fails to update to #{to_level}" do
               patch api_v1_permission_path(user_permission),
                     params: { permission: { level: to_level } }
-              expect(response).to have_http_status(:bad_request)
+              expect(response).to have_http_status(:unprocessable_entity)
             end
           end
         end

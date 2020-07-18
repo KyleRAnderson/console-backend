@@ -196,7 +196,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
 
         if Permission.at_least?(level, :operator)
           shared_examples 'bad upload' do
-            it 'refuses file with bad request' do
+            it 'refuses file with error' do
               post upload_api_v1_roster_participants_path(roster), params: { file: file }
               expect(response).to have_http_status(:bad_request)
               expect(response.body).to be_a String
@@ -214,7 +214,7 @@ RSpec.describe 'Api::V1::Participants', type: :request do
 
           it 'doesn\'t upload any participants if any are invalid' do
             post upload_api_v1_roster_participants_path(roster), params: { file: invalid_participants }
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:unprocessable_entity)
             body = JSON.parse(response.body)
             # No participants should have been created.
             expect(roster.participants.reload.size).to be_zero

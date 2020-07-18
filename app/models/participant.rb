@@ -33,7 +33,10 @@ class Participant < ApplicationRecord
 
       participants = []
       header_converter = ->(header) { header.to_s.downcase.strip }
+      expected_headers = Set.new(%w[first last] + roster.participant_properties)
       CSV.foreach(file.path, headers: true, header_converters: header_converter) do |row|
+        raise ArgumentError, 'Wrong Headers' unless Set.new(row.headers) == expected_headers
+
         hash = row.to_h
         required = hash.slice('first', 'last')
         # We include an except for roster here to make sure that it doesn't get included.

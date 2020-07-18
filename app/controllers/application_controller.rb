@@ -44,7 +44,7 @@ class ApplicationController < ActionController::Base
       status: '400',
       title: 'Bad Request',
       detail: resource.errors,
-    }, status: :bad_request
+    }, status: :unprocessable_entity
   end
 
   def unauthorized_access

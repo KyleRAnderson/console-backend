@@ -64,7 +64,7 @@ RSpec.describe 'Api::V1::Licenses', type: :request do
           it 'does not allow update to other attributes' do
             patch api_v1_license_path(license),
               params: { license: { participant_id: other_participant.id, eliminated: true } }
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:unprocessable_entity)
             errors = JSON.parse(response.body)
             expect(errors).to have_key('detail')
             expect(errors['detail']).to have_key('license')
