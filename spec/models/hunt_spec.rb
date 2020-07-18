@@ -1,5 +1,7 @@
 require 'rails_helper'
 require 'support/record_saving'
+# Number of threads to be used for testing.
+NUM_THREADS = 4
 
 RSpec.describe Hunt, type: :model do
   subject(:hunt) { create(:hunt) }
@@ -44,7 +46,6 @@ RSpec.describe Hunt, type: :model do
         begin
           # Make sure the connection pool size is what we expect before proceeding.
           expect(ActiveRecord::Base.connection.pool.size).to eq(5)
-          NUM_THREADS = 4
           waiting = true
           hunt_id = @test_hunt.id
 
