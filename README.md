@@ -40,3 +40,8 @@ The following setup is needed:
 -   Installed [Redis To Go](https://elements.heroku.com/addons/redistogo) add-on.
     -   Configured `REDIS_URL` config var to the `REDISTOGO_URL` var
 -   Installed Heroku Postgres add-on (should be installed by default).
+
+Environment variables that need setting:
+RACK_ENV (set by heroku)
+REDISTOGO_URL (redis server URL used in production for action cable)
+SECRET_KEY_BASE (not sure if this is needed or not, if it is created automatically or what)
