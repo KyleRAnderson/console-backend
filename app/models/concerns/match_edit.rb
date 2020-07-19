@@ -12,7 +12,7 @@ class MatchEditArgumentError < ArgumentError
   end
 end
 
-module MatchConcern
+module MatchEdit
   extend ActiveSupport::Concern
 
   EMPTY_PAIRINGS_ERROR_MESSAGE = 'Must not have empty pairings.'

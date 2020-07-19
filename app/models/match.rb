@@ -28,7 +28,7 @@ class Match < ApplicationRecord
             .having('count(licenses) >= 2')
         end
 
-  include MatchConcern
+  include MatchEdit
 
   def as_json(**options)
     super(include: { licenses: { only: %i[id eliminated],

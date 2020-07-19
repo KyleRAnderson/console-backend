@@ -26,7 +26,7 @@ Rails.application.routes.draw do
               post 'matchmake', action: :matchmake, on: :collection
             end
             namespace :matches do
-              resource 'edits', only: :create
+              resource 'edits', only: :create, path: 'edit'
             end
           end
         end
