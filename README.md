@@ -14,6 +14,15 @@ bundle
 yarn
 ```
 
+Create a .env file and set the following environment variables:
+
+```
+export RACK_ENV=development
+export PORT=3000
+```
+
+This file should be loaded on launch by [dotenv-rails](https://github.com/bkeepers/dotenv)
+
 #### Debugging
 
 In order to be able to use launch configurations to debug, the recommended extensions should be installed, and the `ruby-debug-ide` extension will also be needed:
