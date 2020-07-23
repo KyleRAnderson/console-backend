@@ -43,5 +43,7 @@ The following setup is needed:
 
 Environment variables that need setting:
 RACK_ENV (set by heroku)
+PORT: Set to the port to use when launching the server. Only needed if you're running the server with the heroku CLI locally, and even then defaults to 3000. See [Procfile](./Procfile)
 REDISTOGO_URL (redis server URL used in production for action cable)
 SECRET_KEY_BASE (not sure if this is needed or not, if it is created automatically or what)
+DATABASE_URL: On Heroku, this is set automatically. Needs to be the URL at which the database is accessible. Format: `postgres://<username>:<password>@<domain>:<port>/<database_name>`.
