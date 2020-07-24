@@ -1,4 +1,6 @@
 class Roster < ApplicationRecord
+  DUPLICATE_PROPERTIES_ERROR_MESSAGE = 'contains duplicate properties. Ensure that properties do not case insensitively match each other.'
+
   serialize :participant_properties, Array
 
   # Use delete_all so that we don't call hooks on the roster permissions.
@@ -31,10 +33,7 @@ class Roster < ApplicationRecord
   private
 
   def format_properties
-    participant_properties.each do |property|
-      property.strip!
-      property.downcase!
-    end
+    participant_properties.each(&:strip!)
   end
 
   def validate_proper_properties
@@ -46,8 +45,9 @@ class Roster < ApplicationRecord
   end
 
   def validate_unique_properties
-    unless self.participant_properties.uniq.size == self.participant_properties.size
-      errors.add :roster, 'has duplicate properties.'
+    lowered = self.participant_properties.map(&:downcase)
+    unless lowered.uniq.size == lowered.size
+      errors.add :participant_properties, DUPLICATE_PROPERTIES_ERROR_MESSAGE
     end
   end
 
