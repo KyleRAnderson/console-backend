@@ -128,6 +128,16 @@ RSpec.describe License, type: :model do
     end
   end
 
+  describe 'updating eliminated while in a match' do
+    let(:other_license) { create(:license, hunt: hunt) }
+    before(:each) { create(:match, round: create(:round, hunt: hunt), licenses: [other_license, license]) }
+    it 'succeeds' do
+      expect { expect(license.update(eliminated: true)).to be true }.to(change do
+        license.reload.eliminated
+      end.from(false).to(true))
+    end
+  end
+
   describe 'upon destruction' do
     subject(:license) { create(:license, hunt: hunt) }
     let!(:associated_matches) do
