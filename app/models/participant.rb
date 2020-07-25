@@ -33,7 +33,7 @@ class Participant < ApplicationRecord
 
       participants = []
       header_converter = ->(header) { header.to_s.downcase.strip }
-      expected_headers = Set.new(%w[first last] + roster.participant_properties)
+      expected_headers = Set.new(%w[first last] + roster.participant_properties.map(&:downcase))
       CSV.foreach(file.path, headers: true, header_converters: header_converter) do |row|
         raise ArgumentError, 'Wrong Headers' unless Set.new(row.headers) == expected_headers
 
