@@ -42,6 +42,19 @@ RSpec.describe Roster, type: :model do
     end
   end
 
+  describe 'construction' do
+    subject(:roster) {
+      Roster.new(name: 'test', permissions: [user.permissions.build(level: :owner)],
+                 participant_properties: ['et', 'E', 'TEACHER', 'Homeroom Name'])
+    }
+
+    it 'creates the roster with valid construction' do
+      expect(roster).to be_valid
+      expect(roster.save).to be true
+      expect(Roster.exists?(roster.id)).to be true
+    end
+  end
+
   after(:all) do
     User.destroy_all
     Roster.destroy_all

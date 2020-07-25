@@ -38,8 +38,8 @@ class Roster < ApplicationRecord
 
   def validate_proper_properties
     participant_properties.each do |property|
-      unless property.match?(/^\w(\w+\ ?\w+)*$/i)
-        errors.add :roster, 'participant properties must be all word characters (a-z, A-Z, 0-9, _) with only words separated by spaces'
+      unless property.match?(/^\w+( \w+)*$/i)
+        errors.add :roster, 'participant properties must be all word characters (a-z, A-Z, 0-9, _) with only words separated by single spaces'
       end
     end
   end
