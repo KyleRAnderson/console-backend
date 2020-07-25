@@ -88,10 +88,19 @@ RSpec.describe Participant, type: :model do
       end
     end
 
-    context 'with a valid file' do
+    shared_examples 'successful import' do
       it 'successfully imports all participants' do
         expect { Participant.csv_import(valid_file, roster) }.to change(Participant, :count).by(33)
       end
+    end
+
+    context 'with a valid file' do
+      include_examples 'successful import'
+    end
+
+    context 'with alternate participant properties casing' do
+      let(:roster) { create(:roster, participant_properties: ['TEsT']) }
+      include_examples 'successful import'
     end
   end
 
