@@ -77,4 +77,4 @@ production:
     <<: *default
     database: console_production
     username: hunt-console
-    password: <%= ENV['RAILS_REACT_TS_DATABASE_PASSWORD'] %>
+    password: <%= ENV['HUNT_CONSOLE_DATABASE_PASSWORD'] %>
