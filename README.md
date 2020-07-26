@@ -19,9 +19,12 @@ Create a .env file and set the following environment variables:
 ```
 export RACK_ENV=development
 export PORT=3000
+export JDBC_DATABSE_URL=<databse url for local machine's development database>
 ```
 
 This file should be loaded on launch by [dotenv-rails](https://github.com/bkeepers/dotenv)
+
+Create `config/master.key` and place the original private key that was generated upon the app's creation.
 
 #### Debugging
 
@@ -47,3 +50,4 @@ PORT: Set to the port to use when launching the server. Only needed if you're ru
 REDISTOGO_URL (redis server URL used in production for action cable)
 SECRET_KEY_BASE (not sure if this is needed or not, if it is created automatically or what)
 JDBC_DATABASE_URL: On Heroku, this is set automatically. Needs to be the URL at which the database is accessible. Format: `postgres://<username>:<password>@<domain>:<port>/<database_name>`.
+RAILS_MASTER_KEY=<private key for credentials.yml.enc>
