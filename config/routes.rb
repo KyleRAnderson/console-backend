@@ -14,6 +14,9 @@ Rails.application.routes.draw do
             post 'upload', action: :upload, on: :collection
           end
           resources :hunts, only: %i[index show create update destroy], defaults: { format: 'json' } do
+            namespace :licenses do
+              resources :instant_prints, path: 'print', only: %i[show create]
+            end
             resources :licenses, only: %i[index show create update destroy], defaults: { format: 'json' } do
               collection do
                 post 'bulk', controller: 'licenses/bulk', action: :create
