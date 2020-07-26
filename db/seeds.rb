@@ -35,3 +35,20 @@ require 'faker'
     end
   end
 end
+
+# Special roster useful for testing Instant Print
+user = User.create!(email: 'instant-print.test@test.com', password: '321Passwd$$$', confirmed_at: DateTime.now)
+roster = Roster.create!(name: 'Instant Print Test', participant_properties: %w[homeroom teacher], permissions: [user.permissions.build])
+participants = 8.times.map { |num| roster.participants.build(first: "First #{num}", last: "Last #{num}") }
+participants[0..2].each { |p| p.update(extras: { 'homeroom' => '905', 'teacher' => 'Burns' }) }
+participants[3..4].each { |p| p.update(extras: { 'homeroom' => '1011', 'teacher' => 'Troy' }) }
+participants[6].update(extras: { 'homeroom' => '1210', 'teacher' => 'Khan' })
+participants.values_at(5, 7).each { |p| p.update(extras: { 'homeroom' => '1210', 'teacher' => 'Dubee Dubé' }) }
+participants.each(&:save!)
+hunt = roster.hunts.create!(name: 'IPT')
+licenses = participants.map { |p| hunt.licenses.create!(participant: p) }
+licenses.values_at(4, 7).each { |l| l.update!(eliminated: true) }
+round1 = hunt.rounds.create!
+round1.matches.create!(licenses: licenses.values_at(0, 6))
+round1.matches.create!(licenses: licenses.values_at(1, 7))
+round1.matches.create!(licenses: licenses.values_at(2, 3))
