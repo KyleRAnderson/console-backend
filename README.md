@@ -45,3 +45,4 @@ Environment variables that need setting:
 RACK_ENV (set by heroku)
 REDISTOGO_URL (redis server URL used in production for action cable)
 SECRET_KEY_BASE (not sure if this is needed or not, if it is created automatically or what)
+JDBC_DATABASE_URL: On Heroku, this is set automatically. Needs to be the URL at which the database is accessible. Format: `postgres://<username>:<password>@<domain>:<port>/<database_name>`.
