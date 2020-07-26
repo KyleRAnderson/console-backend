@@ -6,6 +6,8 @@ class Hunt < ApplicationRecord
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
   has_many :permissions, through: :roster
+  has_one_attached :template_pdf
+  has_one_attached :license_printout
 
   validates :name, presence: true
 
