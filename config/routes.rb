@@ -14,8 +14,9 @@ Rails.application.routes.draw do
             post 'upload', action: :upload, on: :collection
           end
           resources :hunts, only: %i[index show create update destroy], defaults: { format: 'json' } do
+            resource :template_pdf, only: %i[create destroy], shallow: false, module: 'hunts'
             namespace :licenses do
-              resources :instant_prints, path: 'print', only: %i[show create]
+              resources :instant_prints, path: 'print', only: %i[create], shallow: false
             end
             resources :licenses, only: %i[index show create update destroy], defaults: { format: 'json' } do
               collection do
@@ -39,6 +40,8 @@ Rails.application.routes.draw do
   root 'homepage#index'
   get '/confirmation/:confirmation_token', to: 'homepage#index', as: :frontend_user_confirmation
   get '/reset_password/:confirmation_token', to: 'homepage#index', as: :frontend_user_password_reset
-  get '/*path' => 'homepage#index' # Redirect non-api traffic to the client side.
+  get '/*path', to: 'homepage#index', constraints: ->(req) do # Redirect non-api traffic to the client side.
+                  req.path.exclude? 'rails/active_storage' # Ugly solution derived from https://github.com/rails/rails/issues/31228#issuecomment-352900551.
+                end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
