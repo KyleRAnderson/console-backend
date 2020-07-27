@@ -7,10 +7,6 @@ class Api::V1::Licenses::InstantPrintsController < ApplicationController
   before_action :authenticate_user!
   before_action :current_hunt
 
-  # Used to download the last instant print file
-  def show
-  end
-
   # Used to create a new instant print
   # Expected body: { print: {orderings: [['<extras property name>', 'asc' | 'desc'>], ...]}}
   def create
