@@ -9,23 +9,26 @@ class Api::V1::HuntsController < ApplicationController
   before_action :prepare_hunt, except: %i[index create]
   before_action :authorize_hunt, except: %i[index create update]
 
+  AS_JSON_OPTIONS = { methods: %i[num_active_licenses current_round_number attachment_urls] }.freeze
+
   def index
     render json: policy_scope(current_roster.hunts).includes(:licenses), status: :ok
   end
 
   def show
     render json: @hunt
-             .as_json(include: { roster: { only: :participant_properties } }), status: :ok
+             .as_json(**AS_JSON_OPTIONS.merge({ include: { roster: { only: :participant_properties } } })),
+           status: :ok
   end
 
   def create
     hunt = current_roster.hunts.build(hunt_params)
-    save_and_render_resource(authorize(hunt))
+    save_and_render_resource(authorize(hunt), json_opts: AS_JSON_OPTIONS)
   end
 
   def update
-    @hunt.assign_attributes(hunts_params)
-    save_and_render_resource(authorize(@hunt))
+    @hunt.assign_attributes(hunt_params)
+    save_and_render_resource(authorize(@hunt), json_opts: AS_JSON_OPTIONS)
   end
 
   def destroy
