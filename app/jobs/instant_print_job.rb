@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class InstantPrintJob < ApplicationJob
+  include AttachmentUrl
   JAR_LOCATION = 'lib/script/pin-press.jar'
 
   queue_as :default
@@ -15,18 +16,27 @@ class InstantPrintJob < ApplicationJob
     end || ''
     temp_file = Tempfile.new('output.pdf')
     begin
+      success = false
       current_hunt.template_pdf.open do |template_pdf|
-        system("java -jar #{JAR_LOCATION} #{current_round.id} --template #{template_pdf.path} " \
+        success = system("java -jar #{JAR_LOCATION} #{current_round.id} --template #{template_pdf.path} " \
         "--output #{temp_file.path} #{order_cli_args}")
       end
       # Will purge the existing one if there is one.
       current_hunt.license_printout.attach(io: File.open(temp_file.path), filename: 'printout.pdf', content_type: 'application/pdf')
+
+      # Broadcast to action cable.
+      broadcast_result(current_hunt, success)
     ensure
       temp_file.unlink
     end
   end
 
   private
+
+  # Broadcasts the success of instant print to action cable.
+  def broadcast_result(hunt, success = false)
+    MatchesChannel.broadcast_to(hunt, { output_url: attachment_url(hunt.license_printout), success: success })
+  end
 
   def validate_arguments
     current_hunt = arguments.first
