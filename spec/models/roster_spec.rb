@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Roster, type: :model do
@@ -20,18 +22,36 @@ RSpec.describe Roster, type: :model do
       end
     end
 
-    it 'downcases participant properties' do
-      properties = ['UPPERCASE', 'SUPER HUGE', 'SOME THINGS JUST should not be', 'd', 'No Plz']
-      roster = build(:roster, user: user, participant_properties: properties)
-      expect(roster).to be_valid
-      expect(roster.participant_properties).to match_array(properties.map(&:downcase))
+    it 'is invalid with multiple spaces between property words' do
+      ['test  property', 'test  HI', 'test all the   things', 'he_llo it is time       to be invalid'].each do |property|
+        roster = build(:roster, user: user, participant_properties: [property])
+        expect(roster).not_to be_valid
+      end
     end
   end
 
-  it 'is invalid with multiple spaces between property words' do
-    ['test  property', 'test  HI', 'test all the   things', 'he_llo it is time       to be invalid'].each do |property|
-      roster = build(:roster, user: user, participant_properties: [property])
+  it 'is invalid with case insensitively duplicate properties' do
+    properties = [['SOME thing', 'some THING'].freeze, ['same thing', 'same thing'].freeze,
+                  ['123', '123'].freeze, ['good', 'BAD', 'bAD'].freeze].freeze
+    properties.each do |property_set|
+      roster = build(:roster, user: user, participant_properties: property_set)
       expect(roster).not_to be_valid
+      # Make sure that the downcasing hasn't actually persisted.
+      expect(roster.participant_properties).to match_array(property_set)
+      expect(roster.errors[:participant_properties]).to include(Roster::DUPLICATE_PROPERTIES_ERROR_MESSAGE)
+    end
+  end
+
+  describe 'construction' do
+    subject(:roster) {
+      Roster.new(name: 'test', permissions: [user.permissions.build(level: :owner)],
+                 participant_properties: ['et', 'E', 'TEACHER', 'Homeroom Name'])
+    }
+
+    it 'creates the roster with valid construction' do
+      expect(roster).to be_valid
+      expect(roster.save).to be true
+      expect(Roster.exists?(roster.id)).to be true
     end
   end
 
