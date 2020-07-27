@@ -1,4 +1,6 @@
 class Hunt < ApplicationRecord
+  include AttachmentUrl
+
   belongs_to :roster
 
   has_many :licenses, dependent: :destroy
@@ -6,12 +8,10 @@ class Hunt < ApplicationRecord
   has_many :participants, through: :licenses
   has_many :matches, through: :rounds
   has_many :permissions, through: :roster
+  has_one_attached :template_pdf
+  has_one_attached :license_printout
 
   validates :name, presence: true
-
-  def as_json(**options)
-    super(methods: %i[num_active_licenses current_round_number], **options)
-  end
 
   def increment_match_id
     with_lock do
@@ -22,7 +22,6 @@ class Hunt < ApplicationRecord
   end
 
   def current_round_number
-    # Use count instead of length or size specificaly to get the saved ones.
     current_round&.number || 0
   end
 
@@ -34,5 +33,10 @@ class Hunt < ApplicationRecord
 
   def num_active_licenses
     licenses.where(eliminated: false).count
+  end
+
+  def attachment_urls
+    { template_pdf: attachment_url(template_pdf),
+      printout: attachment_url(license_printout) }
   end
 end
