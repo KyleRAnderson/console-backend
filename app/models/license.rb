@@ -67,8 +67,8 @@ class License < ApplicationRecord
     throw :abort unless match.new_record? && match.licenses.size < 2
   end
 
-  def match_ids
-    matches.map(&:id)
+  def match_numbers
+    matches.map(&:local_id)
   end
 
   def destroy_associated_matches

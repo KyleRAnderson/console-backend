@@ -3,7 +3,7 @@ class Api::V1::LicensesController < ApplicationController
   include Api::V1::PaginationOrdering
 
   AS_JSON_OPTIONS = { include: { participant: { only: %i[first last extras id] } },
-                      except: :participant_id, methods: :match_ids }.freeze
+                      except: :participant_id, methods: :match_numbers }.freeze
 
   before_action :authenticate_user!
   before_action :current_hunt, only: %i[index create]
