@@ -32,15 +32,18 @@ class Participant < ApplicationRecord
       raise ArgumentError, 'Invalid Extension' unless file.path.match?(/.*\.csv/i)
 
       participants = []
-      header_converter = ->(header) { header.to_s.downcase.strip }
-      expected_headers = Set.new(%w[first last] + roster.participant_properties.map(&:downcase))
-      CSV.foreach(file.path, headers: true, header_converters: header_converter) do |row|
-        raise ArgumentError, 'Wrong Headers' unless Set.new(row.headers) == expected_headers
+      expected_headers = %w[first last] + roster.participant_properties
+      header_converter = ->(header) do
+        header = header.to_s.downcase.strip
+        expected_headers.find { |good_header| header == good_header.downcase }
+      end
+      CSV.foreach(file.path, headers: true, header_converters: header_converter).each_with_index do |row, i|
+        raise ArgumentError, 'Wrong Headers' unless i != 0 || Set.new(row.headers).superset?(Set.new(expected_headers))
 
         hash = row.to_h
         required = hash.slice('first', 'last')
         # We include an except for roster here to make sure that it doesn't get included.
-        required['extras'] = hash.except('first', 'last', 'roster')
+        required['extras'] = hash.slice(*roster.participant_properties)
         participants << Participant.new(roster: roster, **required)
       end
       import participants, all_or_none: true
