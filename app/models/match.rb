@@ -30,13 +30,6 @@ class Match < ApplicationRecord
 
   include MatchEdit
 
-  def as_json(**options)
-    super(include: { licenses: { only: %i[id eliminated],
-                               include: {
-            participant: { only: %i[id first last extras] },
-          } } }, **options)
-  end
-
   def open?
     !closed?
   end

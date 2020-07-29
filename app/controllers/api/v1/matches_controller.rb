@@ -2,6 +2,9 @@ class Api::V1::MatchesController < ApplicationController
   include Api::V1::Hunts
   include Api::V1::PaginationOrdering
 
+  AS_JSON_OPTIONS = { include: { licenses: { only: %i[id eliminated], methods: :match_numbers,
+                                           include: { participant: { only: %i[id first last extras] } } } } }.freeze
+
   before_action :authenticate_user!
   before_action :current_hunt
   # Prepare match before authorizing it.
@@ -10,16 +13,16 @@ class Api::V1::MatchesController < ApplicationController
 
   def index
     matches = policy_scope(apply_filters(current_hunt.matches))
-    render json: paginated(matches.includes(:licenses, :participants), key: :matches), status: :ok
+    render json: paginated(matches.includes(:licenses, :participants), key: :matches).as_json(**AS_JSON_OPTIONS), status: :ok
   end
 
   def show
-    render json: @match, status: :ok
+    render json: @match.as_json(**AS_JSON_OPTIONS), status: :ok
   end
 
   def create
     match = current_hunt.matches.build(match_params)
-    save_and_render_resource(authorize(match))
+    save_and_render_resource(authorize(match), json_opts: AS_JSON_OPTIONS)
   end
 
   def matchmake
