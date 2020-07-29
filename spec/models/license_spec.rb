@@ -73,12 +73,11 @@ RSpec.describe License, type: :model do
           # Make sure the connection pool size is what we expect before proceeding.
           expect(ActiveRecord::Base.connection.pool.size).to eq(5)
           license_count_before = License.count
-          NUM_THREADS = 4
           waiting = true
           num_created = 0
           participant_id = @test_participant.id
 
-          threads = NUM_THREADS.times.map do |i|
+          threads = 4.times.map do |i|
             Thread.new do
               construction_params = i.odd? ? { participant: @test_participant } : { participant_id: participant_id }
               true while waiting
