@@ -38,9 +38,13 @@ Rails.application.routes.draw do
     end
   end
   root 'homepage#index'
+  # Frontend routes that need access here as well
   get '/confirmation/:confirmation_token', to: 'homepage#index', as: :frontend_user_confirmation
   get '/reset_password/:confirmation_token', to: 'homepage#index', as: :frontend_user_password_reset
-  get '/*path', to: 'homepage#index', constraints: ->(req) do # Redirect non-api traffic to the client side.
+  get '/app/hunts/:hunt_id/matches/show/:match_id', to: 'homepage#index', as: :frontend_match_view
+
+  # Redirect non-api traffic to the client side.
+  get '/*path', to: 'homepage#index', constraints: ->(req) do
                   req.path.exclude? 'rails/active_storage' # Ugly solution derived from https://github.com/rails/rails/issues/31228#issuecomment-352900551.
                 end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
