@@ -1,7 +1,8 @@
 class Match < ApplicationRecord
   belongs_to :round
 
-  has_one :roster, through: :round
+  has_one :hunt, through: :round
+  has_one :roster, through: :hunt
   # validate: false because validating the license would cause it to validate
   # matches again, and it's a bit of an unnecessary mess
   has_and_belongs_to_many :licenses, before_add: :on_add_license, validate: false

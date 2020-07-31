@@ -7,6 +7,7 @@ class Api::V1::MatchesController < ApplicationController
 
   before_action :authenticate_user!
   before_action :current_hunt
+  before_action :current_round, only: %i[create]
   # Prepare match before authorizing it.
   before_action :prepare_match, except: %i[index create matchmake]
   before_action :authorize_match, except: %i[index create matchmake]
@@ -21,12 +22,15 @@ class Api::V1::MatchesController < ApplicationController
   end
 
   def create
-    match = current_hunt.matches.build(match_params)
+    match = current_round.matches.build(match_params)
     save_and_render_resource(authorize(match), json_opts: AS_JSON_OPTIONS)
   end
 
   def matchmake
-    authorize Match.new(hunt: current_hunt)
+    # Since the round and new match are just being used as storage objects for getting to
+    # the roster, it's fine to create a new one here if one doesn't exist.
+    correct_round = current_round || Round.new(hunt: current_hunt)
+    authorize Match.new(round: correct_round)
     MatchmakeLicensesJob.perform_later(current_hunt, matchmake_params.to_h)
     head :ok
   end
@@ -54,5 +58,10 @@ class Api::V1::MatchesController < ApplicationController
     matches = matches.joins(:round).where(rounds: { number: params[:round] }) if params[:round].present?
     matches = params[:ongoing] == 'true' ? matches.ongoing : matches.closed if params[:ongoing].present?
     matches
+  end
+
+  def current_round
+    @current_round ||= current_hunt.current_round
+    head :not_found unless @current_round
   end
 end
