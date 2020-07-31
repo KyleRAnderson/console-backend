@@ -12,7 +12,7 @@ class Api::V1::HuntsController < ApplicationController
   AS_JSON_OPTIONS = { methods: %i[num_active_licenses current_round_number attachment_urls] }.freeze
 
   def index
-    render json: policy_scope(current_roster.hunts).includes(:licenses), status: :ok
+    render json: policy_scope(current_roster.hunts).includes(:licenses).as_json(**AS_JSON_OPTIONS), status: :ok
   end
 
   def show
