@@ -9,7 +9,7 @@ class Api::V1::ParticipantsController < ApplicationController
   before_action :authorize_participant, except: %i[index create update upload]
 
   def index
-    participants = apply_filters(policy_scope(current_roster.participants))
+    participants = filter(policy_scope(current_roster.participants))
     render json: paginated_ordered(participants, key: :participants), status: :ok
   end
 
