@@ -22,6 +22,7 @@
         "activestorage",
         "csrf",
         "matchmake",
+        "popout",
         "signup"
     ]
 }
