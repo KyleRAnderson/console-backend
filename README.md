@@ -7,6 +7,8 @@
 -   Correct Ruby and Rails installed
 -   Yarn package manager
 
+Follow the [Rails Setup Snippet](https://gitlab.com/-/snippets/2001897) steps.
+
 ### Fast setup
 
 ```bash
