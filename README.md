@@ -46,6 +46,7 @@ The following setup is needed:
     -   Configured `REDIS_URL` config var to the `REDISTOGO_URL` var
 -   Installed Heroku Postgres add-on (should be installed by default).
 -   Added the [Heroku java buildpack](https://help.heroku.com/2FSHO0RR/how-can-i-add-java-to-a-non-java-app).
+    See also https://devcenter.heroku.com/articles/java-support#supported-java-versions, https://github.com/heroku/heroku-buildpack-jvm-common.
 
 Environment variables that need setting:
 RACK_ENV (set by heroku)
