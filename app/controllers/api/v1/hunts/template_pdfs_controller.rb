@@ -2,8 +2,8 @@ class Api::V1::Hunts::TemplatePdfsController < ApplicationController
   include Api::V1::Hunts
 
   before_action :authenticate_user!
-  before_action :authorize_hunt
   before_action :current_hunt
+  before_action :authorize_hunt
 
   def create
     if params.dig(:template_pdf).present?
