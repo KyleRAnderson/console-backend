@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'support/unique_collection_generator'
 
 =begin
 Side note: I could have made several of these into their own
@@ -161,7 +160,8 @@ RSpec.describe Matchmake do
 
       context 'without overflow' do
         it 'generates matches correctly' do
-          faker_items = UniqueCollectionGenerator.generate(5) { Faker::Food.dish }
+          faker_items = 5.times.map { Faker::Food.unique.dish }
+          Faker::Food.unique.clear
           generate_participants(roster, 5) { |index|
             [16,
              { participant_properties[0] => index.to_s, participant_properties[1] => faker_items[index] }]
@@ -177,7 +177,8 @@ RSpec.describe Matchmake do
       context 'with overflow and leftover' do
         it 'generates matches correctly' do
           first_properties = 5.times.map(&:to_s)
-          second_properties = UniqueCollectionGenerator.generate(5) { Faker::Food.dish }
+          second_properties = 5.times.map { Faker::Food.unique.dish }
+          Faker::Food.unique.clear
           generate_participants(roster, 5) do |index|
             [17,
              { participant_properties[0] => first_properties[index],
@@ -199,7 +200,8 @@ RSpec.describe Matchmake do
       context 'with overflow on specific properties only' do
         it 'generates matches correctly' do
           first_properties = 4.times.map(&:to_s)
-          second_properties = UniqueCollectionGenerator.generate(4) { Faker::Food.dish }
+          second_properties = 4.times.map { Faker::Food.unique.dish }
+          Faker::Food.unique.clear
 
           overflow_properties = first_properties[0..1] + second_properties[0..1]
 
@@ -279,7 +281,8 @@ RSpec.describe Matchmake do
     let(:participant_properties) { within_properties + between_properties }
 
     it 'works on a basic level' do
-      unique_values = UniqueCollectionGenerator.generate(20) { |current_length| "#{current_length}_#{Faker::Device.platform}" }
+      unique_values = 20.times.map { |current_length| "#{current_length}_#{Faker::Device.unique.platform}" }
+      Faker::Device.unique.clear
       within_values = unique_values[0..3]
       between_values = unique_values[4...20]
       generate_participants(roster, 16) do |index|
