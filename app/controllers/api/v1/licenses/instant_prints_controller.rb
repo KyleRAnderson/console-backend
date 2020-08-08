@@ -10,6 +10,7 @@ class Api::V1::Licenses::InstantPrintsController < ApplicationController
   # Used to create a new instant print
   # Expected body: { print: {orderings: [['<extras property name>', 'asc' | 'desc'>], ...], message: 'A custom message'}}
   def create
+    authorize current_hunt, :update?
     InstantPrintJob.perform_later(current_hunt, params.dig(:print, :orderings), params.dig(:print, :message))
     head :accepted
   rescue ArgumentError => e

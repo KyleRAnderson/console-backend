@@ -2,7 +2,13 @@
 
 class InstantPrintJob < ApplicationJob
   include AttachmentUrl
-  JAR_LOCATION = 'lib/script/pin-press.jar'
+
+  INVALID_PROVIDED_ROUND_MESSAGE = 'Cannot perform Instant Print without a round in the current hunt'
+  INVALID_ORDERING_PARAMS_LENGTH_MESSAGE = 'Ordering params needs to be an array of tuples of length 2 each.'
+  NO_CONFIGURED_TEMPLATE_PDF_MESSAGE = 'The given hunt does not have a Template PDF. Please configure one first.'
+  DUPLICATE_PROVIDED_PROPERTIES_MESSAGE = 'Ordering params has duplicate properties: '
+  NONEXISTENT_PROPERTIES_MESSAGE = 'Orderings params contains nonexistent properties: '
+  INVALID_ORDERS_MESSAGE = 'Non asc/desc orderings provided. This is invalid.'
 
   queue_as :default
 
@@ -41,6 +47,10 @@ class InstantPrintJob < ApplicationJob
 
   private
 
+  JAR_LOCATION = 'lib/script/pin-press.jar'
+  ASCENDING_KEYWORD = 'asc'
+  DESCENDING_KEYWORD = 'desc'
+
   # Broadcasts the success of instant print to action cable.
   def broadcast_result(hunt, success = false)
     MatchesChannel.broadcast_to(hunt, { output_url: attachment_url(hunt.license_printout), success: success })
@@ -50,17 +60,36 @@ class InstantPrintJob < ApplicationJob
     current_hunt = arguments.first
     current_round = current_hunt.current_round
     ordering_params = arguments.second
-    raise ArgumentError, 'Cannot perform Instant Print without a round in the current hunt' if current_round.blank?
+    raise ArgumentError, INVALID_PROVIDED_ROUND_MESSAGE if current_round.blank?
 
     errors = []
 
-    if ordering_params.present? &&
-       (!ordering_params.is_a?(Array) || !ordering_params.all? { |pairing| pairing.is_a?(Array) && pairing.size == 2 })
-      errors << 'Ordering params needs to be an array of tuples of length 2 each.'
+    if ordering_params.present?
+      bad_array_format = (!ordering_params.is_a?(Array) || !ordering_params.all? { |pairing| pairing.is_a?(Array) && pairing.size == 2 })
+      if bad_array_format
+        errors << INVALID_ORDERING_PARAMS_LENGTH_MESSAGE
+      else
+        # Wouldn't want to transpose with a bad array format
+        transposed = ordering_params.transpose
+        properties = Set.new(transposed[0])
+        correct_properties = Set.new(current_hunt.roster.participant_properties)
+        unless properties.subset?(correct_properties)
+          errors << NONEXISTENT_PROPERTIES_MESSAGE + (properties - correct_properties).to_a.join(', ')
+        end
+
+        unless Set.new(transposed[1]).subset?(Set.new([ASCENDING_KEYWORD, DESCENDING_KEYWORD]))
+          errors << INVALID_ORDERS_MESSAGE
+        end
+
+        duplicate_properties = transposed[0].select { |property| transposed[0].count(property) > 1 }.uniq
+        if duplicate_properties.present?
+          errors << DUPLICATE_PROVIDED_PROPERTIES_MESSAGE + duplicate_properties.join(', ')
+        end
+      end
     end
 
-    unless current_hunt.template_pdf.present?
-      errors << 'The given hunt does not have a Template PDF. Please configure one first.'
+    if current_hunt.template_pdf.blank?
+      errors << NO_CONFIGURED_TEMPLATE_PDF_MESSAGE
     end
 
     raise ArgumentError, errors.join('\n') if errors.present?
