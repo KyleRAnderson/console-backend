@@ -120,17 +120,23 @@ RSpec.describe 'Api::V1::Matches::Edits', type: :request do
           let(:roster) { create(:roster, permissions: [user_permission]) }
           let(:hunt) { create(:hunt, roster: roster) }
           # Evenness of numbers is important here. Otherwise, it's an invalid request.
-          let(:unmatched_licenses) { create_list(:license, 12, hunt: hunt) }
+          let(:unmatched_licenses) do
+            licenses = create_list(:license, 12, hunt: hunt, eliminated: false)
+            License.where(id: licenses.sample(licenses.size / 2)).update_all(eliminated: true)
+            licenses
+          end
           let(:pairings) { unmatched_licenses.map(&:id).each_slice(2).to_a }
 
           context 'with unmatched licenses' do
             shared_examples 'create for unmatched licenses' do |expected_round_number|
-              it 'creates matches, destroys nothing', if: Permission.at_least?(level, :operator) do
+              it 'creates matches, destroys nothing and un-eliminates licenses', if: Permission.at_least?(level, :operator) do
                 expect do
                   post api_v1_hunt_matches_edits_path(hunt), params: { edit_info: { pairings: pairings } }, as: :json
+                  expect(response).to have_http_status(:success)
                 end.to enqueue_job(MatchEditorJob).with do |actual_round, actual_pairings|
                   expect(actual_pairings).to match_array(pairings)
                   expect(actual_round.number).to eq(expected_round_number)
+                  unmatched_licenses.each { |license| expect(license).not_to be_eliminated }
                 end
               end
 
@@ -143,7 +149,11 @@ RSpec.describe 'Api::V1::Matches::Edits', type: :request do
 
             context 'with a pre-existing round' do
               # Has to be even number of licenses for matches to be created properly.
-              let(:matched_licenses) { create_list(:license, 16, hunt: hunt) }
+              let(:matched_licenses) do
+                licenses = create_list(:license, 16, hunt: hunt)
+                License.where(id: licenses.sample(licenses.size / 2).map(&:id)).update_all(eliminated: true)
+                licenses
+              end
 
               before(:each) do
                 2.times.each do
