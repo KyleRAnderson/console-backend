@@ -31,7 +31,7 @@ class InstantPrintJob < ApplicationJob
       current_hunt.template_pdf.open do |template_pdf|
         args = "java -jar #{JAR_LOCATION} #{current_round.id} --template #{template_pdf.path} " \
         "--output #{temp_file.path} #{order_cli_args} #{message_arg} --fill '#{match_view_url}'"
-        success = system(args)
+        success = Kernel.system(args) # Using Kernel.system instead of self.system because it's more testable
       end
       if success
         # Will purge the existing one if there is one.
