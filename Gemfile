@@ -27,9 +27,6 @@ gem 'redis', '~> 4.0'
 # ActiveRecord Import for bulk inserting records
 gem 'activerecord-import'
 
-# Google cloud storage
-gem 'google-cloud-storage', '~> 1.26', '>= 1.26.2'
-
 # Search engine
 gem 'pg_search', '~> 2.3', '>= 2.3.2'
 
@@ -55,6 +52,11 @@ group :development, :test do
 
   # RSpec for testing
   gem 'rspec-rails', '~> 4.0'
+end
+
+group :production do
+  # Google cloud storage
+  gem 'google-cloud-storage', '~> 1.26', '>= 1.26.2'
 end
 
 group :development do
