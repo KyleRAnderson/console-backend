@@ -14,6 +14,10 @@
 # Configure Using Gemfile
 # gem 'pg'
 #
+
+# Note to self: Database connection info (username, password) are completely overriden if the DATABASE_URL environment
+# variable is set. See https://edgeguides.rubyonrails.org/configuring.html#connection-preference.
+
 default: &default
     adapter: postgresql
     encoding: unicode
