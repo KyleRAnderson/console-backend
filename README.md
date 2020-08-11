@@ -1,5 +1,7 @@
 # Reindeer Hunt Console
 
+[![pipeline status](https://gitlab.com/hunt-console/console/badges/master/pipeline.svg)](https://gitlab.com/hunt-console/console/-/commits/master)
+
 ## Setup
 
 ### Prerequisites
