@@ -68,14 +68,14 @@ Rails.application.configure do
 
   config.action_mailer.default_url_options = { host: 'https://hunt-console.herokuapp.com' }
 
-  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.delivery_method = :mailjet
   config.action_mailer.perform_deliveries = true
 
   config.action_mailer.smtp_settings = {
-    :port => ENV['MAILGUN_SMTP_PORT'],
-    :address => ENV['MAILGUN_SMTP_SERVER'],
-    :user_name => ENV['MAILGUN_SMTP_LOGIN'],
-    :password => ENV['MAILGUN_SMTP_PASSWORD'],
+    :port => 587,
+    :address => 'in-v3.mailjet.com',
+    :user_name => Rails.application.credentials.mailjet_mailer[:username],
+    :password => Rails.application.credentials.mailjet_mailer[:password],
     :domain => 'hunt-console.herokuapp.com',
     :authentication => :plain,
   }
