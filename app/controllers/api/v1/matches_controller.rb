@@ -63,5 +63,6 @@ class Api::V1::MatchesController < ApplicationController
   def current_round
     @current_round ||= current_hunt.current_round
     head :not_found unless @current_round
+    @current_round
   end
 end
