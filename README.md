@@ -60,7 +60,7 @@ RACK_ENV (set by heroku)
 PORT: Set to the port to use when launching the server. Only needed if you're running the server with the heroku CLI locally, and even then defaults to 3000. See [Procfile](./Procfile)
 REDISTOGO_URL (redis server URL used in production for action cable)
 SECRET_KEY_BASE (not sure if this is needed or not, if it is created automatically or what)
-JDBC_DATABASE_URL: Needs to be the URL at which the database is accessible. Format: `postgres://<username>:<password>@<domain>:<port>/<database_name>`.
+JDBC_DATABASE_URL: Needs to be the URL at which the database is accessible. Format: `jdbc:postgres://<domain>:<port>/<database_name>?user=<username>&password=<password>`. This is set automatically by the Heroku Java Buildpack.
 RAILS_MASTER_KEY=\<private key for credentials.yml.enc\>
 HEROKU_BUILDPACK_GIT_LFS_REPO=`https://<username>:<token>@gitlab.com/<group_name>/<repo name>.git`
 
