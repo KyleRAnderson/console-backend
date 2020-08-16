@@ -4,9 +4,7 @@ class Matchmake
   COMMON_PROPERTIES_ERROR_MESSAGE = 'Cannot have within and between containing same properties for matchmaking.'
 
   def initialize(licenses, within: [], between: [], round_id: nil)
-    if !licenses || licenses.empty?
-      raise 'Cannot matchmake with no licenses.'
-    end
+    raise 'Cannot matchmake with no licenses.' if licenses.blank?
 
     @licenses = licenses
     @round_id = round_id
@@ -18,9 +16,9 @@ class Matchmake
       raise COMMON_PROPERTIES_ERROR_MESSAGE
     end
 
-    if !within&.empty?
+    if within.present?
       separate_within(within, between)
-    elsif !between&.empty?
+    elsif between.present?
       separate_between(between)
     end
   end
@@ -97,7 +95,7 @@ class Matchmake
     return @licenses if properties.empty?
 
     grouped = @licenses.group_by do |license|
-      properties.map do |property|
+      properties.map do |property| # Since we're mapping by properties, order will always be the same.
         license.participant.extras[property]
       end
     end
