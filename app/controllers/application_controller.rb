@@ -41,8 +41,7 @@ class ApplicationController < ActionController::Base
 
   def validation_error(resource)
     render json: {
-      status: '400',
-      title: 'Bad Request',
+      message: 'Validation errors',
       detail: resource.errors,
     }, status: :unprocessable_entity
   end
