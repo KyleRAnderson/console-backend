@@ -12,7 +12,7 @@ class Match < ApplicationRecord
   validate :validate_two_unique_licenses
   validate :validate_unchanged_properties, on: :update
   validate :validate_licenses_in_hunt
-  validate :validate_round_not_closed
+  validate :validate_round_not_closed, on: :create
   validate :validate_licenses_no_other_matches_in_round, on: :create
 
   before_create :assign_local_id
