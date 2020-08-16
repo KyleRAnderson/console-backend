@@ -4,10 +4,14 @@
 class EliminateHalfLicensesJob < ApplicationJob
   queue_as :default
 
-  def perform(round)
-    license_ids_to_update = round.matches.ongoing.map do |match|
+  def self.eliminate_half(matches)
+    license_ids_to_update = matches.map do |match|
       match.licenses.sample.id
     end
     License.where(id: license_ids_to_update).update_all(eliminated: true)
+  end
+
+  def perform(round)
+    EliminateHalfLicensesJob.eliminate_half(round.matches.ongoing)
   end
 end
