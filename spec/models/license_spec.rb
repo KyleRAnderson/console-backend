@@ -127,13 +127,19 @@ RSpec.describe License, type: :model do
     end
   end
 
-  describe 'updating eliminated while in a match' do
-    let(:other_license) { create(:license, hunt: hunt) }
-    before(:each) { create(:match, round: create(:round, hunt: hunt), licenses: [other_license, license]) }
-    it 'succeeds' do
-      expect { expect(license.update(eliminated: true)).to be true }.to(change do
-        license.reload.eliminated
-      end.from(false).to(true))
+  describe 'updating eliminated while in' do
+    (1..3).each do |num_matches|
+      describe "#{num_matches} #{'matches'.pluralize(num_matches)}" do
+        let(:other_license) { create(:license, hunt: hunt) }
+        before(:each) do
+          num_matches.times { create(:match, round: create(:round, hunt: hunt), licenses: [other_license, license]) }
+        end
+        it 'succeeds' do
+          expect { expect(license.update(eliminated: true)).to be true }.to(change do
+            license.reload.eliminated
+          end.from(false).to(true))
+        end
+      end
     end
   end
 
