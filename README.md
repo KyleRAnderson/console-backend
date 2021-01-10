@@ -9,7 +9,7 @@
 -   Correct Ruby and Rails installed
 -   Yarn package manager
 -   [Git LFS](https://git-lfs.github.com/) installed, hooks installed for this repo
-    (`git lfs install` while in the project directory)
+    (`git lfs install` in your user account)
 
 Follow the [Rails Setup Snippet](https://gitlab.com/-/snippets/2001897) steps.
 
