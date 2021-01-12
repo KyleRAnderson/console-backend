@@ -1,7 +1,6 @@
 class Api::V1::Licenses::InstantPrintsController < ApplicationController
   include Api::V1::Hunts
 
-  respond_to :json
   wrap_parameters :print, include: %i[orderings message]
 
   before_action :authenticate_user!

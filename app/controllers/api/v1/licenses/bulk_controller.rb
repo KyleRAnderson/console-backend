@@ -1,8 +1,6 @@
 class Api::V1::Licenses::BulkController < ApplicationController
   include Api::V1::Hunts
 
-  respond_to :json
-
   wrap_parameters :licenses, include: %i[participant_ids]
 
   before_action :authenticate_user!

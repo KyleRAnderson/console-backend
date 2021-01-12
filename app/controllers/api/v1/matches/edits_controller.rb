@@ -1,5 +1,4 @@
 class Api::V1::Matches::EditsController < ApplicationController
-  respond_to :json
   include Api::V1::Hunts
 
   wrap_parameters :edit_info, include: %i[pairings]
