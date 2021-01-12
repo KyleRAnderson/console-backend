@@ -24,6 +24,13 @@ module HuntConsole
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.0
 
+    # API Only application. This should remain at the top
+    config.api_only = true
+
+    # Add cookies back to the API-only application
+    config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Session::CookieStore
+
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded after loading
