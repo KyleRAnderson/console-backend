@@ -7,6 +7,7 @@ Rails.application.routes.draw do
                                     passwords: 'api/v1/passwords', confirmations: 'api/v1/confirmations' }
   namespace :api do
     namespace :v1 do
+      root controller: :landing, action: :index
       shallow do
         resources :rosters, only: %i[index show create update destroy], defaults: { format: 'json' } do
           resources :permissions, only: %i[index show create update destroy], defaults: { format: 'json' }
@@ -37,15 +38,10 @@ Rails.application.routes.draw do
       end
     end
   end
-  root 'homepage#index'
-  # Frontend routes that need access here as well
+  # Frontend routes that need access here as well # TODO these all need fixing, and ideally wouldn't actually be listed as routes but would have helpers defined.
   get '/confirmation/:confirmation_token', to: 'homepage#index', as: :frontend_user_confirmation
   get '/reset_password/:confirmation_token', to: 'homepage#index', as: :frontend_user_password_reset
   get '/app/hunts/:hunt_id/matches/show/:match_id', to: 'homepage#index', as: :frontend_match_view
 
-  # Redirect non-api traffic to the client side.
-  get '/*path', to: 'homepage#index', constraints: ->(req) do
-                  req.path.exclude? 'rails/active_storage' # Ugly solution derived from https://github.com/rails/rails/issues/31228#issuecomment-352900551.
-                end
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
