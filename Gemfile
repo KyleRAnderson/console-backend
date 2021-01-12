@@ -21,13 +21,13 @@ gem 'redis', '~> 4.0'
 # gem 'bcrypt', '~> 3.1.7'
 
 # ActiveRecord Import for bulk inserting records
-gem 'activerecord-import'
+gem 'activerecord-import', '~> 1.0.6'
 
 # Search engine
 gem 'pg_search', '~> 2.3', '>= 2.3.2'
 
 # User autorization and permissions
-gem 'pundit'
+gem 'pundit', '~> 2.1.0'
 
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
@@ -42,7 +42,7 @@ group :development, :test do
   gem 'byebug', platforms: %i[mri mingw x64_mingw]
 
   # Simple configuration of environment variables
-  gem 'dotenv-rails'
+  gem 'dotenv-rails', '~> 2.7.6'
 
   gem 'faker', git: 'https://github.com/faker-ruby/faker.git', branch: 'master'
 
@@ -67,11 +67,11 @@ end
 group :test do
   # Factory library for tests.
   gem 'factory_bot_rails', '~>5.2.0'
-  # Database cleaner for after running tests
-  gem 'database_cleaner'
   # RSpec helpers for pundit
   gem 'pundit-matchers', '~> 1.6.0'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
+
+gem "rack-cors", "~> 1.1"
