@@ -1,5 +1,5 @@
 default:
-    image: "ruby:2.7.1"
+    image: "ruby:3.0.0"
     services:
         - postgres:12
     # Cache gems in between builds
