@@ -31,7 +31,7 @@ rspec:
         TEST_OUTPUT_FILE: rspec.xml
     script:
         - bundle exec rails db:create db:migrate RAILS_ENV=test
-        - bundle exec rspec --output ${TEST_OUTPUT_FILE} --format RspecJunitFormatter
+        - bundle exec rspec --format RspecJunitFormatter --out ${TEST_OUTPUT_FILE}
     artifacts:
         reports:
             junit: ${TEST_OUTPUT_FILE}
