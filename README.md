@@ -6,10 +6,10 @@
 
 ### Prerequisites
 
--   Correct Ruby and Rails installed
--   Yarn package manager
--   [Git LFS](https://git-lfs.github.com/) installed, hooks installed for this repo
-    (`git lfs install` in your user account)
+- Correct Ruby and Rails installed
+- Yarn package manager
+- [Git LFS](https://git-lfs.github.com/) installed, hooks installed for this repo
+  (`git lfs install` in your user account)
 
 Follow the [Rails Setup Snippet](https://gitlab.com/-/snippets/2001897) steps.
 
@@ -23,21 +23,21 @@ yarn
 Create a .env file and set the following environment variables:
 
 ```
-export RACK_ENV=development
-export PORT=3000
-export JDBC_DATABSE_URL=<databse url for local machine's development database>
+JDBC_DATABSE_URL=<databse url for local machine's development database>
 ```
 
 This file should be loaded on launch by [dotenv-rails](https://github.com/bkeepers/dotenv)
 
 Create `config/master.key` and place the original private key that was generated upon the app's creation.
+This is needed to unlock the [config/credentials.yml.enc](./config/credentials.yml.enc) encrypted file.
+[Reference](https://edgeguides.rubyonrails.org/security.html#custom-credentials).
 
-#### Debugging
+#### VSCode gem setup for debugging, formatting, etc.
 
 In order to be able to use launch configurations to debug, the recommended extensions should be installed, and the `ruby-debug-ide` extension will also be needed:
 
 ```bash
-gem install ruby-debug-ide rufo rubocop solargraph
+gem install ruby-debug-ide rufo solargraph
 ```
 
 ## Heroku Setup
@@ -46,14 +46,14 @@ This application is currently set up to run on Heroku for its production environ
 
 The following setup is needed:
 
--   Installed [Redis To Go](https://elements.heroku.com/addons/redistogo) add-on.
-    -   Configured `REDIS_URL` config var to the `REDISTOGO_URL` var
--   Installed Heroku Postgres add-on (should be installed by default).
--   Added the [Heroku java buildpack](https://help.heroku.com/2FSHO0RR/how-can-i-add-java-to-a-non-java-app).
-    See also https://devcenter.heroku.com/articles/java-support#supported-java-versions, https://github.com/heroku/heroku-buildpack-jvm-common.
--   Added the [git LFS buildpack for Heroku](https://github.com/raxod502/heroku-buildpack-git-lfs),
-    since Heroku doesn't natively support git LFS.
-    -   Configured `HEROKU_BUILDPACK_GIT_LFS_REPO` config var to `https://<username>:<token>@gitlab.com/<group_name>/<repo name>.git`
+- Installed [Redis To Go](https://elements.heroku.com/addons/redistogo) add-on.
+  - Configured `REDIS_URL` config var to the `REDISTOGO_URL` var
+- Installed Heroku Postgres add-on (should be installed by default).
+- Added the [Heroku java buildpack](https://help.heroku.com/2FSHO0RR/how-can-i-add-java-to-a-non-java-app).
+  See also https://devcenter.heroku.com/articles/java-support#supported-java-versions, https://github.com/heroku/heroku-buildpack-jvm-common.
+- Added the [git LFS buildpack for Heroku](https://github.com/raxod502/heroku-buildpack-git-lfs),
+  since Heroku doesn't natively support git LFS.
+  - Configured `HEROKU_BUILDPACK_GIT_LFS_REPO` config var to `https://<username>:<token>@gitlab.com/<group_name>/<repo name>.git`
 
 Environment variables that need setting:
 RACK_ENV (set by heroku)
@@ -74,3 +74,7 @@ git push heroku <branch> --no-verify
 
 The `no-verify` flag tells git to skip pre-receive hooks, which would've caused the deployment to fail while
 it tried to push LFS assets.
+
+# Utilities
+
+Various resources which I have come across while developing this project. See [learning.md](./learning.md).
