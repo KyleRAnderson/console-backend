@@ -69,6 +69,9 @@ group :test do
   gem 'factory_bot_rails', '~>5.2.0'
   # RSpec helpers for pundit
   gem 'pundit-matchers', '~> 1.6.0'
+
+  # Allows formatting RSpec test results with JUnit XML.
+  gem 'rspec_junit_formatter', '~> 0.4.1'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

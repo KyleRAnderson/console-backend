@@ -1,5 +1,5 @@
 default:
-    image: 'ruby:2.7'
+    image: "ruby:2.7.1"
     services:
         - postgres:12
     # Cache gems in between builds
@@ -21,11 +21,17 @@ before_script:
     # Construct the database url from the setup variables. This SHOULD override settings in config/database.yml.
     # See https://edgeguides.rubyonrails.org/configuring.html#connection-preference
     - export DATABASE_URL="postgres://$POSTGRES_USER@postgres:5432/$POSTGRES_DB"
+    - bundle config set path 'vendor' # Install dependencies into vendor/ruby
     # Don't need the Javascript runtime for tests since they only touch the Rails backend.
     # - apt-get update -q && apt-get install nodejs -yqq
-    - bundle install -j $(nproc) --path vendor # Install dependencies into ./vendor/ruby
+    - bundle install -j $(nproc)
 
 rspec:
+    variables:
+        TEST_OUTPUT_FILE: rspec.xml
     script:
         - bundle exec rails db:create db:migrate RAILS_ENV=test
-        - bundle exec rspec
+        - bundle exec rspec --output ${TEST_OUTPUT_FILE} --format RspecJunitFormatter
+    artifacts:
+        reports:
+            junit: ${TEST_OUTPUT_FILE}
