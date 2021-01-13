@@ -44,7 +44,9 @@ Rails.application.configure do
   # config.action_cable.allowed_request_origins = [ 'http://example.com', /http:\/\/example.*/ ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  config.force_ssl = true
+  # Usually config.force_ssl would enable this, however this doesn't happen automaticaly for API only applications.
+  config.session_options[:secure] = true # TODO make sure this works and is included in the read of config.session_options in application.rb
 
   # Use the lowest log level to ensure availability of diagnostic information
   # when problems arise.

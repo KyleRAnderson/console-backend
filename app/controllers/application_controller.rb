@@ -1,9 +1,13 @@
 class ApplicationController < ActionController::API
   include Pundit
+  include ActionController::MimeResponds # TODO see if this is needed
   include ActionController::Cookies
   include ActionController::RequestForgeryProtection
 
+  respond_to :json # TODO see if this is needed
+
   protect_from_forgery with: :exception
+  self.allow_forgery_protection = false if Rails.env.test? # TODO if this works, find a better solution
 
   after_action :set_csrf_cookie
   rescue_from Pundit::NotAuthorizedError, with: :unauthorized_access
