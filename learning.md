@@ -36,6 +36,19 @@ spring binstub --all
 
 [pragmatic-studio-guide]: https://pragmaticstudio.com/tutorials/rails-session-cookies-for-api-authentication
 
+# Issues along the way
+
+## Upgrading to Rails 6.1
+
+Taking a look at the [update notes](https://guides.rubyonrails.org/upgrading_ruby_on_rails.html#upgrading-from-rails-6-0-to-rails-6-1), it didn't seem like I would have much of anything to do.
+However, I started to encounter issues with active storage methods. I discovered [this post](https://stackoverflow.com/questions/58373159/unknown-attribute-service-name-for-activestorageblob) and that led me to this simple solution:
+
+```bash
+rails active_storage:update
+rails db:migrate
+RAILS_ENV=test rails db:migrate # Migrate the test database as well
+```
+
 # Various hard to find Rails topics
 
 [What does respond_to do?](https://api.rubyonrails.org/classes/ActionController/MimeResponds.html#method-i-respond_to)
