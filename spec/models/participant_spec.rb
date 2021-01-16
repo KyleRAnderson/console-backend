@@ -62,11 +62,17 @@ RSpec.describe Participant, type: :model do
   end
 
   describe 'participant import' do
+    # FIXME this is temporary until the rspec-rails gem is updated to fix this issue: https://github.com/rspec/rspec-rails/issues/2439
+    # See https://gitlab.com/hunt-console/console-backend/-/issues/1
+    def fixture_file_upload(path, mime_type)
+      Rack::Test::UploadedFile.new(Pathname.new(file_fixture_path).join(path), mime_type, false)
+    end
+
     let(:roster) { create(:roster, participant_properties: ['test']) }
-    let(:wrong_extension) { fixture_file_upload('files/wrong_extension.tar') }
-    let(:malformed_csv) { fixture_file_upload('files/malformed_csv.csv') }
-    let(:invalid_participants) { fixture_file_upload('files/invalid_participants.csv') }
-    let(:valid_file) { fixture_file_upload('files/valid.csv') }
+    let(:wrong_extension) { fixture_file_upload('wrong_extension.tar', 'application/x-tar') }
+    let(:malformed_csv) { fixture_file_upload('malformed_csv.csv', 'text/csv') }
+    let(:invalid_participants) { fixture_file_upload('invalid_participants.csv', 'text/csv') }
+    let(:valid_file) { fixture_file_upload('valid.csv', 'text/csv') }
 
     context 'with invalid files' do
       it 'throws an ArgumentError upon wrong file extension' do
