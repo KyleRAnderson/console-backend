@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/fixture_file_upload' # FIXME remove when https://gitlab.com/hunt-console/console-backend/-/issues/1 is resolved.
 
 RSpec.describe 'Api::V1::Participants', type: :request do
   Permission.levels.keys.each do |level|
@@ -188,11 +189,12 @@ RSpec.describe 'Api::V1::Participants', type: :request do
       end
 
       describe 'POST participants/upload (upload)' do
+        include TemporaryFixes # FIXME remove when #1 is resolved.
         let!(:roster) { create(:roster, permissions: [user_permission], participant_properties: ['test']) }
-        let(:wrong_extension) { fixture_file_upload('files/wrong_extension.tar') }
-        let(:malformed_csv) { fixture_file_upload('files/malformed_csv.csv') }
-        let(:invalid_participants) { fixture_file_upload('files/invalid_participants.csv') }
-        let(:valid_file) { fixture_file_upload('files/valid.csv') }
+        let(:wrong_extension) { fixture_file_upload('wrong_extension.tar') }
+        let(:malformed_csv) { fixture_file_upload('malformed_csv.csv') }
+        let(:invalid_participants) { fixture_file_upload('invalid_participants.csv') }
+        let(:valid_file) { fixture_file_upload('valid.csv') }
 
         if Permission.at_least?(level, :operator)
           shared_examples 'bad upload' do

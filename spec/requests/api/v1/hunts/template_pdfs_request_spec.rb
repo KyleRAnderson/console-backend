@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/fixture_file_upload' # FIXME remove when https://gitlab.com/hunt-console/console-backend/-/issues/1 is resolved.
 
 RSpec::Matchers.define_negated_matcher :not_change, :change
 
@@ -12,7 +13,8 @@ RSpec.describe 'Api::V1::Hunts::TemplatePdfs', type: :request do
   let(:roster) { create(:roster, permissions: [user_permission]) }
   let(:hunt) { create(:hunt, roster: roster) }
 
-  let(:template_pdf_upload) { fixture_file_upload(File.join('files', TEMPLATE_PDF_FIXTURE_PATH)) }
+  include TemporaryFixes # FIXME remove when #1 is resolved.
+  let(:template_pdf_upload) { fixture_file_upload(TEMPLATE_PDF_FIXTURE_PATH) }
 
   Permission.levels.keys.each do |level|
     context "with signed in user of level #{level}" do

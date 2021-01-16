@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'support/fixture_file_upload' # FIXME remove when https://gitlab.com/hunt-console/console-backend/-/issues/1 is resolved.
 
 RSpec.describe Participant, type: :model do
   let(:attribute_invalid) { { 'invalid': 'test_invalid' } }
@@ -62,12 +63,7 @@ RSpec.describe Participant, type: :model do
   end
 
   describe 'participant import' do
-    # FIXME this is temporary until the rspec-rails gem is updated to fix this issue: https://github.com/rspec/rspec-rails/issues/2439
-    # See https://gitlab.com/hunt-console/console-backend/-/issues/1
-    def fixture_file_upload(path, mime_type)
-      Rack::Test::UploadedFile.new(Pathname.new(file_fixture_path).join(path), mime_type, false)
-    end
-
+    include TemporaryFixes # FIXME remove when #1 is resolved.
     let(:roster) { create(:roster, participant_properties: ['test']) }
     let(:wrong_extension) { fixture_file_upload('wrong_extension.tar', 'application/x-tar') }
     let(:malformed_csv) { fixture_file_upload('malformed_csv.csv', 'text/csv') }
