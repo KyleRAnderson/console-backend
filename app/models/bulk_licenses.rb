@@ -6,8 +6,8 @@ class BulkLicenses
     @failed = failed_licenses
   end
 
-  def as_json(**options)
-    { succeeded: succeeded, failed: failed }.as_json(**options)
+  def as_json(options = nil)
+    { succeeded: succeeded, failed: failed }.as_json(**(options || {}))
   end
 
   def successful?

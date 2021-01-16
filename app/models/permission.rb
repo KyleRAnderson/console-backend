@@ -47,8 +47,8 @@ class Permission < ApplicationRecord
     Permission.at_most?(self.level, level)
   end
 
-  def as_json(**options)
-    super(except: %i[user_id roster_id], methods: :email, **options)
+  def as_json(options = nil)
+    super(except: %i[user_id roster_id], methods: :email, **(options || {}))
   end
 
   private
