@@ -26,23 +26,22 @@ module HuntConsole
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 6.1
 
-    # API Only application. This should remain at the top
-    config.api_only = false # FIXME revert to true one day when the tests start working again
-
-    # Add cookie middleware (included by default in non api_only applications)
-    # This also configures session_options for use below
-    config.session_store :cookie_store, key: '_interslice_session'
+    # API Only application. This should remain near the top (below the load_defaults of course)
+    # See also https://guides.rubyonrails.org/api_app.html#changing-an-existing-application for
+    # some of what needs to be done for api_only apps.
+    config.api_only = true
 
     # See: https://github.com/rails/rails/blob/3c9d7a268f325f5cc6ab1ab49aed6f52e4c4f631/guides/source/api_app.md#using-session-middlewares.
+    # Add cookie middleware (included by default in non api_only applications)
+    # See the relevant section of https://guides.rubyonrails.org/v6.1/configuring.html#rails-general-configuration
+    # This also configures session_options for use below
+    config.session_store :cookie_store
+
     # Required for all session management (regardless of session_store)
     config.middleware.use ActionDispatch::Cookies
-    # config.session_options[:secure] = Rails.env.production? # TODO make sure that asserting this config in production.rb works with the following line.
+    # Enable HTTPS-only session cookies in production
+    config.session_options[:secure] = Rails.env.production?
     config.middleware.use config.session_store, config.session_options
-
-    # Add session middleware (included by default in non api_only applications)
-    config.middleware.use ActionDispatch::Session::CookieStore
-    # TODO not sure if it's helpful, from https://stackoverflow.com/a/61238872/7309070
-    config.middleware.insert_after(ActionDispatch::Cookies, ActionDispatch::Session::CookieStore)
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers

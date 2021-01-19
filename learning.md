@@ -71,6 +71,14 @@ Links:
 - [Issue on GitHub](https://github.com/rspec/rspec-rails/issues/2439).
 - [Someone else with the same issue](https://github.com/egiurleo/fixture-file-upload-test/commit/e2524d11220bb8169b42aaa5235d214ba8a1dd56).
 
+## `Undefined method []=` after setting `config.api_only = true`
+
+I was having trouble in all tests that used the Devise session helpers `sign_in` after enabling api_only for the application.
+After several days, I found [documentation on how to fix the issue](https://github.com/heartcombo/devise#testing), as well as
+a [GitHub ticket write-up about it](https://github.com/heartcombo/devise/issues/4696).
+The fix is just to re-order the insertion of middleware so that the `Warden::Manager` is inserted after
+`ActionDispatch::Cookies` and `ActionDispatch::Session::CookieStore`.
+
 # Various hard to find Rails topics
 
 [What does respond_to do?](https://api.rubyonrails.org/classes/ActionController/MimeResponds.html#method-i-respond_to)
