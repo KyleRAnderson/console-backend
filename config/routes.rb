@@ -38,10 +38,6 @@ Rails.application.routes.draw do
       end
     end
   end
-  # Frontend routes that need access here as well # TODO these all need fixing, and ideally wouldn't actually be listed as routes but would have helpers defined.
-  get '/confirmation/:confirmation_token', to: 'homepage#index', as: :frontend_user_confirmation
-  get '/reset_password/:confirmation_token', to: 'homepage#index', as: :frontend_user_password_reset
-  get '/app/hunts/:hunt_id/matches/show/:match_id', to: 'homepage#index', as: :frontend_match_view
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

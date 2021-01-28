@@ -22,7 +22,7 @@ class InstantPrintJob < ApplicationJob
     end || ''
 
     message_arg = message.present? ? "--message '#{message}'" : ''
-    match_view_url = Rails.application.routes.url_helpers.frontend_match_view_url(current_hunt, ':match_id', host: host, port: port)
+    match_view_url = FrontendHelper.frontend_match_view_url(hunt_id: current_hunt.id, match_id: ':match_id')
     match_view_url[':match_id'] = '%s' # Ready for java's replacement.
 
     temp_file = Tempfile.new('output.pdf')

@@ -51,7 +51,7 @@ module HuntConsole
     # Don't generate system test files.
     config.generators.system_tests = nil
 
-    # # By default, don't allow any CORS
-    config.allowed_cors_origins = nil # TODO not sure about adding my own configs like this
+    # The host URL for the frontend application
+    config.frontend_host_url = ENV['FRONTEND_HOST_URL']
   end
 end
