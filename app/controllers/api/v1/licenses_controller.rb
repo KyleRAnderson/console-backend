@@ -42,7 +42,7 @@ class Api::V1::LicensesController < ApplicationController
   end
 
   def eliminate_half
-    authorize License.new(current_hunt)
+    authorize License.new(hunt: current_hunt)
     EliminateHalfLicensesJob.perform_now(current_hunt.current_round)
     head :ok
   end
