@@ -1,13 +1,14 @@
 class ApplicationController < ActionController::API
   include Pundit
-  include ActionController::MimeResponds # TODO see if this is needed
-  include ActionController::Cookies
-  include ActionController::RequestForgeryProtection
+  include ::ActionController::MimeResponds
+  include ::ActionController::Cookies
+  include ::ActionController::RequestForgeryProtection
 
-  respond_to :json # TODO see if this is needed
+  respond_to :json
 
   protect_from_forgery with: :exception
-  self.allow_forgery_protection = false if Rails.env.test? # TODO if this works, find a better solution
+  # TODO would like to find a better solution for this, see https://gitlab.com/hunt-console/console-backend/-/issues/2.
+  self.allow_forgery_protection = false if Rails.env.test?
 
   after_action :set_csrf_cookie
   rescue_from Pundit::NotAuthorizedError, with: :unauthorized_access
@@ -16,9 +17,11 @@ class ApplicationController < ActionController::API
 
   # Custom CSRF stuff, since frontend pages are cached and will
   # have expired tokens unless refreshed.
-  # See https://gitlab.com/kyle_anderson/react-rails-ts/-/issues/5.
+  # See https://gitlab.com/hunt-console/console/-/issues/5.
+  # Also see https://stackoverflow.com/a/15056471/7309070 as for some tips on how it's a bad idea to set this
+  # unless the user has a session
   def set_csrf_cookie
-    cookies['X-CSRF-Token'] = form_authenticity_token
+    cookies['X-CSRF-Token'] = form_authenticity_token if user_signed_in?
   end
 
   def save_and_render_resource(resource, **options)
