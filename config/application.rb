@@ -37,11 +37,14 @@ module HuntConsole
     # This also configures session_options for use below
     config.session_store :cookie_store
 
-    # Required for all session management (regardless of session_store)
-    config.middleware.use ActionDispatch::Cookies
     # Enable HTTPS-only session cookies in production
     config.session_options[:secure] = Rails.env.production?
-    config.middleware.use config.session_store, config.session_options
+
+    # Solution obtained from https://github.com/heartcombo/devise#testing
+    # See also https://github.com/heartcombo/devise/issues/4696
+    # This is required because of how API mode re-orders the initialization of certain middlewares
+    Rails.application.config.middleware.insert_before Warden::Manager, ActionDispatch::Cookies
+    Rails.application.config.middleware.insert_before Warden::Manager, config.session_store, config.session_options
 
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration can go into files in config/initializers

@@ -63,10 +63,4 @@ Rails.application.configure do
 
   # Annotate rendered view with file names.
   # config.action_view.annotate_rendered_view_with_filenames = true
-
-  # Solution obtained from https://github.com/heartcombo/devise#testing
-  # See also https://github.com/heartcombo/devise/issues/4696
-  # This is required because of how API mode re-orders the initialization of certain middlewares
-  Rails.application.config.middleware.insert_before Warden::Manager, ActionDispatch::Cookies
-  Rails.application.config.middleware.insert_before Warden::Manager, ActionDispatch::Session::CookieStore
 end
