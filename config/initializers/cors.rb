@@ -3,12 +3,12 @@ allowed_host = Rails.application.config.frontend_host_url
 if allowed_host.present?
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
     allow do
-      origins allowed_host
+      origins 'https://hunt-console-frontend.herokuapp.com'
       resource '*',
                headers: :any,
                methods: [:get, :post, :patch, :put, :delete, :options, :head],
                credentials: true # Allow secure cookie access
     end
-    Rails.application.config.hosts << allowed_host
+    Rails.application.config.hosts << 'hunt-console-frontend.herokuapp.com'
   end
 end
