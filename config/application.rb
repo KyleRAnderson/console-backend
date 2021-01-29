@@ -12,10 +12,8 @@ require 'action_mailbox/engine'
 require 'action_text/engine'
 require 'action_view/railtie'
 require 'action_cable/engine'
-# See https://github.com/fgrehm/letter_opener_web/issues/46#issuecomment-273975173 for an error that I was getting while this
-# line was commented out.
-require 'sprockets/railtie'
-require 'rails/test_unit/railtie'
+# require 'sprockets/railtie'
+# require 'rails/test_unit/railtie'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
