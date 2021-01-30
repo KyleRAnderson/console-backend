@@ -1,7 +1,14 @@
+# frozen_string_literal: true
+
 require 'active_support/core_ext/integer/time'
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
+
+  # The URL of the site hosting this server.
+  config.host_url = ENV['HOST_URL']
+  HOST_NAME_ONLY = URI(config.host_url).host
+  config.hosts << HOST_NAME_ONLY
 
   # Code is not reloaded between requests.
   config.cache_classes = true
@@ -41,8 +48,6 @@ Rails.application.configure do
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
-  # Usually config.force_ssl would enable this, however this doesn't happen automaticaly for API only applications.
-  config.session_options[:secure] = true # TODO make sure this works and is included in the read of config.session_options in application.rb
 
   # Include generic and useful information about system operation, but avoid logging too much
   # information to avoid inadvertent exposure of personally identifiable information (PII).
@@ -64,7 +69,7 @@ Rails.application.configure do
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.
   # config.action_mailer.raise_delivery_errors = false
 
-  config.action_mailer.default_url_options = { host: 'https://hunt-console.herokuapp.com' }
+  config.action_mailer.default_url_options = { host: config.host_url }
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
@@ -74,7 +79,7 @@ Rails.application.configure do
     :address => 'in-v3.mailjet.com',
     :user_name => Rails.application.credentials.mailjet_mailer[:username],
     :password => Rails.application.credentials.mailjet_mailer[:password],
-    :domain => 'hunt-console.herokuapp.com',
+    :domain => HOST_NAME_ONLY,
     :authentication => :plain,
   }
 
