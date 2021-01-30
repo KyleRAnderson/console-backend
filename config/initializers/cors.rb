@@ -13,5 +13,5 @@ if allowed_host.present?
                credentials: true # Allow secure cookie access
     end
   end
-  Rails.application.config.hosts << 'hunt-console-frontend.herokuapp.com'
+  Rails.application.config.hosts << 'hunt-console.herokuapp.com'
 end
