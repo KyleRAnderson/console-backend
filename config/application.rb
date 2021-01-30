@@ -39,7 +39,7 @@ module HuntConsole
     if Rails.env.production?
       config.session_options[:secure] = true
       config.session_options[:same_site] = :none
-      config.action_dispatch.cookies_same_site_protection = :strict
+      config.action_dispatch.cookies_same_site_protection = :none
     end
 
     # Solution obtained from https://github.com/heartcombo/devise#testing
