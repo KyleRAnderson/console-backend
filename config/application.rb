@@ -37,6 +37,7 @@ module HuntConsole
 
     # Enable HTTPS-only session cookies in production
     config.session_options[:secure] = Rails.env.production?
+    config.session_options[:same_site] = :none
 
     # Solution obtained from https://github.com/heartcombo/devise#testing
     # See also https://github.com/heartcombo/devise/issues/4696
