@@ -4,8 +4,9 @@
 allowed_host = Rails.application.config.frontend_host_url
 if allowed_host.present?
   Rails.application.config.middleware.insert_before 0, Rack::Cors do
-    puts "Allowing host: #{allowed_host}" # FIXME REMOVE
     allow do
+      # IMPORTANT make sure that allowed_host doesn't have a trailing slash.
+      # See https://github.com/cyu/rack-cors#origin-matching.
       origins allowed_host
       resource '*',
                headers: :any,
