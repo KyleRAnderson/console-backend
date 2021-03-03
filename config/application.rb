@@ -34,12 +34,12 @@ module HuntConsole
     # See the relevant section of https://guides.rubyonrails.org/v6.1/configuring.html#rails-general-configuration
     # This also configures session_options for use below
     config.session_store :cookie_store
+    config.session_options[:same_site] = :strict
+    config.action_dispatch.cookies_same_site_protection = :strict
 
     # Enable certain more secure cookie settings for production.
     if Rails.env.production?
       config.session_options[:secure] = true
-      config.session_options[:same_site] = :none
-      config.action_dispatch.cookies_same_site_protection = :none
     end
 
     # Solution obtained from https://github.com/heartcombo/devise#testing
