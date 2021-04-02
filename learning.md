@@ -79,6 +79,16 @@ a [GitHub ticket write-up about it](https://github.com/heartcombo/devise/issues/
 The fix is just to re-order the insertion of middleware so that the `Warden::Manager` is inserted after
 `ActionDispatch::Cookies` and `ActionDispatch::Session::CookieStore`.
 
+## Cookies
+
+- [Great explanation on SameSite cookies](https://web.dev/samesite-cookies-explained/)
+- [Mozilla's public suffix list](https://publicsuffix.org/list/), which denotes sites which do not
+  allow cookies to be set regularly. `herokuapp.com` is one of them, which might explain all the issues we were having.
+
 # Various hard to find Rails topics
 
 [What does respond_to do?](https://api.rubyonrails.org/classes/ActionController/MimeResponds.html#method-i-respond_to)
+
+# Security
+
+[Good Stack Overflow post on CSRF protection](https://stackoverflow.com/questions/20504846/why-is-it-common-to-put-csrf-prevention-tokens-in-cookies).
