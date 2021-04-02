@@ -24,6 +24,7 @@ Create a .env file and set the following environment variables:
 
 ```
 JDBC_DATABSE_URL=<databse url for local machine's development database>
+FRONTEND_HOST_URL=<URL of the frontend application>
 ```
 
 This file should be loaded on launch by [dotenv-rails](https://github.com/bkeepers/dotenv)
@@ -62,13 +63,17 @@ REDISTOGO_URL (redis server URL used in production for action cable)
 SECRET_KEY_BASE (not sure if this is needed or not, if it is created automatically or what)
 JDBC_DATABASE_URL: Needs to be the URL at which the database is accessible. Format: `jdbc:postgres://<domain>:<port>/<database_name>?user=<username>&password=<password>`. This is set automatically by the Heroku Java Buildpack.
 RAILS_MASTER_KEY=\<private key for credentials.yml.enc\>
+\# Used for the heroku buildpack that fetches Git LFS objects (really a workaround because Heroku doesn't support LFS)
 HEROKU_BUILDPACK_GIT_LFS_REPO=`https://<username>:<token>@gitlab.com/<group_name>/<repo name>.git`
+FRONTEND_URL=\<url for the frontend application\> \# Do not include trailing slashes.
+HOST_URL=\<url at which the backend is accessible\> \# Only used in production, do not include trailing slashes.
 
 ### Deployment
 
 Since adding git LFS to this project, deployment to Heroku needs to be done a little differently:
 
 ```bash
+# Before running this, make sure that your changes are pushed to the remote configured with the HEROKU_BUILDPACK_GIT_LFS_REPO environment variable.
 git push heroku <branch> --no-verify
 ```
 
