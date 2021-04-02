@@ -17,6 +17,13 @@
       "request": "launch",
       "program": "${workspaceFolder}/bin/rspec",
       "args": ["-I", "${workspaceFolder}"]
+    },
+    {
+      "name": "Rspec - only failed",
+      "type": "Ruby",
+      "request": "launch",
+      "program": "${workspaceRoot}/bin/rspec",
+      "args": ["-I", "${workspaceFolder}", "--only-failures"]
     }
   ]
 }
