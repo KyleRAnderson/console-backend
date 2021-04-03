@@ -112,6 +112,11 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
+  # Enable certain more secure cookie settings for production.
+  config.session_options[:secure] = true
+  config.session_options[:same_site] = :none
+  config.action_dispatch.cookies_same_site_protection = :none
+
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector
   # middleware. The `delay` is used to determine how long to wait after a write
