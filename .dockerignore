@@ -1,0 +1,12 @@
+/.vscode
+/pin-press-logs
+/db
+/log
+/storage
+/tmp
+/.byebug_history
+/.env*
+/.gitlab-ci.yml
+/.rufo
+/Procfile
+
