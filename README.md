@@ -17,7 +17,6 @@ Follow the [Rails Setup Snippet](https://gitlab.com/-/snippets/2001897) steps.
 
 ```bash
 bundle
-yarn
 ```
 
 Create a .env file and set the following environment variables:

@@ -7,8 +7,12 @@ Rails.application.configure do
 
   # The URL of the site hosting this server.
   config.host_url = ENV['HOST_URL']
-  HOST_NAME_ONLY = URI(config.host_url).host
-  config.hosts << HOST_NAME_ONLY
+  if config.host_url.present?
+    HOST_NAME_ONLY = URI(config.host_url).host
+    config.hosts << HOST_NAME_ONLY
+  else
+    HOST_NAME_ONLY = ''
+  end
 
   # Code is not reloaded between requests.
   config.cache_classes = true

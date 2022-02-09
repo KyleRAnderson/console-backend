@@ -1,9 +1,10 @@
-/.vscode
-/pin-press-logs
-/db
-/log
-/storage
-/tmp
+/.git/
+/.vscode/
+/pin-press-logs/
+/db/
+/log/
+/storage/
+/tmp/
 /.byebug_history
 /.env*
 /.gitlab-ci.yml

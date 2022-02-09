@@ -79,6 +79,8 @@ test:
 #
 production:
     <<: *default
-    database: console_production
-    username: hunt-console
+    database: <%= ENV['HUNT_CONSOLE_DATABASE_NAME'] %>
+    username: <%= ENV['HUNT_CONSOLE_DATABASE_USERNAME'] %>
     password: <%= ENV['HUNT_CONSOLE_DATABASE_PASSWORD'] %>
+    host: <%= ENV['HUNT_CONSOLE_DATABASE_HOST'] %>
+    port: <%= ENV['HUNT_CONSOLE_DATABASE_PORT'] %>

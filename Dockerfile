@@ -6,8 +6,7 @@ WORKDIR /usr/src/app
 COPY . .
 ENV PORT=3000
 ENV RAILS_ENV=production
-ENV RACK_ENV=production
-ENV RAILS_SERVE_STATIC_FILES=true
+ENV RAILS_LOG_TO_STDOUT=true
 # A java runtime is required to run the pin-press JAR file
 # Git is required to install certain dependencies, however isn't needed after that.
 RUN bundle config set --global deployment true \
